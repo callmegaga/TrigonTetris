@@ -1,8 +1,10 @@
 <template>
 	<main>
-		<game-pad class="gamepad"/>
-		<div class="game"></div>
-		<game-sample class="game-sample" />
+		<!--		<div class="controller">-->
+		<!--			<game-pad class="gamepad"/>-->
+		<!--		</div>-->
+		<div class="game" id="game"></div>
+		<!--		<game-sample class="game-sample" />-->
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
 </template>
@@ -10,19 +12,30 @@
 <script setup lang="ts">
 import TheWelcome from "@/components/TheWelcome.vue";
 import { Game } from "@/game/game";
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import GameSample from "@/components/GameSample.vue";
 import GamePad from "@/components/GamePad.vue";
 
 const is_show_welcome = ref(false);
+let game: Game;
 
 function startGame() {
 	is_show_welcome.value = false;
-	game.start();
+	// game.start();
 }
 
-const game = new Game({
-	container: document.querySelector("main") as HTMLElement
+onMounted(() => {
+	const game = new Game({
+		container: document.querySelector("#game") as HTMLElement,
+		columns: 10,
+		rows: 20,
+		block_size: 30,
+	});
+	game.start();
+});
+
+onUnmounted(() => {
+	game.end();
 });
 </script>
 
@@ -37,12 +50,17 @@ main {
 		flex: 1;
 	}
 
-	.gamepad {
+	.controller {
 		width: 500px;
-		height: 200px;
-	}
-	.game-sample {
+		display: flex;
+		flex-direction: column-reverse;
 
+		.gamepad {
+			height: 300px;
+		}
+	}
+
+	.game-sample {
 	}
 }
 

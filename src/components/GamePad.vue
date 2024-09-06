@@ -21,6 +21,12 @@
 
 <script setup lang="ts">
 import gamepad_outline from "@/assets/gamepad-outline.png";
+import { defineEmits } from "vue";
+import type { GamePadKey } from "@/game/types";
+
+const emits = defineEmits<{
+	keydown: [GamePadKey];
+}>();
 </script>
 
 <style scoped>

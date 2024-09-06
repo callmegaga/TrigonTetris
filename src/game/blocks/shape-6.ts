@@ -3,11 +3,11 @@ import { CellValue, type Shape } from "@/game/types";
 
 const shape: Shape = [
 	[CellValue.Empty, CellValue.TriangleRightBottom, CellValue.TriangleLeftBottom, CellValue.Empty],
-	[CellValue.TriangleRightBottom, CellValue.Full, CellValue.Full, CellValue.TriangleLeftBottom]
+	[CellValue.TriangleRightBottom, CellValue.Full, CellValue.Empty, CellValue.Empty]
 ];
 
-export class Shape1 extends Block {
+export class Shape6 extends Block {
 	constructor() {
-		super(shape, "#fefe3c");
+		super(shape, "#3db056");
 	}
 }

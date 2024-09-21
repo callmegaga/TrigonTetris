@@ -1,9 +1,9 @@
 import { Block } from "./block";
-import { CellValue, type Shape } from "@/game/types";
+import { CellOriginValue, type Shape } from "@/game/types";
 
 const shape: Shape = [
-	[CellValue.Empty, CellValue.TriangleRightBottom, CellValue.TriangleLeftBottom, CellValue.Empty],
-	[CellValue.TriangleRightBottom, CellValue.Full, CellValue.Empty, CellValue.Empty]
+	[{ origin: CellOriginValue.Empty }, { origin: CellOriginValue.TriangleRightBottom }, { origin: CellOriginValue.TriangleLeftBottom }, { origin: CellOriginValue.Empty }],
+	[{ origin: CellOriginValue.TriangleRightBottom }, { origin: CellOriginValue.Full }, { origin: CellOriginValue.Empty }, { origin: CellOriginValue.Empty }]
 ];
 
 export class Shape6 extends Block {

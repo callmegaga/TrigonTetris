@@ -1,5 +1,5 @@
 import { Renderer } from "@/game/renderer/renderer";
-import { type Board, type BoardCellValue, CellValue, type Position } from "@/game/types";
+import { type Board, type BoardCellValue, CellOriginValue, type Position } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
 
 export class CanvasRenderer extends Renderer {
@@ -98,30 +98,30 @@ export class CanvasRenderer extends Renderer {
 
 		this.ctx.fillStyle = color;
 		this.ctx.beginPath();
-		switch (cell) {
-			case CellValue.Empty:
+		switch (cell.origin) {
+			case CellOriginValue.Empty:
 				return;
-			case CellValue.TriangleLeftTop:
+			case CellOriginValue.TriangleLeftTop:
 				this.ctx.moveTo(x * this.block_size, y * this.block_size);
 				this.ctx.lineTo((x + 1) * this.block_size, y * this.block_size);
 				this.ctx.lineTo(x * this.block_size, (y + 1) * this.block_size);
 				break;
-			case CellValue.TriangleLeftBottom:
+			case CellOriginValue.TriangleLeftBottom:
 				this.ctx.moveTo(x * this.block_size, y * this.block_size);
 				this.ctx.lineTo((x + 1) * this.block_size, (y + 1) * this.block_size);
 				this.ctx.lineTo(x * this.block_size, (y + 1) * this.block_size);
 				break;
-			case CellValue.TriangleRightTop:
+			case CellOriginValue.TriangleRightTop:
 				this.ctx.moveTo(x * this.block_size, y * this.block_size);
 				this.ctx.lineTo((x + 1) * this.block_size, y * this.block_size);
 				this.ctx.lineTo((x + 1) * this.block_size, (y + 1) * this.block_size);
 				break;
-			case CellValue.TriangleRightBottom:
+			case CellOriginValue.TriangleRightBottom:
 				this.ctx.moveTo((x + 1) * this.block_size, y * this.block_size);
 				this.ctx.lineTo((x + 1) * this.block_size, (y + 1) * this.block_size);
 				this.ctx.lineTo(x * this.block_size, (y + 1) * this.block_size);
 				break;
-			case CellValue.Full:
+			case CellOriginValue.Full:
 				this.ctx.moveTo(x * this.block_size, y * this.block_size);
 				this.ctx.lineTo((x + 1) * this.block_size, y * this.block_size);
 				this.ctx.lineTo((x + 1) * this.block_size, (y + 1) * this.block_size);

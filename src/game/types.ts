@@ -22,7 +22,11 @@ export enum GameStatus {
 	Fail
 }
 
-export enum CellValue {
+export type CellValue = {
+	origin: CellOriginValue
+}
+
+export enum CellOriginValue {
 	Empty,
 	TriangleLeftTop,
 	TriangleLeftBottom,
@@ -42,21 +46,21 @@ export type BoardCell = {
 export type Board = BoardCell[][];
 
 export const RotateTable = {
-	[CellValue.Empty]: CellValue.Empty,
-	[CellValue.TriangleLeftTop]: CellValue.TriangleRightTop,
-	[CellValue.TriangleLeftBottom]: CellValue.TriangleLeftTop,
-	[CellValue.TriangleRightTop]: CellValue.TriangleRightBottom,
-	[CellValue.TriangleRightBottom]: CellValue.TriangleLeftBottom,
-	[CellValue.Full]: CellValue.Full
+	[CellOriginValue.Empty]: CellOriginValue.Empty,
+	[CellOriginValue.TriangleLeftTop]: CellOriginValue.TriangleRightTop,
+	[CellOriginValue.TriangleLeftBottom]: CellOriginValue.TriangleLeftTop,
+	[CellOriginValue.TriangleRightTop]: CellOriginValue.TriangleRightBottom,
+	[CellOriginValue.TriangleRightBottom]: CellOriginValue.TriangleLeftBottom,
+	[CellOriginValue.Full]: CellOriginValue.Full
 };
 
 export const FlipTable = {
-	[CellValue.Empty]: CellValue.Empty,
-	[CellValue.TriangleLeftTop]: CellValue.TriangleRightTop,
-	[CellValue.TriangleLeftBottom]: CellValue.TriangleRightBottom,
-	[CellValue.TriangleRightTop]: CellValue.TriangleLeftTop,
-	[CellValue.TriangleRightBottom]: CellValue.TriangleLeftBottom,
-	[CellValue.Full]: CellValue.Full
+	[CellOriginValue.Empty]: CellOriginValue.Empty,
+	[CellOriginValue.TriangleLeftTop]: CellOriginValue.TriangleRightTop,
+	[CellOriginValue.TriangleLeftBottom]: CellOriginValue.TriangleRightBottom,
+	[CellOriginValue.TriangleRightTop]: CellOriginValue.TriangleLeftTop,
+	[CellOriginValue.TriangleRightBottom]: CellOriginValue.TriangleLeftBottom,
+	[CellOriginValue.Full]: CellOriginValue.Full
 };
 
 export enum MoveDirection {

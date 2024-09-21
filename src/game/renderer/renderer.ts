@@ -1,5 +1,5 @@
 import type { Block } from "@/game/blocks/block";
-import { type Board, CellValue } from "@/game/types";
+import { type Board, CellOriginValue } from "@/game/types";
 
 export abstract class Renderer {
 	protected container: HTMLElement;

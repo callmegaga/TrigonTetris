@@ -1,4 +1,4 @@
-import { type Board, type BoardCell, CellValue, type Square } from "@/game/types";
+import { type Board, type BoardCell, type CellValue, type Square, CellOriginValue } from "@/game/types";
 import { Shape1 } from "@/game/blocks/shape-1";
 import { Shape2 } from "@/game/blocks/shape-2";
 import { Shape3 } from "@/game/blocks/shape-3";
@@ -8,8 +8,8 @@ import { Shape6 } from "@/game/blocks/shape-6";
 import { Shape7 } from "@/game/blocks/shape-7";
 import type { Block } from "@/game/blocks/block";
 
-const ShapeTable = [Shape1, Shape2, Shape3, Shape4, Shape5, Shape6, Shape7];
-// const ShapeTable = [Shape1, Shape5];
+// const ShapeTable = [Shape1, Shape2, Shape3, Shape4, Shape5, Shape6, Shape7];
+const ShapeTable = [Shape1, Shape5];
 
 export function getRandomShape() {
 	const index = Math.floor(Math.random() * ShapeTable.length);
@@ -30,10 +30,10 @@ export function copyBoard(board: Board) {
 	return board.map((row) => row.map((cell) => ({ ...cell })));
 }
 
-export function getBoardCellValue(block: BoardCell): CellValue {
-	let result = CellValue.Empty;
+export function getBoardCellOriginValue(block: BoardCell): CellOriginValue {
+	let result = CellOriginValue.Empty;
 	block.forEach((block) => {
-		result += block.value;
+		result += block.value.origin;
 	});
 	return result;
 }
@@ -52,9 +52,9 @@ export function isCollideTwoBoardCell(board_cell_1: BoardCell, board_cell_2: Boa
 }
 
 export function isCollideTwoCell(cell_1: CellValue, cell_2: CellValue) {
-	if (cell_1 === CellValue.Empty) return false;
-	if (cell_2 === CellValue.Empty) return false;
-	return cell_1 + cell_2 !== CellValue.Full;
+	if (cell_1.origin === CellOriginValue.Empty) return false;
+	if (cell_2.origin === CellOriginValue.Empty) return false;
+	return cell_1.origin + cell_2.origin !== CellOriginValue.Full;
 }
 
 export function isCollideShapeAndBoardCell(cell: CellValue, board_cell: BoardCell) {
@@ -71,7 +71,7 @@ export function isCollideShapeAndBoardCell(cell: CellValue, board_cell: BoardCel
 export function isEmptyBoardCell(board_cell: BoardCell) {
 	let result = true;
 	board_cell.forEach((block) => {
-		if (block.value !== CellValue.Empty) {
+		if (block.value.origin !== CellOriginValue.Empty) {
 			result = false;
 		}
 	});
@@ -99,7 +99,7 @@ export function findAllSquares(boards: Board) {
 	// find all squares
 	for (let i = 0; i < height; i++) {
 		for (let j = 0; j < width; j++) {
-			if (getBoardCellValue(boards[i][j]) === CellValue.Full) {
+			if (getBoardCellOriginValue(boards[i][j]) === CellOriginValue.Full) {
 				// 如果这个格子已填充
 				if (i === 0 || j === 0) {
 					dp[i][j] = 1; // 边界条件，如果是第一行或第一列

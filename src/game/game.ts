@@ -1,5 +1,5 @@
 import type { Block } from "@/game/blocks/block";
-import { type Board, CellValue, GameStatus, MoveDirection, type Square } from "@/game/types";
+import { type Board, CellOriginValue, GameStatus, MoveDirection, type Square } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas_renderer";
 import { isCollideTwoBoardCell, isEmptyBoardCell, getRandomShape, calculateScore, findMaxValidSquare } from "@/utils/utils";
@@ -18,6 +18,7 @@ export class Game {
 	private renderer: Renderer;
 	private state: GameStatus = GameStatus.NotStart;
 	private cleared_squares: Square | null = null;
+	private dead_blocks: Block[] = [];
 
 	constructor(options: GameOptions) {
 		this.renderer = new CanvasRenderer(options.container, {
@@ -67,6 +68,7 @@ export class Game {
 		if (this.active_block.isCollide(this.boards)) {
 			this.active_block.moveUp();
 			this.updateBoardsFromActiveBlock();
+			this.dead_blocks.push(this.active_block);
 			this.active_block = null;
 			const max_square = findMaxValidSquare(this.boards);
 
@@ -116,7 +118,7 @@ export class Game {
 
 		shape.forEach((row, y) => {
 			row.forEach((cell, x) => {
-				if (cell === CellValue.Empty) return;
+				if (cell.origin === CellOriginValue.Empty) return;
 				this.boards[y + block_position[1]][x + block_position[0]].push({
 					value: cell,
 					block: this.active_block as Block

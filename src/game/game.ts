@@ -2,7 +2,7 @@ import type { Block } from "@/game/blocks/block";
 import { type Board, CellOriginValue, GameStatus, MoveDirection, type Square } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas_renderer";
-import { isCollideTwoBoardCell, isEmptyBoardCell, getRandomShape, calculateScore, findMaxValidSquare } from "@/utils/utils";
+import { calculateScore, findMaxValidSquare, getRandomShape, isBlockEmpty } from "@/utils/utils";
 
 interface GameOptions {
 	container: HTMLElement;
@@ -69,6 +69,7 @@ export class Game {
 			this.active_block.moveUp();
 			this.updateBoardsFromActiveBlock();
 			this.dead_blocks.push(this.active_block);
+			console.log("dead_blocks: ", this.dead_blocks);
 			this.active_block = null;
 			const max_square = findMaxValidSquare(this.boards);
 
@@ -88,18 +89,36 @@ export class Game {
 
 	private loopWhenMoveBoard() {
 		let is_board_changed = false;
-		const width = this.boards[0].length;
-		const height = this.boards.length;
+		const dead_block_move_map = new Map<Block, boolean>();
 
-		for (let i = height - 2; i >= 0; i--) {
-			for (let j = 0; j < width; j++) {
-				if (!isEmptyBoardCell(this.boards[i][j]) && !isCollideTwoBoardCell(this.boards[i][j], this.boards[i + 1][j])) {
-					this.boards[i + 1][j] = this.boards[i + 1][j].concat(this.boards[i][j]);
-					this.boards[i][j] = [];
-					is_board_changed = true;
-				}
+		this.dead_blocks.forEach((block) => {
+			dead_block_move_map.set(block, false);
+		});
+
+		const {
+			size,
+			bottom_right: [bottom, right]
+		} = this.cleared_squares as Square;
+
+		const start_column = right - size + 1;
+
+		for (let i = bottom - size; i >= 0; i--) {
+			for (let j = start_column; j <= right; j++) {
+				const board_cells = this.boards[i][j];
+				board_cells.forEach((board_cell) => {
+					if (!dead_block_move_map.get(board_cell.block)) {
+						board_cell.block.move(MoveDirection.Down);
+						if (board_cell.block.isCollide(this.boards)) {
+							board_cell.block.moveUp();
+						} else {
+							is_board_changed = true;
+						}
+						dead_block_move_map.set(board_cell.block, true);
+					}
+				});
 			}
 		}
+
 		this.draw();
 		if (!is_board_changed) {
 			this.state = GameStatus.Active;
@@ -166,8 +185,18 @@ export class Game {
 		} = square;
 		for (let i = bottom - size + 1; i <= bottom; i++) {
 			for (let j = right - size + 1; j <= right; j++) {
+				this.boards[i][j].forEach((cell) => {
+					cell.value.origin = CellOriginValue.Empty;
+				});
 				this.boards[i][j] = [];
 			}
 		}
+
+		this.clearDeadBlocks();
+		console.log("dead_blocks: ", this.dead_blocks);
+	}
+
+	private clearDeadBlocks() {
+		this.dead_blocks = this.dead_blocks.filter((block) => !isBlockEmpty(block));
 	}
 }

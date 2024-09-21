@@ -158,3 +158,16 @@ export function getSquareColorsAndBlocks(square: Square, boards: Board) {
 		blocks
 	};
 }
+
+export function isBlockEmpty(block: Block) {
+	let result = true;
+	const shape = block.getShape();
+	shape.forEach((row) => {
+		row.forEach((cell) => {
+			if (cell.origin !== CellOriginValue.Empty) {
+				result = false;
+			}
+		});
+	});
+	return result;
+}

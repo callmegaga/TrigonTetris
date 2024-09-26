@@ -16,6 +16,7 @@ export enum GameStatus {
 	NotStart,
 	//	可操作的方块正在下落
 	Active,
+	ClearAnimation,
 	//	消除方块后，正在悬空的格子
 	MoveBoard,
 	//	游戏失败

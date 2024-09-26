@@ -131,6 +131,10 @@ export abstract class Block {
 		}
 	}
 
+	setPosition(position: Position): void {
+		this.current_position = position;
+	}
+
 	jump(): void {
 		console.log("jump");
 	}

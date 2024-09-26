@@ -1,0 +1,6 @@
+export const GAME_BOARD_ROW = 25;
+export const GAME_BOARD_COL = 10;
+export const GAME_BOARD_CELL_SIZE = 30;
+export const STAND_BY_COUNT = 2;
+export const MAX_SHAPE_SIZE = [4, 4];
+export const FRAGMENT_SIZE = 5;

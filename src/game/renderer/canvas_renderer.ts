@@ -1,32 +1,80 @@
 import { Renderer } from "@/game/renderer/renderer";
-import { type Board, type BoardCellValue, CellOriginValue, type Position } from "@/game/types";
+import { type Board, type BoardCellValue, CellOriginValue, type Position, type Square } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
+import { MAX_SHAPE_SIZE, STAND_BY_COUNT } from "@/game/config";
+import { AnimationController } from "@/game/effect/canvas_effect";
+
+const next_size = [MAX_SHAPE_SIZE[0] * STAND_BY_COUNT + 3, MAX_SHAPE_SIZE[1] + 2];
+
+const next_board: Board = Array(next_size[1])
+	.fill(0)
+	.map(() => new Array(next_size[0]).fill(0).map(() => []));
 
 export class CanvasRenderer extends Renderer {
-	private ctx: CanvasRenderingContext2D;
+	private readonly game_ctx: CanvasRenderingContext2D;
+	private readonly next_ctx: CanvasRenderingContext2D;
 	private readonly background: HTMLCanvasElement;
-	private readonly block_size: number;
+	private readonly board_cell_size: number;
 
-	constructor(dom: HTMLElement, options: { block_size: number; columns: number; rows: number }) {
-		super(dom, options);
-		const canvas = document.createElement("canvas");
-		this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-		this.block_size = options.block_size;
+	constructor(game_dom: HTMLElement, next_dom: HTMLElement, options: { board_cell_size: number; columns: number; rows: number }) {
+		super(game_dom, next_dom, options);
+		const game_canvas = document.createElement("canvas");
 
-		canvas.width = options.block_size * options.columns;
-		canvas.height = options.block_size * options.rows;
+		this.game_ctx = game_canvas.getContext("2d") as CanvasRenderingContext2D;
+		this.board_cell_size = options.board_cell_size;
 
-		this.container.appendChild(canvas);
+		game_canvas.width = options.board_cell_size * options.columns;
+		game_canvas.height = options.board_cell_size * options.rows;
 
-		this.background = this.createBackground(canvas.width, canvas.height);
+		this.game_container.appendChild(game_canvas);
+
+		const next_canvas = document.createElement("canvas");
+		this.next_ctx = next_canvas.getContext("2d") as CanvasRenderingContext2D;
+		next_canvas.width = next_size[0] * options.board_cell_size;
+		next_canvas.height = next_size[1] * options.board_cell_size;
+
+		this.next_container.appendChild(next_canvas);
+
+		this.background = this.createBackground(game_canvas.width, game_canvas.height);
 	}
 
 	render(board: Board, active_block: Block | null) {
-		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-		this.drawBackground();
-		this.drawGrid(board);
-		this.drawBoard(board);
-		this.drawActiveBlock(active_block);
+		this.game_ctx.clearRect(0, 0, this.game_ctx.canvas.width, this.game_ctx.canvas.height);
+		this.drawBackground(this.game_ctx);
+		this.drawGrid(this.game_ctx, board);
+		this.drawBoard(this.game_ctx, board);
+		this.drawBlock(this.game_ctx, active_block);
+	}
+
+	renderNextBlock(blocks: Block[]) {
+		this.next_ctx.clearRect(0, 0, this.next_ctx.canvas.width, this.next_ctx.canvas.height);
+		this.drawGrid(this.next_ctx, next_board);
+		blocks.forEach((block, index) => {
+			block.setPosition([1 + (1 + MAX_SHAPE_SIZE[0]) * index, 1]);
+			this.drawBlock(this.next_ctx, block);
+			block.setPosition([0, 0]);
+		});
+	}
+
+	renderSquareEffect(square: Square, boards: Board) {
+		const animationController = new AnimationController(this.game_ctx, square, boards);
+		const that = this;
+		return new Promise<void>((resolve) => {
+			function animate() {
+				that.render(boards, null);
+
+				animationController.update();
+				animationController.draw();
+
+				if (animationController.isAnimationComplete()) {
+					resolve();
+				}else {
+					requestAnimationFrame(animate);
+				}
+			}
+
+			animate();
+		})
 	}
 
 	private createBackground(width: number, height: number) {
@@ -45,90 +93,90 @@ export class CanvasRenderer extends Renderer {
 		return bgCanvas;
 	}
 
-	private drawBackground() {
-		this.ctx.drawImage(this.background, 0, 0);
+	private drawBackground(ctx: CanvasRenderingContext2D) {
+		ctx.drawImage(this.background, 0, 0);
 	}
 
-	private drawGrid(board: Board) {
+	private drawGrid(ctx: CanvasRenderingContext2D, board: Board) {
 		const rows = board.length;
 		const columns = board[0].length;
 
-		this.ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+		ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
 		for (let x = 0; x <= columns; x++) {
-			this.ctx.beginPath();
-			this.ctx.moveTo(x * this.block_size, 0);
-			this.ctx.lineTo(x * this.block_size, rows * this.block_size);
-			this.ctx.stroke();
+			ctx.beginPath();
+			ctx.moveTo(x * this.board_cell_size, 0);
+			ctx.lineTo(x * this.board_cell_size, rows * this.board_cell_size);
+			ctx.stroke();
 		}
 		for (let y = 0; y <= rows; y++) {
-			this.ctx.beginPath();
-			this.ctx.moveTo(0, y * this.block_size);
-			this.ctx.lineTo(columns * this.block_size, y * this.block_size);
-			this.ctx.stroke();
+			ctx.beginPath();
+			ctx.moveTo(0, y * this.board_cell_size);
+			ctx.lineTo(columns * this.board_cell_size, y * this.board_cell_size);
+			ctx.stroke();
 		}
 	}
 
-	private drawBoard(board: Board) {
+	private drawBoard(ctx: CanvasRenderingContext2D, board: Board) {
 		board.forEach((row, y) => {
 			row.forEach((cell, x) => {
-				cell.forEach(block => {
-					this.drawCell([x, y], block.value, block.block.getColor());
-				})
+				cell.forEach((block) => {
+					this.drawCell(ctx, [x, y], block.value, block.block.getColor());
+				});
 			});
 		});
 	}
 
-	private drawActiveBlock(active_block: Block | null) {
-		if (!active_block) return;
+	private drawBlock(ctx: CanvasRenderingContext2D, block: Block | null) {
+		if (!block) return;
 
-		const shape = active_block.getShape();
-		const color = active_block.getColor();
-		const block_position = active_block.getPosition();
+		const shape = block.getShape();
+		const color = block.getColor();
+		const block_position = block.getPosition();
 
 		shape.forEach((row, y) => {
 			row.forEach((cell, x) => {
-				this.drawCell([x + block_position[0], y + block_position[1]], cell, color);
+				this.drawCell(ctx, [x + block_position[0], y + block_position[1]], cell, color);
 			});
 		});
 	}
 
-	private drawCell(position: Position, cell: BoardCellValue, color: string) {
+	private drawCell(ctx: CanvasRenderingContext2D, position: Position, cell: BoardCellValue, color: string) {
 		const x = position[0];
 		const y = position[1];
 
-		this.ctx.fillStyle = color;
-		this.ctx.beginPath();
+		ctx.fillStyle = color;
+		ctx.beginPath();
 		switch (cell.origin) {
-			case CellOriginValue.Empty:
-				return;
-			case CellOriginValue.TriangleLeftTop:
-				this.ctx.moveTo(x * this.block_size, y * this.block_size);
-				this.ctx.lineTo((x + 1) * this.block_size, y * this.block_size);
-				this.ctx.lineTo(x * this.block_size, (y + 1) * this.block_size);
-				break;
-			case CellOriginValue.TriangleLeftBottom:
-				this.ctx.moveTo(x * this.block_size, y * this.block_size);
-				this.ctx.lineTo((x + 1) * this.block_size, (y + 1) * this.block_size);
-				this.ctx.lineTo(x * this.block_size, (y + 1) * this.block_size);
-				break;
-			case CellOriginValue.TriangleRightTop:
-				this.ctx.moveTo(x * this.block_size, y * this.block_size);
-				this.ctx.lineTo((x + 1) * this.block_size, y * this.block_size);
-				this.ctx.lineTo((x + 1) * this.block_size, (y + 1) * this.block_size);
-				break;
-			case CellOriginValue.TriangleRightBottom:
-				this.ctx.moveTo((x + 1) * this.block_size, y * this.block_size);
-				this.ctx.lineTo((x + 1) * this.block_size, (y + 1) * this.block_size);
-				this.ctx.lineTo(x * this.block_size, (y + 1) * this.block_size);
-				break;
-			case CellOriginValue.Full:
-				this.ctx.moveTo(x * this.block_size, y * this.block_size);
-				this.ctx.lineTo((x + 1) * this.block_size, y * this.block_size);
-				this.ctx.lineTo((x + 1) * this.block_size, (y + 1) * this.block_size);
-				this.ctx.lineTo(x * this.block_size, (y + 1) * this.block_size);
-				break;
+		case CellOriginValue.Empty:
+			return;
+		case CellOriginValue.TriangleLeftTop:
+			ctx.moveTo(x * this.board_cell_size, y * this.board_cell_size);
+			ctx.lineTo((x + 1) * this.board_cell_size, y * this.board_cell_size);
+			ctx.lineTo(x * this.board_cell_size, (y + 1) * this.board_cell_size);
+			break;
+		case CellOriginValue.TriangleLeftBottom:
+			ctx.moveTo(x * this.board_cell_size, y * this.board_cell_size);
+			ctx.lineTo((x + 1) * this.board_cell_size, (y + 1) * this.board_cell_size);
+			ctx.lineTo(x * this.board_cell_size, (y + 1) * this.board_cell_size);
+			break;
+		case CellOriginValue.TriangleRightTop:
+			ctx.moveTo(x * this.board_cell_size, y * this.board_cell_size);
+			ctx.lineTo((x + 1) * this.board_cell_size, y * this.board_cell_size);
+			ctx.lineTo((x + 1) * this.board_cell_size, (y + 1) * this.board_cell_size);
+			break;
+		case CellOriginValue.TriangleRightBottom:
+			ctx.moveTo((x + 1) * this.board_cell_size, y * this.board_cell_size);
+			ctx.lineTo((x + 1) * this.board_cell_size, (y + 1) * this.board_cell_size);
+			ctx.lineTo(x * this.board_cell_size, (y + 1) * this.board_cell_size);
+			break;
+		case CellOriginValue.Full:
+			ctx.moveTo(x * this.board_cell_size, y * this.board_cell_size);
+			ctx.lineTo((x + 1) * this.board_cell_size, y * this.board_cell_size);
+			ctx.lineTo((x + 1) * this.board_cell_size, (y + 1) * this.board_cell_size);
+			ctx.lineTo(x * this.board_cell_size, (y + 1) * this.board_cell_size);
+			break;
 		}
-		this.ctx.closePath();
-		this.ctx.fill();
+		ctx.closePath();
+		ctx.fill();
 	}
 }

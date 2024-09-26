@@ -1,10 +1,14 @@
 <template>
 	<main>
-		<!--		<div class="controller">-->
-		<!--			<game-pad class="gamepad"/>-->
-		<!--		</div>-->
+		<div class="controller-and-score">
+			<game-score :score="score" :max_score="max_score" />
+			<game-pad class="gamepad" />
+		</div>
 		<div class="game" id="game"></div>
-		<!--		<game-sample class="game-sample" />-->
+		<div class="next-and-sample">
+			<div id="next"></div>
+			<!--		<game-sample class="game-sample" />-->
+		</div>
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
 </template>
@@ -15,8 +19,17 @@ import { Game } from "@/game/game";
 import { onMounted, onUnmounted, ref } from "vue";
 import GameSample from "@/components/GameSample.vue";
 import GamePad from "@/components/GamePad.vue";
+import GameScore from "@/components/GameScore.vue";
+import { sortUserPlugins } from "vite";
+import { GAME_BOARD_CELL_SIZE, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";
+import { getAdaptCellSize, getElementWidthHeight, getHistoryMaxScore, setHistoryMaxScore } from "@/utils/utils";
 
 const is_show_welcome = ref(false);
+const score = ref(0);
+const max_score = ref(0);
+const cheer_audio = new Audio("/audio/cheer.mp3");
+const shooo_audio = new Audio("/audio/shooo.mp3");
+
 let game: Game;
 
 function startGame() {
@@ -24,12 +37,40 @@ function startGame() {
 	// game.start();
 }
 
+window.document.addEventListener("click", () => {
+});
+
+function onScore(gain: number) {
+	console.log("score", gain);
+	score.value += gain;
+	cheer_audio.play();
+	setTimeout(() => {
+		shooo_audio.play();
+	}, 5000);
+	if (score.value > max_score.value) {
+		max_score.value = score.value;
+		setHistoryMaxScore(score.value);
+	}
+
+}
+
+function onFail() {
+	console.log("fail");
+}
+
 onMounted(() => {
+	max_score.value = getHistoryMaxScore();
+	const element_width_height = getElementWidthHeight(document.querySelector("#game") as HTMLElement);
+	const adapt_cell_size = getAdaptCellSize(element_width_height, [GAME_BOARD_COL, GAME_BOARD_ROW]);
+
 	const game = new Game({
-		container: document.querySelector("#game") as HTMLElement,
-		columns: 10,
-		rows: 20,
-		block_size: 30,
+		game_container: document.querySelector("#game") as HTMLElement,
+		columns: GAME_BOARD_COL,
+		rows: GAME_BOARD_ROW,
+		board_cell_size: GAME_BOARD_CELL_SIZE,
+		onScore: onScore,
+		onFail: onFail,
+		next_container: document.querySelector("#next") as HTMLElement
 	});
 	game.start();
 });
@@ -50,17 +91,24 @@ main {
 		flex: 1;
 	}
 
-	.controller {
+	.controller-and-score {
 		width: 500px;
 		display: flex;
-		flex-direction: column-reverse;
+		flex-direction: column;
+		justify-content: space-between;
 
 		.gamepad {
 			height: 300px;
+			display: none;
 		}
 	}
 
-	.game-sample {
+	.next-and-sample {
+	}
+
+	#next {
+		border: 5px dashed #ddd;
+		padding: 10px;
 	}
 }
 

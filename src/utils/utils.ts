@@ -1,4 +1,4 @@
-import { type Board, type BoardCell, type CellValue, type Square, CellOriginValue } from "@/game/types";
+import { type Board, type BoardCell, type CellValue, type Square, CellOriginValue, type Shape, type Position } from "@/game/types";
 import { Shape1 } from "@/game/blocks/shape-1";
 import { Shape2 } from "@/game/blocks/shape-2";
 import { Shape3 } from "@/game/blocks/shape-3";
@@ -8,8 +8,8 @@ import { Shape6 } from "@/game/blocks/shape-6";
 import { Shape7 } from "@/game/blocks/shape-7";
 import type { Block } from "@/game/blocks/block";
 
-// const ShapeTable = [Shape1, Shape2, Shape3, Shape4, Shape5, Shape6, Shape7];
-const ShapeTable = [Shape1, Shape5];
+// const ShapeTable: { new (): Block }[] = [Shape1, Shape2, Shape3, Shape4, Shape5, Shape6, Shape7];
+export const ShapeTable: { new(): Block }[] = [Shape1, Shape5];
 
 export function getRandomShape() {
 	const index = Math.floor(Math.random() * ShapeTable.length);
@@ -170,4 +170,51 @@ export function isBlockEmpty(block: Block) {
 		});
 	});
 	return result;
+}
+
+export function squashBlock(block: Block) {
+	let is_change = false;
+	const shape = block.getShape();
+	const width = block.width;
+	const height = block.height;
+
+	for (let row = height - 2; row >= 0; row--) {
+		for (let col = 0; col < width; col++) {
+			const next_row = row + 1;
+			if (shape[row][col].origin === CellOriginValue.Empty) continue;
+			if (isCollideTwoCell(shape[row][col], shape[next_row][col])) continue;
+			shape[next_row][col] = shape[row][col];
+			shape[row][col] = { origin: CellOriginValue.Empty };
+			is_change = true;
+		}
+	}
+
+	return is_change;
+}
+
+export function isPositionEqual(position1: Position, position2: Position) {
+	return position1[0] === position2[0] && position1[1] === position2[1];
+}
+
+export function getHistoryMaxScore() {
+	const history_max_score = localStorage.getItem("history_max_score");
+	return history_max_score ? parseInt(history_max_score) : 0;
+}
+
+export function setHistoryMaxScore(score: number) {
+	localStorage.setItem("history_max_score", score.toString());
+}
+
+export function getElementWidthHeight(element: HTMLElement): [number, number] {
+	const { width, height } = element.getBoundingClientRect();
+	return [width, height];
+}
+
+export function getAdaptCellSize(element_size: [number, number], board_size: [number, number]) {
+	const [element_width, element_height] = element_size;
+	const [columns, rows] = board_size;
+	const cell_width = element_width / columns;
+	const cell_height = element_height / rows;
+
+	return Math.min(cell_width, cell_height);
 }

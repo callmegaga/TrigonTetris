@@ -10,7 +10,6 @@ import game_sample from "@/assets/game-sample.png";
 
 <style scoped>
 	.sample {
-		height: 80%;
-		width: auto;
+		width: 80%;
 	}
 </style>

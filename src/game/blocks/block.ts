@@ -42,12 +42,13 @@ export abstract class Block {
 		if (this.current_position[0] < 0) return true;
 		if (this.current_position[0] + this.width > board_width) return true;
 		if (this.current_position[1] + this.height > board_height) return true;
+
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
 				const board_cell = boards[y + this.current_position[1]][x + this.current_position[0]];
 				if (this.shape[y][x].origin === CellOriginValue.Empty) continue;
 				if (isEmptyBoardCell(board_cell)) continue;
-				if (isCollideShapeAndBoardCell(this.shape[y][x], board_cell)) return true;
+				if (isCollideShapeAndBoardCell(this.shape[y][x], board_cell, this)) return true;
 			}
 		}
 		return false;

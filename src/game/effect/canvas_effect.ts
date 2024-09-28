@@ -88,14 +88,11 @@ function createFragments(square: Square, board: Board) {
 	const width = size * GAME_BOARD_CELL_SIZE;
 	const height = size * GAME_BOARD_CELL_SIZE;
 
-	console.log("x", x, "y", y, "width", width, "height", height);
-
 	for (let i = x; i < width + x; i += FRAGMENT_SIZE) {
 		const col = Math.floor((i) / GAME_BOARD_CELL_SIZE);
 		for (let j = y; j < height + y; j += FRAGMENT_SIZE) {
 			const row = Math.floor((j) / GAME_BOARD_CELL_SIZE);
 			const cell = board[row][col];
-			console.log("i", i, "j", j, "col", col, "row", row, "cell", cell);
 
 			if (cell.length === 0) continue;
 			if (cell.length === 1) {

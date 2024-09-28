@@ -57,10 +57,11 @@ export function isCollideTwoCell(cell_1: CellValue, cell_2: CellValue) {
 	return cell_1.origin + cell_2.origin !== CellOriginValue.Full;
 }
 
-export function isCollideShapeAndBoardCell(cell: CellValue, board_cell: BoardCell) {
+export function isCollideShapeAndBoardCell(shape_cell: CellValue, board_cell: BoardCell, block: Block) {
 	let result = false;
-	board_cell.forEach((block) => {
-		if (isCollideTwoCell(cell, block.value)) {
+	board_cell.forEach((cell) => {
+		if (cell.block === block) return;
+		if (isCollideTwoCell(shape_cell, cell.value)) {
 			result = true;
 		}
 	});

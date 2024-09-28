@@ -42,7 +42,7 @@ const emits = defineEmits<{
 		position: absolute;
 		width: 100%;
 		height: 100%;
-		top: 0;
+		top: 20px;
 		left: 0;
 		display: flex;
 		justify-content: space-around;
@@ -50,7 +50,7 @@ const emits = defineEmits<{
 		.bottoms {
 			display: grid;
 			width: 40%;
-			height: 100%;
+			height: 50%;
 			grid-template-areas:
 				". top ."
 				"left . right"

@@ -7,10 +7,11 @@
 		<div class="game" id="game"></div>
 		<div class="next-and-sample">
 			<div id="next"></div>
-			<!--		<game-sample class="game-sample" />-->
+			<game-sample class="game-sample" />
 		</div>
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
+	<game-over v-if="is_game_over"/>
 </template>
 
 <script setup lang="ts">
@@ -23,8 +24,10 @@ import GameScore from "@/components/GameScore.vue";
 import { sortUserPlugins } from "vite";
 import { GAME_BOARD_CELL_SIZE, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";
 import { getAdaptCellSize, getElementWidthHeight, getHistoryMaxScore, setHistoryMaxScore } from "@/utils/utils";
+import GameOver from "@/components/GameOver.vue";
 
-const is_show_welcome = ref(false);
+const is_show_welcome = ref(true);
+const is_game_over = ref(false);
 const score = ref(0);
 const max_score = ref(0);
 const cheer_audio = new Audio("/audio/cheer.mp3");
@@ -34,7 +37,7 @@ let game: Game;
 
 function startGame() {
 	is_show_welcome.value = false;
-	// game.start();
+	game.start();
 }
 
 window.document.addEventListener("click", () => {
@@ -51,11 +54,12 @@ function onScore(gain: number) {
 		max_score.value = score.value;
 		setHistoryMaxScore(score.value);
 	}
-
 }
 
 function onFail() {
 	console.log("fail");
+	is_game_over.value = true;
+	game.end()
 }
 
 onMounted(() => {
@@ -63,7 +67,7 @@ onMounted(() => {
 	const element_width_height = getElementWidthHeight(document.querySelector("#game") as HTMLElement);
 	const adapt_cell_size = getAdaptCellSize(element_width_height, [GAME_BOARD_COL, GAME_BOARD_ROW]);
 
-	const game = new Game({
+	game = new Game({
 		game_container: document.querySelector("#game") as HTMLElement,
 		columns: GAME_BOARD_COL,
 		rows: GAME_BOARD_ROW,
@@ -72,7 +76,6 @@ onMounted(() => {
 		onFail: onFail,
 		next_container: document.querySelector("#next") as HTMLElement
 	});
-	game.start();
 });
 
 onUnmounted(() => {
@@ -88,25 +91,31 @@ main {
 	overflow: hidden;
 
 	.game {
+		display: flex;
+		text-align: center;
 		flex: 1;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.controller-and-score {
-		width: 500px;
+		width: 400px;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
 
 		.gamepad {
 			height: 300px;
-			display: none;
 		}
 	}
 
 	.next-and-sample {
+		text-align: center;
+		width: 25%;
 	}
 
 	#next {
+		display: inline-block;
 		border: 5px dashed #ddd;
 		padding: 10px;
 	}

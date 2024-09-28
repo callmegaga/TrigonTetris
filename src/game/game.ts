@@ -4,6 +4,8 @@ import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas_renderer";
 import { calculateScore, findMaxValidSquare, getRandomShape, isBlockEmpty, isPositionEqual, squashBlock } from "@/utils/utils";
 import { STAND_BY_COUNT } from "@/game/config";
+import { Shape1 } from "@/game/blocks/shape-1";
+import { Shape5 } from "@/game/blocks/shape-5";
 
 interface GameOptions {
 	game_container: HTMLElement;
@@ -36,9 +38,12 @@ export class Game {
 			.fill(0)
 			.map(() => new Array(options.columns).fill(0).map(() => []));
 		this.options = options;
-		for (let i = 0; i < STAND_BY_COUNT + 1; i++) {
-			this.block_queue.push(new (getRandomShape())());
-		}
+		// for (let i = 0; i < STAND_BY_COUNT + 1; i++) {
+		// 	this.block_queue.push(new (getRandomShape())());
+		// }
+		this.block_queue.push(new Shape5());
+		this.block_queue.push(new Shape1());
+		this.block_queue.push(new Shape1());
 	}
 
 	start() {
@@ -68,6 +73,7 @@ export class Game {
 	}
 
 	private loop() {
+		console.log("game loop: ", this.state);
 		switch (this.state) {
 		case GameStatus.NotStart:
 			break;
@@ -122,7 +128,7 @@ export class Game {
 
 	private loopWhenMoveBoard() {
 		let is_board_changed = this.moveDeadBlocksFall();
-		is_board_changed = this.squashDeadBlocks();
+		// is_board_changed = this.squashDeadBlocks();
 
 		this.draw();
 		if (!is_board_changed) {
@@ -137,6 +143,7 @@ export class Game {
 	}
 
 	private moveDeadBlocksFall() {
+		console.log("boards: ", this.boards);
 		let is_board_changed = false;
 		const dead_block_move_map = new Map<Block, boolean>();
 
@@ -144,6 +151,7 @@ export class Game {
 			dead_block_move_map.set(block, false);
 		});
 		let need_move_block_count = dead_block_move_map.size;
+		console.log("dead_block:", this.dead_blocks);
 
 		const {
 			size,
@@ -158,7 +166,9 @@ export class Game {
 				board_cells.forEach((board_cell) => {
 					if (!dead_block_move_map.get(board_cell.block)) {
 						board_cell.block.move(MoveDirection.Down);
+						console.log("move down");
 						if (board_cell.block.isCollide(this.boards)) {
+							console.log("move up");
 							board_cell.block.moveUp();
 						} else {
 							is_board_changed = true;

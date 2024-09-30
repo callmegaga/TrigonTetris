@@ -1,5 +1,5 @@
 import type { Block } from "@/game/blocks/block";
-import { type Board, CellOriginValue, type Square } from "@/game/types";
+import { type Board } from "@/game/types";
 
 export abstract class Renderer {
 	protected game_container: HTMLElement;
@@ -23,5 +23,5 @@ export abstract class Renderer {
 
 	abstract renderNextBlock(blocks: Block[]): void;
 
-	abstract renderSquareEffect(square: Square, boards: Board): Promise<void>;
+	abstract renderSquareEffect(blocks: Set<Block>, boards: Board): Promise<void>;
 }

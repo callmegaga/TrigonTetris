@@ -2,7 +2,7 @@ import type { Block } from "@/game/blocks/block";
 import { type Board, CellOriginValue, GameStatus, MoveDirection, type Square } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas_renderer";
-import { calculateScore, findMaxValidSquare, getRandomShape, isBlockEmpty, isPositionEqual, squashBlock } from "@/utils/utils";
+import { calculateScore, findMaxValidSquare, getRandomShape, isPositionEqual, setBlocksEmpty, squashBlock } from "@/utils/utils";
 import { STAND_BY_COUNT } from "@/game/config";
 import { Shape1 } from "@/game/blocks/shape-1";
 import { Shape5 } from "@/game/blocks/shape-5";
@@ -127,7 +127,7 @@ export class Game {
 	}
 
 	private loopWhenMoveBoard() {
-		let is_board_changed = this.moveDeadBlocksFall();
+		const is_board_changed = this.moveDeadBlocksFall();
 		// is_board_changed = this.squashDeadBlocks();
 
 		this.draw();
@@ -187,28 +187,19 @@ export class Game {
 		return is_board_changed;
 	}
 
-	private squashDeadBlocks() {
-		let is_board_changed = false;
-		this.dead_blocks.forEach((block) => {
-			if (squashBlock(block)) {
-				is_board_changed = true;
-			}
-		});
-		return is_board_changed;
-	}
-
 	private onSquareFind(square: Square) {
 		console.log("max_square: ", square);
 		const score = calculateScore(square, this.boards);
 		console.log("score: ", score);
 		this.options.onScore(score);
+		const need_clear_blocks = this.getAllBlocksFromSquare(square);
 
 		this.renderer.renderSquareEffect(square, this.boards).then(() => {
 			console.log("finish animation end");
 			this.state = GameStatus.MoveBoard;
 			this.loop();
 		});
-		this.clearSquare(square);
+		this.clearBlocks(need_clear_blocks);
 		this.cleared_squares = square;
 		this.state = GameStatus.ClearAnimation;
 		console.log("finish animation start");
@@ -272,25 +263,31 @@ export class Game {
 	private bindGamepadEvents() {
 	}
 
-	private clearSquare(square: Square) {
+	private getAllBlocksFromSquare(square: Square) {
 		const {
 			size,
 			bottom_right: [bottom, right]
 		} = square;
+		const need_clear_blocks: Set<Block> = new Set();
+
 		for (let i = bottom - size + 1; i <= bottom; i++) {
 			for (let j = right - size + 1; j <= right; j++) {
 				this.boards[i][j].forEach((cell) => {
-					cell.value.origin = CellOriginValue.Empty;
+					need_clear_blocks.add(cell.block);
 				});
-				this.boards[i][j] = [];
 			}
 		}
+		return need_clear_blocks;
+	}
 
-		this.clearDeadBlocks();
+	private clearBlocks(blocks: Set<Block>) {
+		setBlocksEmpty(blocks);
+
+		this.removeEmptyBlocks();
 		console.log("dead_blocks: ", this.dead_blocks);
 	}
 
-	private clearDeadBlocks() {
-		this.dead_blocks = this.dead_blocks.filter((block) => !isBlockEmpty(block));
+	private removeEmptyBlocks() {
+		this.dead_blocks = this.dead_blocks.filter((block) => !block.isEmpty);
 	}
 }

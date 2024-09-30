@@ -160,19 +160,6 @@ export function getSquareColorsAndBlocks(square: Square, boards: Board) {
 	};
 }
 
-export function isBlockEmpty(block: Block) {
-	let result = true;
-	const shape = block.getShape();
-	shape.forEach((row) => {
-		row.forEach((cell) => {
-			if (cell.origin !== CellOriginValue.Empty) {
-				result = false;
-			}
-		});
-	});
-	return result;
-}
-
 export function squashBlock(block: Block) {
 	let is_change = false;
 	const shape = block.getShape();
@@ -218,4 +205,10 @@ export function getAdaptCellSize(element_size: [number, number], board_size: [nu
 	const cell_height = element_height / rows;
 
 	return Math.min(cell_width, cell_height);
+}
+
+export function setBlocksEmpty(blocks: Set<Block>) {
+	blocks.forEach((block) => {
+		block.setShapeEmpty();
+	});
 }

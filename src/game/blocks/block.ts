@@ -139,4 +139,26 @@ export abstract class Block {
 	jump(): void {
 		console.log("jump");
 	}
+
+	setShapeEmpty(): void {
+		const shape = this.getShape();
+		shape.forEach((row) => {
+			row.forEach((cell) => {
+				cell.origin = CellOriginValue.Empty;
+			});
+		});
+	}
+
+	get isEmpty(): boolean {
+		let result = true;
+		const shape = this.getShape();
+		shape.forEach((row) => {
+			row.forEach((cell) => {
+				if (cell.origin !== CellOriginValue.Empty) {
+					result = false;
+				}
+			});
+		});
+		return result;
+	}
 }

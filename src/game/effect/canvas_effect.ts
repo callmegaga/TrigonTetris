@@ -1,5 +1,6 @@
 import { FRAGMENT_SIZE, GAME_BOARD_CELL_SIZE } from "@/game/config";
 import type { Board, Square } from "@/game/types";
+import type { Block } from "@/game/blocks/block";
 
 enum AnimationState {
 	glow,
@@ -51,12 +52,12 @@ export class GlowSquare {
 	private glow_speed: number = 0.01;
 	private intensity: number = 0;
 	private color: string = "#fff";
-	private readonly square: Square;
+	private readonly blocks: Set<Block>;
 
-	constructor(ctx: CanvasRenderingContext2D, square: Square) {
+	constructor(ctx: CanvasRenderingContext2D, blocks: Set<Block>) {
 		this.ctx = ctx;
 		this.glow_alpha = 0;
-		this.square = square;
+		this.blocks = blocks;
 	}
 
 	update() {
@@ -64,48 +65,48 @@ export class GlowSquare {
 	}
 
 	draw(){
-		const { size, bottom_right: [bottom, right] } = this.square;
-		const x = (right - size + 1) * GAME_BOARD_CELL_SIZE;
-		const y = (bottom - size + 1) * GAME_BOARD_CELL_SIZE;
-		const width = size * GAME_BOARD_CELL_SIZE;
-		const height = size * GAME_BOARD_CELL_SIZE;
+		// const { size, bottom_right: [bottom, right] } = this.square;
+		// const x = (right - size + 1) * GAME_BOARD_CELL_SIZE;
+		// const y = (bottom - size + 1) * GAME_BOARD_CELL_SIZE;
+		// const width = size * GAME_BOARD_CELL_SIZE;
+		// const height = size * GAME_BOARD_CELL_SIZE;
 
-		this.ctx.save();
+		// this.ctx.save();
 		// this.ctx.shadowColor = this.color;
 		// this.ctx.shadowBlur = 20 * this.intensity;
-		this.ctx.fillStyle = this.color;
-		this.ctx.globalAlpha = this.glow_alpha;
-		this.ctx.fillRect(x, y, width, height);
-		this.ctx.restore();
+		// this.ctx.fillStyle = this.color;
+		// this.ctx.globalAlpha = this.glow_alpha;
+		// this.ctx.fillRect(x, y, width, height);
+		// this.ctx.restore();
 	}
 }
 // 可复用的破碎效果函数
-function createFragments(square: Square, board: Board) {
-	const { size, bottom_right: [bottom, right] } = square;
+function createFragments(blocks: Set<Block>, board: Board) {
+	// const { size, bottom_right: [bottom, right] } = square;
 	const fragments = [];
-	const x = (right - size + 1) * GAME_BOARD_CELL_SIZE;
-	const y = (bottom - size + 1) * GAME_BOARD_CELL_SIZE;
-	const width = size * GAME_BOARD_CELL_SIZE;
-	const height = size * GAME_BOARD_CELL_SIZE;
-
-	for (let i = x; i < width + x; i += FRAGMENT_SIZE) {
-		const col = Math.floor((i) / GAME_BOARD_CELL_SIZE);
-		for (let j = y; j < height + y; j += FRAGMENT_SIZE) {
-			const row = Math.floor((j) / GAME_BOARD_CELL_SIZE);
-			const cell = board[row][col];
-
-			if (cell.length === 0) continue;
-			if (cell.length === 1) {
-				fragments.push(new Fragment(i, j, cell[0].block.getColor()));
-			} else {
-				if (j % 2) {
-					fragments.push(new Fragment(i, j, cell[0].block.getColor()));
-				} else {
-					fragments.push(new Fragment(i, j, cell[1].block.getColor()));
-				}
-			}
-		}
-	}
+	// const x = (right - size + 1) * GAME_BOARD_CELL_SIZE;
+	// const y = (bottom - size + 1) * GAME_BOARD_CELL_SIZE;
+	// const width = size * GAME_BOARD_CELL_SIZE;
+	// const height = size * GAME_BOARD_CELL_SIZE;
+	//
+	// for (let i = x; i < width + x; i += FRAGMENT_SIZE) {
+	// 	const col = Math.floor((i) / GAME_BOARD_CELL_SIZE);
+	// 	for (let j = y; j < height + y; j += FRAGMENT_SIZE) {
+	// 		const row = Math.floor((j) / GAME_BOARD_CELL_SIZE);
+	// 		const cell = board[row][col];
+	//
+	// 		if (cell.length === 0) continue;
+	// 		if (cell.length === 1) {
+	// 			fragments.push(new Fragment(i, j, cell[0].block.getColor()));
+	// 		} else {
+	// 			if (j % 2) {
+	// 				fragments.push(new Fragment(i, j, cell[0].block.getColor()));
+	// 			} else {
+	// 				fragments.push(new Fragment(i, j, cell[1].block.getColor()));
+	// 			}
+	// 		}
+	// 	}
+	// }
 	return fragments;
 }
 
@@ -116,10 +117,10 @@ export class AnimationController {
 	private glow_square: GlowSquare;
 	private state: AnimationState = AnimationState.glow;
 
-	constructor(ctx: CanvasRenderingContext2D, square: Square, boards: Board) {
+	constructor(ctx: CanvasRenderingContext2D, blocks: Set<Block>,boards: Board) {
 		this.ctx = ctx;
-		this.fragments = createFragments(square, boards);
-		this.glow_square = new GlowSquare(ctx, square);
+		this.fragments = createFragments(blocks, boards);
+		this.glow_square = new GlowSquare(ctx, blocks);
 	}
 
 	update() {

@@ -56,7 +56,7 @@ export class CanvasRenderer extends Renderer {
 		});
 	}
 
-	renderSquareEffect(square: Square, boards: Board) {
+	renderSquareEffect(blocks: Set<Block>, boards: Board) {
 		const animationController = new AnimationController(this.game_ctx, square, boards);
 		const that = this;
 		return new Promise<void>((resolve) => {

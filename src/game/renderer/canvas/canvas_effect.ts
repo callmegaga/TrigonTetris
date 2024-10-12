@@ -1,6 +1,7 @@
 import { FRAGMENT_SIZE, GAME_BOARD_CELL_SIZE } from "@/game/config";
-import type { Board, Square } from "@/game/types";
+import { CellOriginValue } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
+import { drawBlock } from "@/game/renderer/canvas/canvas_utils";
 
 enum AnimationState {
 	glow,
@@ -46,7 +47,7 @@ export class Fragment {
 }
 
 
-export class GlowSquare {
+export class GlowBlocks {
 	private readonly ctx: CanvasRenderingContext2D;
 	public glow_alpha: number;
 	private glow_speed: number = 0.01;
@@ -64,7 +65,15 @@ export class GlowSquare {
 		this.glow_alpha += this.glow_speed;
 	}
 
-	draw(){
+	draw() {
+		this.blocks.forEach(block => {
+			this.ctx.save();
+			this.ctx.shadowColor = this.color;
+			this.ctx.shadowBlur = 20 * this.intensity;
+			this.ctx.globalAlpha = this.glow_alpha;
+			drawBlock(this.ctx, block);
+			this.ctx.restore();
+		})
 		// const { size, bottom_right: [bottom, right] } = this.square;
 		// const x = (right - size + 1) * GAME_BOARD_CELL_SIZE;
 		// const y = (bottom - size + 1) * GAME_BOARD_CELL_SIZE;
@@ -80,10 +89,29 @@ export class GlowSquare {
 		// this.ctx.restore();
 	}
 }
+
 // 可复用的破碎效果函数
-function createFragments(blocks: Set<Block>, board: Board) {
+function createFragments(blocks: Set<Block>) {
 	// const { size, bottom_right: [bottom, right] } = square;
-	const fragments = [];
+	const fragments: Fragment[] = [];
+	blocks.forEach(block => {
+		const [x, y] = block.getPosition();
+		const shape = block.getShape();
+
+		shape.forEach((row, row_index) => {
+			row.forEach((cell, col_index) => {
+				if (cell.origin === CellOriginValue.Empty) return;
+				const cell_x = x + col_index;
+				const cell_y = y + row_index;
+				const color = block.getColor();
+				const count = Math.ceil(GAME_BOARD_CELL_SIZE / FRAGMENT_SIZE);
+
+				for (let i = 0; i < count; i++) {
+					fragments.push(new Fragment(cell_x + i, cell_y, color));
+				}
+			});
+		});
+	});
 	// const x = (right - size + 1) * GAME_BOARD_CELL_SIZE;
 	// const y = (bottom - size + 1) * GAME_BOARD_CELL_SIZE;
 	// const width = size * GAME_BOARD_CELL_SIZE;
@@ -114,13 +142,13 @@ function createFragments(blocks: Set<Block>, board: Board) {
 export class AnimationController {
 	private readonly ctx: CanvasRenderingContext2D;
 	private fragments: Fragment[];
-	private glow_square: GlowSquare;
+	private glow_square: GlowBlocks;
 	private state: AnimationState = AnimationState.glow;
 
-	constructor(ctx: CanvasRenderingContext2D, blocks: Set<Block>,boards: Board) {
+	constructor(ctx: CanvasRenderingContext2D, blocks: Set<Block>) {
 		this.ctx = ctx;
-		this.fragments = createFragments(blocks, boards);
-		this.glow_square = new GlowSquare(ctx, blocks);
+		this.fragments = createFragments(blocks);
+		this.glow_square = new GlowBlocks(ctx, blocks);
 	}
 
 	update() {
@@ -138,7 +166,7 @@ export class AnimationController {
 	draw() {
 		if (this.state === AnimationState.glow) {
 			this.glow_square.draw();
-		}else {
+		} else {
 			this.fragments.forEach(fragment => fragment.draw(this.ctx));
 		}
 	}

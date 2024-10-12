@@ -1,7 +1,7 @@
 import type { Block } from "@/game/blocks/block";
 import { type Board, CellOriginValue, GameStatus, MoveDirection, type Square } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
-import { CanvasRenderer } from "@/game/renderer/canvas_renderer";
+import { CanvasRenderer } from "@/game/renderer/canvas/canvas_renderer";
 import { calculateScore, findMaxValidSquare, getRandomShape, isPositionEqual, setBlocksEmpty, squashBlock } from "@/utils/utils";
 import { STAND_BY_COUNT } from "@/game/config";
 import { Shape1 } from "@/game/blocks/shape-1";
@@ -194,7 +194,7 @@ export class Game {
 		this.options.onScore(score);
 		const need_clear_blocks = this.getAllBlocksFromSquare(square);
 
-		this.renderer.renderSquareEffect(square, this.boards).then(() => {
+		this.renderer.renderBlockEffect(need_clear_blocks, this.boards).then(() => {
 			console.log("finish animation end");
 			this.state = GameStatus.MoveBoard;
 			this.loop();

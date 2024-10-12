@@ -23,5 +23,5 @@ export abstract class Renderer {
 
 	abstract renderNextBlock(blocks: Block[]): void;
 
-	abstract renderSquareEffect(blocks: Set<Block>, boards: Board): Promise<void>;
+	abstract renderBlockEffect(blocks: Set<Block>, boards: Board): Promise<void>;
 }

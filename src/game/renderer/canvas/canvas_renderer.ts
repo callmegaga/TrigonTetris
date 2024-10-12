@@ -2,7 +2,8 @@ import { Renderer } from "@/game/renderer/renderer";
 import { type Board, type BoardCellValue, CellOriginValue, type Position, type Square } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
 import { MAX_SHAPE_SIZE, STAND_BY_COUNT } from "@/game/config";
-import { AnimationController } from "@/game/effect/canvas_effect";
+import { AnimationController } from "@/game/renderer/canvas/canvas_effect";
+import { drawBlock,drawBoard } from "@/game/renderer/canvas/canvas_utils";
 
 const next_size = [MAX_SHAPE_SIZE[0] * STAND_BY_COUNT + 3, MAX_SHAPE_SIZE[1] + 2];
 
@@ -42,8 +43,8 @@ export class CanvasRenderer extends Renderer {
 		this.game_ctx.clearRect(0, 0, this.game_ctx.canvas.width, this.game_ctx.canvas.height);
 		this.drawBackground(this.game_ctx);
 		this.drawGrid(this.game_ctx, board);
-		this.drawBoard(this.game_ctx, board);
-		this.drawBlock(this.game_ctx, active_block);
+		drawBoard(this.game_ctx, board);
+		drawBlock(this.game_ctx, active_block)
 	}
 
 	renderNextBlock(blocks: Block[]) {
@@ -51,13 +52,13 @@ export class CanvasRenderer extends Renderer {
 		this.drawGrid(this.next_ctx, next_board);
 		blocks.forEach((block, index) => {
 			block.setPosition([1 + (1 + MAX_SHAPE_SIZE[0]) * index, 1]);
-			this.drawBlock(this.next_ctx, block);
+			drawBlock(this.game_ctx, block)
 			block.setPosition([0, 0]);
 		});
 	}
 
-	renderSquareEffect(blocks: Set<Block>, boards: Board) {
-		const animationController = new AnimationController(this.game_ctx, square, boards);
+	renderBlockEffect(blocks: Set<Block>, boards: Board) {
+		const animationController = new AnimationController(this.game_ctx, blocks);
 		const that = this;
 		return new Promise<void>((resolve) => {
 			function animate() {
@@ -114,69 +115,5 @@ export class CanvasRenderer extends Renderer {
 			ctx.lineTo(columns * this.board_cell_size, y * this.board_cell_size);
 			ctx.stroke();
 		}
-	}
-
-	private drawBoard(ctx: CanvasRenderingContext2D, board: Board) {
-		board.forEach((row, y) => {
-			row.forEach((cell, x) => {
-				cell.forEach((block) => {
-					this.drawCell(ctx, [x, y], block.value, block.block.getColor());
-				});
-			});
-		});
-	}
-
-	private drawBlock(ctx: CanvasRenderingContext2D, block: Block | null) {
-		if (!block) return;
-
-		const shape = block.getShape();
-		const color = block.getColor();
-		const block_position = block.getPosition();
-
-		shape.forEach((row, y) => {
-			row.forEach((cell, x) => {
-				this.drawCell(ctx, [x + block_position[0], y + block_position[1]], cell, color);
-			});
-		});
-	}
-
-	private drawCell(ctx: CanvasRenderingContext2D, position: Position, cell: BoardCellValue, color: string) {
-		const x = position[0];
-		const y = position[1];
-
-		ctx.fillStyle = color;
-		ctx.beginPath();
-		switch (cell.origin) {
-		case CellOriginValue.Empty:
-			return;
-		case CellOriginValue.TriangleLeftTop:
-			ctx.moveTo(x * this.board_cell_size, y * this.board_cell_size);
-			ctx.lineTo((x + 1) * this.board_cell_size, y * this.board_cell_size);
-			ctx.lineTo(x * this.board_cell_size, (y + 1) * this.board_cell_size);
-			break;
-		case CellOriginValue.TriangleLeftBottom:
-			ctx.moveTo(x * this.board_cell_size, y * this.board_cell_size);
-			ctx.lineTo((x + 1) * this.board_cell_size, (y + 1) * this.board_cell_size);
-			ctx.lineTo(x * this.board_cell_size, (y + 1) * this.board_cell_size);
-			break;
-		case CellOriginValue.TriangleRightTop:
-			ctx.moveTo(x * this.board_cell_size, y * this.board_cell_size);
-			ctx.lineTo((x + 1) * this.board_cell_size, y * this.board_cell_size);
-			ctx.lineTo((x + 1) * this.board_cell_size, (y + 1) * this.board_cell_size);
-			break;
-		case CellOriginValue.TriangleRightBottom:
-			ctx.moveTo((x + 1) * this.board_cell_size, y * this.board_cell_size);
-			ctx.lineTo((x + 1) * this.board_cell_size, (y + 1) * this.board_cell_size);
-			ctx.lineTo(x * this.board_cell_size, (y + 1) * this.board_cell_size);
-			break;
-		case CellOriginValue.Full:
-			ctx.moveTo(x * this.board_cell_size, y * this.board_cell_size);
-			ctx.lineTo((x + 1) * this.board_cell_size, y * this.board_cell_size);
-			ctx.lineTo((x + 1) * this.board_cell_size, (y + 1) * this.board_cell_size);
-			ctx.lineTo(x * this.board_cell_size, (y + 1) * this.board_cell_size);
-			break;
-		}
-		ctx.closePath();
-		ctx.fill();
 	}
 }

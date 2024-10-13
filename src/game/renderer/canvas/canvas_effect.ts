@@ -73,7 +73,7 @@ export class GlowBlocks {
 			this.ctx.globalAlpha = this.glow_alpha;
 			drawBlock(this.ctx, block);
 			this.ctx.restore();
-		})
+		});
 		// const { size, bottom_right: [bottom, right] } = this.square;
 		// const x = (right - size + 1) * GAME_BOARD_CELL_SIZE;
 		// const y = (bottom - size + 1) * GAME_BOARD_CELL_SIZE;
@@ -101,8 +101,8 @@ function createFragments(blocks: Set<Block>) {
 		shape.forEach((row, row_index) => {
 			row.forEach((cell, col_index) => {
 				if (cell.origin === CellOriginValue.Empty) return;
-				const cell_x = x + col_index;
-				const cell_y = y + row_index;
+				const cell_x = (x + col_index) * GAME_BOARD_CELL_SIZE;
+				const cell_y = (y + row_index) * GAME_BOARD_CELL_SIZE;
 				const color = block.getColor();
 				const count = Math.ceil(GAME_BOARD_CELL_SIZE / FRAGMENT_SIZE);
 

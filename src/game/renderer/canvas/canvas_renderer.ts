@@ -52,7 +52,7 @@ export class CanvasRenderer extends Renderer {
 		this.drawGrid(this.next_ctx, next_board);
 		blocks.forEach((block, index) => {
 			block.setPosition([1 + (1 + MAX_SHAPE_SIZE[0]) * index, 1]);
-			drawBlock(this.game_ctx, block)
+			drawBlock(this.next_ctx, block)
 			block.setPosition([0, 0]);
 		});
 	}

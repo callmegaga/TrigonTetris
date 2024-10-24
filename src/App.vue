@@ -21,7 +21,6 @@ import { onMounted, onUnmounted, ref } from "vue";
 import GameSample from "@/components/GameSample.vue";
 import GamePad from "@/components/GamePad.vue";
 import GameScore from "@/components/GameScore.vue";
-import { sortUserPlugins } from "vite";
 import { GAME_BOARD_CELL_SIZE, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";
 import { getAdaptCellSize, getElementWidthHeight, getHistoryMaxScore, setHistoryMaxScore } from "@/utils/utils";
 import GameOver from "@/components/GameOver.vue";

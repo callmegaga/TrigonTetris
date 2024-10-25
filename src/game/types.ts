@@ -23,11 +23,7 @@ export enum GameStatus {
 	Fail
 }
 
-export type CellValue = {
-	origin: CellOriginValue
-}
-
-export enum CellOriginValue {
+export enum CellValue {
 	Empty,
 	TriangleLeftTop,
 	TriangleLeftBottom,
@@ -36,8 +32,8 @@ export enum CellOriginValue {
 	Full
 }
 
-// todo board cell value should not be empty
-export type BoardCellValue = CellValue;
+// export type BoardCellValue = Omit<CellValue, CellValue.Empty>;
+export type BoardCellValue = CellValue.TriangleLeftTop | CellValue.TriangleLeftBottom | CellValue.TriangleRightTop | CellValue.TriangleRightBottom | CellValue.Full;
 
 export type BoardCell = {
 	value: BoardCellValue;
@@ -47,21 +43,21 @@ export type BoardCell = {
 export type Board = BoardCell[][];
 
 export const RotateTable = {
-	[CellOriginValue.Empty]: CellOriginValue.Empty,
-	[CellOriginValue.TriangleLeftTop]: CellOriginValue.TriangleRightTop,
-	[CellOriginValue.TriangleLeftBottom]: CellOriginValue.TriangleLeftTop,
-	[CellOriginValue.TriangleRightTop]: CellOriginValue.TriangleRightBottom,
-	[CellOriginValue.TriangleRightBottom]: CellOriginValue.TriangleLeftBottom,
-	[CellOriginValue.Full]: CellOriginValue.Full
+	[CellValue.Empty]: CellValue.Empty,
+	[CellValue.TriangleLeftTop]: CellValue.TriangleRightTop,
+	[CellValue.TriangleLeftBottom]: CellValue.TriangleLeftTop,
+	[CellValue.TriangleRightTop]: CellValue.TriangleRightBottom,
+	[CellValue.TriangleRightBottom]: CellValue.TriangleLeftBottom,
+	[CellValue.Full]: CellValue.Full
 };
 
 export const FlipTable = {
-	[CellOriginValue.Empty]: CellOriginValue.Empty,
-	[CellOriginValue.TriangleLeftTop]: CellOriginValue.TriangleRightTop,
-	[CellOriginValue.TriangleLeftBottom]: CellOriginValue.TriangleRightBottom,
-	[CellOriginValue.TriangleRightTop]: CellOriginValue.TriangleLeftTop,
-	[CellOriginValue.TriangleRightBottom]: CellOriginValue.TriangleLeftBottom,
-	[CellOriginValue.Full]: CellOriginValue.Full
+	[CellValue.Empty]: CellValue.Empty,
+	[CellValue.TriangleLeftTop]: CellValue.TriangleRightTop,
+	[CellValue.TriangleLeftBottom]: CellValue.TriangleRightBottom,
+	[CellValue.TriangleRightTop]: CellValue.TriangleLeftTop,
+	[CellValue.TriangleRightBottom]: CellValue.TriangleLeftBottom,
+	[CellValue.Full]: CellValue.Full
 };
 
 export enum MoveDirection {

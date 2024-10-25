@@ -1,9 +1,9 @@
 import { Block } from "./block";
-import { CellOriginValue, type Shape } from "@/game/types";
+import { CellValue, type Shape } from "@/game/types";
 
 export class Shape4 extends Block {
 	constructor() {
-		const shape: Shape = [[{ origin: CellOriginValue.Full }]];
+		const shape: Shape = [[CellValue.Full]];
 
 		super(shape, "#a6a6a6");
 	}

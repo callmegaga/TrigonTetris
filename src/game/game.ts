@@ -1,5 +1,5 @@
 import type { Block } from "@/game/blocks/block";
-import { type Board, CellOriginValue, GameStatus, MoveDirection, type Square } from "@/game/types";
+import { type Board, CellValue, GameStatus, MoveDirection, type Square } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas/canvas_renderer";
 import { calculateScore, findMaxValidSquare, getRandomShape, isPositionEqual, setBlocksEmpty, squashBlock } from "@/utils/utils";
@@ -220,7 +220,7 @@ export class Game {
 
 		shape.forEach((row, y) => {
 			row.forEach((cell, x) => {
-				if (cell.origin === CellOriginValue.Empty) return;
+				if (cell === CellValue.Empty) return;
 				this.boards[y + block_position[1]][x + block_position[0]].push({
 					value: cell,
 					block: this.active_block as Block

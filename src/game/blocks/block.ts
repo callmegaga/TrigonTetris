@@ -1,4 +1,4 @@
-import { type Board, CellOriginValue, FlipTable, MoveDirection, type Position, RotateTable, type Shape } from "@/game/types";
+import { type Board, CellValue, FlipTable, MoveDirection, type Position, RotateTable, type Shape } from "@/game/types";
 import { buildShape, isCollideShapeAndBoardCell, isEmptyBoardCell } from "@/utils/utils";
 
 export abstract class Block {
@@ -46,7 +46,7 @@ export abstract class Block {
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
 				const board_cell = boards[y + this.current_position[1]][x + this.current_position[0]];
-				if (this.shape[y][x].origin === CellOriginValue.Empty) continue;
+				if (this.shape[y][x] === CellValue.Empty) continue;
 				if (isEmptyBoardCell(board_cell)) continue;
 				if (isCollideShapeAndBoardCell(this.shape[y][x], board_cell, this)) return true;
 			}
@@ -106,7 +106,7 @@ export abstract class Block {
 
 		for (let row = 0; row < height; row++) {
 			for (let col = 0; col < width; col++) {
-				new_shape[col][height - 1 - row] = { origin: RotateTable[this.shape[row][col].origin] };
+				new_shape[col][height - 1 - row] = RotateTable[this.shape[row][col]];
 			}
 		}
 
@@ -123,7 +123,7 @@ export abstract class Block {
 
 		this.shape.forEach((row, y) => {
 			this.shape[y] = row.reverse().map((cell) => {
-				return { origin: FlipTable[cell.origin] };
+				return FlipTable[cell];
 			});
 		});
 
@@ -144,7 +144,7 @@ export abstract class Block {
 		const shape = this.getShape();
 		shape.forEach((row) => {
 			row.forEach((cell) => {
-				cell.origin = CellOriginValue.Empty;
+				cell = CellValue.Empty;
 			});
 		});
 	}
@@ -154,7 +154,7 @@ export abstract class Block {
 		const shape = this.getShape();
 		shape.forEach((row) => {
 			row.forEach((cell) => {
-				if (cell.origin !== CellOriginValue.Empty) {
+				if (cell !== CellValue.Empty) {
 					result = false;
 				}
 			});

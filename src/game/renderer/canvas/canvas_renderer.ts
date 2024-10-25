@@ -1,9 +1,9 @@
 import { Renderer } from "@/game/renderer/renderer";
-import { type Board, type BoardCellValue, CellOriginValue, type Position, type Square } from "@/game/types";
+import { type Board } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
 import { MAX_SHAPE_SIZE, STAND_BY_COUNT } from "@/game/config";
 import { AnimationController } from "@/game/renderer/canvas/canvas_effect";
-import { drawBlock,drawBoard } from "@/game/renderer/canvas/canvas_utils";
+import { drawBlock, drawBoard } from "@/game/renderer/canvas/canvas_utils";
 
 const next_size = [MAX_SHAPE_SIZE[0] * STAND_BY_COUNT + 3, MAX_SHAPE_SIZE[1] + 2];
 
@@ -44,7 +44,7 @@ export class CanvasRenderer extends Renderer {
 		this.drawBackground(this.game_ctx);
 		this.drawGrid(this.game_ctx, board);
 		drawBoard(this.game_ctx, board);
-		drawBlock(this.game_ctx, active_block)
+		drawBlock(this.game_ctx, active_block);
 	}
 
 	renderNextBlock(blocks: Block[]) {
@@ -52,14 +52,15 @@ export class CanvasRenderer extends Renderer {
 		this.drawGrid(this.next_ctx, next_board);
 		blocks.forEach((block, index) => {
 			block.setPosition([1 + (1 + MAX_SHAPE_SIZE[0]) * index, 1]);
-			drawBlock(this.next_ctx, block)
+			drawBlock(this.next_ctx, block);
 			block.setPosition([0, 0]);
 		});
 	}
 
 	renderBlockEffect(blocks: Set<Block>, boards: Board) {
 		const animationController = new AnimationController(this.game_ctx, blocks);
-		const that = this;
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that: CanvasRenderer = this;
 		return new Promise<void>((resolve) => {
 			function animate() {
 				that.render(boards, null);
@@ -69,13 +70,13 @@ export class CanvasRenderer extends Renderer {
 
 				if (animationController.isAnimationComplete()) {
 					resolve();
-				}else {
+				} else {
 					requestAnimationFrame(animate);
 				}
 			}
 
 			animate();
-		})
+		});
 	}
 
 	private createBackground(width: number, height: number) {

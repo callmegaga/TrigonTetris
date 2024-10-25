@@ -1,13 +1,13 @@
 import { Block } from "./block";
-import { CellOriginValue, type Shape } from "@/game/types";
+import { CellValue, type Shape } from "@/game/types";
 
 export class Shape5 extends Block {
 	constructor() {
 		const shape: Shape = [
-			[{ origin: CellOriginValue.Full }, { origin: CellOriginValue.Full }, { origin: CellOriginValue.Full }, { origin: CellOriginValue.Full }],
-			[{ origin: CellOriginValue.Full }, { origin: CellOriginValue.Full }, { origin: CellOriginValue.Full }, { origin: CellOriginValue.Full }],
-			[{ origin: CellOriginValue.Full }, { origin: CellOriginValue.Full }, { origin: CellOriginValue.TriangleRightTop }, { origin: CellOriginValue.Full }],
-			[{ origin: CellOriginValue.Full }, { origin: CellOriginValue.Full }, { origin: CellOriginValue.Empty }, { origin: CellOriginValue.TriangleRightTop }]
+			[CellValue.Full, CellValue.Full, CellValue.Full, CellValue.Full],
+			[CellValue.Full, CellValue.Full, CellValue.Full, CellValue.Full],
+			[CellValue.Full, CellValue.Full, CellValue.TriangleRightTop, CellValue.Full],
+			[CellValue.Full, CellValue.Full, CellValue.Empty, CellValue.TriangleRightTop]
 		];
 
 		super(shape, "#f799fc");

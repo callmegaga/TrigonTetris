@@ -1,4 +1,4 @@
-import { type Board, type BoardCellValue, CellOriginValue, type Position } from "@/game/types";
+import { type Board, type Position, CellValue } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
 import { GAME_BOARD_CELL_SIZE } from "@/game/config";
 
@@ -26,41 +26,41 @@ export function drawBlock(ctx: CanvasRenderingContext2D, block: Block | null) {
 	});
 }
 
-export function drawCell(ctx: CanvasRenderingContext2D, position: Position, cell: BoardCellValue, color: string, board_cell_size: number) {
+export function drawCell(ctx: CanvasRenderingContext2D, position: Position, cell: CellValue, color: string, board_cell_size: number) {
 	const x = position[0];
 	const y = position[1];
 
 	ctx.fillStyle = color;
 	ctx.beginPath();
-	switch (cell.origin) {
-	case CellOriginValue.Empty:
-		return;
-	case CellOriginValue.TriangleLeftTop:
-		ctx.moveTo(x * board_cell_size, y * board_cell_size);
-		ctx.lineTo((x + 1) * board_cell_size, y * board_cell_size);
-		ctx.lineTo(x * board_cell_size, (y + 1) * board_cell_size);
-		break;
-	case CellOriginValue.TriangleLeftBottom:
-		ctx.moveTo(x * board_cell_size, y * board_cell_size);
-		ctx.lineTo((x + 1) * board_cell_size, (y + 1) * board_cell_size);
-		ctx.lineTo(x * board_cell_size, (y + 1) * board_cell_size);
-		break;
-	case CellOriginValue.TriangleRightTop:
-		ctx.moveTo(x * board_cell_size, y * board_cell_size);
-		ctx.lineTo((x + 1) * board_cell_size, y * board_cell_size);
-		ctx.lineTo((x + 1) * board_cell_size, (y + 1) * board_cell_size);
-		break;
-	case CellOriginValue.TriangleRightBottom:
-		ctx.moveTo((x + 1) * board_cell_size, y * board_cell_size);
-		ctx.lineTo((x + 1) * board_cell_size, (y + 1) * board_cell_size);
-		ctx.lineTo(x * board_cell_size, (y + 1) * board_cell_size);
-		break;
-	case CellOriginValue.Full:
-		ctx.moveTo(x * board_cell_size, y * board_cell_size);
-		ctx.lineTo((x + 1) * board_cell_size, y * board_cell_size);
-		ctx.lineTo((x + 1) * board_cell_size, (y + 1) * board_cell_size);
-		ctx.lineTo(x * board_cell_size, (y + 1) * board_cell_size);
-		break;
+	switch (cell) {
+		case CellValue.Empty:
+			return;
+		case CellValue.TriangleLeftTop:
+			ctx.moveTo(x * board_cell_size, y * board_cell_size);
+			ctx.lineTo((x + 1) * board_cell_size, y * board_cell_size);
+			ctx.lineTo(x * board_cell_size, (y + 1) * board_cell_size);
+			break;
+		case CellValue.TriangleLeftBottom:
+			ctx.moveTo(x * board_cell_size, y * board_cell_size);
+			ctx.lineTo((x + 1) * board_cell_size, (y + 1) * board_cell_size);
+			ctx.lineTo(x * board_cell_size, (y + 1) * board_cell_size);
+			break;
+		case CellValue.TriangleRightTop:
+			ctx.moveTo(x * board_cell_size, y * board_cell_size);
+			ctx.lineTo((x + 1) * board_cell_size, y * board_cell_size);
+			ctx.lineTo((x + 1) * board_cell_size, (y + 1) * board_cell_size);
+			break;
+		case CellValue.TriangleRightBottom:
+			ctx.moveTo((x + 1) * board_cell_size, y * board_cell_size);
+			ctx.lineTo((x + 1) * board_cell_size, (y + 1) * board_cell_size);
+			ctx.lineTo(x * board_cell_size, (y + 1) * board_cell_size);
+			break;
+		case CellValue.Full:
+			ctx.moveTo(x * board_cell_size, y * board_cell_size);
+			ctx.lineTo((x + 1) * board_cell_size, y * board_cell_size);
+			ctx.lineTo((x + 1) * board_cell_size, (y + 1) * board_cell_size);
+			ctx.lineTo(x * board_cell_size, (y + 1) * board_cell_size);
+			break;
 	}
 	ctx.closePath();
 	ctx.fill();

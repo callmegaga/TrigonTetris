@@ -1,5 +1,5 @@
 import { FRAGMENT_SIZE, GAME_BOARD_CELL_SIZE } from "@/game/config";
-import { CellOriginValue } from "@/game/types";
+import { CellValue } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
 import { drawBlock } from "@/game/renderer/canvas/canvas_utils";
 
@@ -46,7 +46,6 @@ export class Fragment {
 	}
 }
 
-
 export class GlowBlocks {
 	private readonly ctx: CanvasRenderingContext2D;
 	public glow_alpha: number;
@@ -66,7 +65,7 @@ export class GlowBlocks {
 	}
 
 	draw() {
-		this.blocks.forEach(block => {
+		this.blocks.forEach((block) => {
 			this.ctx.save();
 			this.ctx.shadowColor = this.color;
 			this.ctx.shadowBlur = 20 * this.intensity;
@@ -94,13 +93,13 @@ export class GlowBlocks {
 function createFragments(blocks: Set<Block>) {
 	// const { size, bottom_right: [bottom, right] } = square;
 	const fragments: Fragment[] = [];
-	blocks.forEach(block => {
+	blocks.forEach((block) => {
 		const [x, y] = block.getPosition();
 		const shape = block.getShape();
 
 		shape.forEach((row, row_index) => {
 			row.forEach((cell, col_index) => {
-				if (cell.origin === CellOriginValue.Empty) return;
+				if (cell === CellValue.Empty) return;
 				const cell_x = (x + col_index) * GAME_BOARD_CELL_SIZE;
 				const cell_y = (y + row_index) * GAME_BOARD_CELL_SIZE;
 				const color = block.getColor();
@@ -158,8 +157,8 @@ export class AnimationController {
 				this.state = AnimationState.fade;
 			}
 		} else {
-			this.fragments = this.fragments.filter(fragment => fragment.show);
-			this.fragments.forEach(fragment => fragment.update());
+			this.fragments = this.fragments.filter((fragment) => fragment.show);
+			this.fragments.forEach((fragment) => fragment.update());
 		}
 	}
 
@@ -167,7 +166,7 @@ export class AnimationController {
 		if (this.state === AnimationState.glow) {
 			this.glow_square.draw();
 		} else {
-			this.fragments.forEach(fragment => fragment.draw(this.ctx));
+			this.fragments.forEach((fragment) => fragment.draw(this.ctx));
 		}
 	}
 
@@ -175,6 +174,3 @@ export class AnimationController {
 		return this.fragments.length === 0;
 	}
 }
-
-
-

@@ -11,7 +11,7 @@
 		</div>
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
-	<game-over v-if="is_game_over"/>
+	<game-over v-if="is_game_over" />
 </template>
 
 <script setup lang="ts">
@@ -22,7 +22,7 @@ import GameSample from "@/components/GameSample.vue";
 import GamePad from "@/components/GamePad.vue";
 import GameScore from "@/components/GameScore.vue";
 import { GAME_BOARD_CELL_SIZE, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";
-import { getAdaptCellSize, getElementWidthHeight, getHistoryMaxScore, setHistoryMaxScore } from "@/utils/utils";
+import { getHistoryMaxScore, setHistoryMaxScore } from "@/utils/utils";
 import GameOver from "@/components/GameOver.vue";
 
 const is_show_welcome = ref(true);
@@ -58,13 +58,11 @@ function onScore(gain: number) {
 function onFail() {
 	console.log("fail");
 	is_game_over.value = true;
-	game.end()
+	game.end();
 }
 
 onMounted(() => {
 	max_score.value = getHistoryMaxScore();
-	const element_width_height = getElementWidthHeight(document.querySelector("#game") as HTMLElement);
-	const adapt_cell_size = getAdaptCellSize(element_width_height, [GAME_BOARD_COL, GAME_BOARD_ROW]);
 
 	game = new Game({
 		game_container: document.querySelector("#game") as HTMLElement,

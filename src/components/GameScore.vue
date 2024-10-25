@@ -6,8 +6,6 @@
 </template>
 
 <script setup lang="ts">
-import { withDefaults, defineProps } from "vue";
-
 const props = withDefaults(
 	defineProps<{
 		score: number;

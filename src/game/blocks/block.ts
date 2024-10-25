@@ -142,10 +142,8 @@ export abstract class Block {
 
 	setShapeEmpty(): void {
 		const shape = this.getShape();
-		shape.forEach((row) => {
-			row.forEach((cell) => {
-				cell = CellValue.Empty;
-			});
+		this.shape = shape.map((row) => {
+			return row.map(() => CellValue.Empty);
 		});
 	}
 

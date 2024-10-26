@@ -22,7 +22,20 @@ export function buildShape(width: number, height: number) {
 }
 
 export function copyBoard(board: Board) {
-	return board.map((row) => row.map((cell) => ({ ...cell })));
+	return board.map((row) => row.map((cell) => cell.map((block) => {
+		return {value: block.value, block: block.block}
+	})));
+}
+
+export function boardEraseBlock(board: Board, block: Block) {
+	const height = board.length;
+	const width = board[0].length;
+	for (let i = 0; i < height; i++) {
+		for (let j = 0; j < width; j++) {
+			const board_cell = board[i][j];
+			board[i][j] = board_cell.filter((cell) => cell.block !== block);
+		}
+	}
 }
 
 export function getBoardCellValue(block: BoardCell): CellValue {

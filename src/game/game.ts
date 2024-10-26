@@ -2,7 +2,7 @@ import type { Block } from "@/game/blocks/block";
 import { type Board, CellValue, GameStatus, MoveDirection, type Square } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas/canvas_renderer";
-import { calculateScore, findMaxValidSquare, getRandomShape, isPositionEqual, setBlocksEmpty, squashBlock } from "@/utils/utils";
+import { boardEraseBlock, calculateScore, copyBoard, findMaxValidSquare, getRandomShape, isPositionEqual } from "@/utils/utils";
 import { STAND_BY_COUNT } from "@/game/config";
 import { Shape1 } from "@/game/blocks/shape-1";
 import { Shape5 } from "@/game/blocks/shape-5";
@@ -75,20 +75,19 @@ export class Game {
 	private loop() {
 		console.log("game loop: ", this.state);
 		switch (this.state) {
-		case GameStatus.NotStart:
-			break;
-		case GameStatus.Active:
-			this.loopWhenActive();
-			break;
-		case
-		GameStatus.ClearAnimation:
-			break;
-		case GameStatus.MoveBoard:
-			this.loopWhenMoveBoard();
-			break;
-		case GameStatus.Fail:
-			console.log("game over");
-			break;
+			case GameStatus.NotStart:
+				break;
+			case GameStatus.Active:
+				this.loopWhenActive();
+				break;
+			case GameStatus.ClearAnimation:
+				break;
+			case GameStatus.MoveBoard:
+				this.loopWhenMoveBoard();
+				break;
+			case GameStatus.Fail:
+				console.log("game over");
+				break;
 		}
 	}
 
@@ -128,7 +127,6 @@ export class Game {
 
 	private loopWhenMoveBoard() {
 		const is_board_changed = this.moveDeadBlocksFall();
-		// is_board_changed = this.squashDeadBlocks();
 
 		this.draw();
 		if (!is_board_changed) {
@@ -153,38 +151,37 @@ export class Game {
 		let need_move_block_count = dead_block_move_map.size;
 		console.log("dead_block:", this.dead_blocks);
 
-		const {
-			size,
-			bottom_right: [bottom, right]
-		} = this.cleared_squares as Square;
-
-		const start_column = right - size + 1;
-
-		out_loop: for (let i = bottom - size; i >= 0; i--) {
-			for (let j = start_column; j <= right; j++) {
-				const board_cells = this.boards[i][j];
-				board_cells.forEach((board_cell) => {
-					if (!dead_block_move_map.get(board_cell.block)) {
-						board_cell.block.move(MoveDirection.Down);
-						console.log("move down");
-						if (board_cell.block.isCollide(this.boards)) {
-							console.log("move up");
-							board_cell.block.moveUp();
-						} else {
-							is_board_changed = true;
-						}
-						dead_block_move_map.set(board_cell.block, true);
+		for (let y = this.boards.length - 2; y >= 0; y--) {
+			for (let x = 0; x < this.boards[y].length; x++) {
+				const cell = this.boards[y][x];
+				if (cell.length === 0) {
+					continue;
+				}
+				cell.forEach((block_cell) => {
+					const block = block_cell.block;
+					if (dead_block_move_map.get(block)) {
+						return;
 					}
+					dead_block_move_map.set(block, true);
+					need_move_block_count--;
+
+					boardEraseBlock(this.boards, block);
+
+					block.move(MoveDirection.Down);
+
+					if (block.isCollide(this.boards)) {
+						block.moveUp();
+					} else {
+						is_board_changed = true;
+					}
+					this.updateBoardsFromBlock(block);
 				});
 
-				// if all dead blocks have moved, then break the loop
-				need_move_block_count--;
-				if (need_move_block_count <= 0) {
-					break out_loop;
+				if (need_move_block_count === 0) {
+					return is_board_changed;
 				}
 			}
 		}
-		return is_board_changed;
 	}
 
 	private onSquareFind(square: Square) {
@@ -193,13 +190,15 @@ export class Game {
 		console.log("score: ", score);
 		this.options.onScore(score);
 		const need_clear_blocks = this.getAllBlocksFromSquare(square);
+		this.clearBoardFromSquare(square);
+		this.clearBoardFromBlocks(need_clear_blocks);
+		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
 
 		this.renderer.renderBlockEffect(need_clear_blocks, this.boards).then(() => {
 			console.log("finish animation end");
 			this.state = GameStatus.MoveBoard;
 			this.loop();
 		});
-		this.clearBlocks(need_clear_blocks);
 		this.cleared_squares = square;
 		this.state = GameStatus.ClearAnimation;
 		console.log("finish animation start");
@@ -213,20 +212,23 @@ export class Game {
 		this.renderer.renderNextBlock([this.block_queue[0], this.block_queue[1]]);
 	}
 
-	private updateBoardsFromActiveBlock() {
-		if (!this.active_block) return;
-		const shape = this.active_block.getShape();
-		const block_position = this.active_block.getPosition();
+	private updateBoardsFromBlock(block: Block) {
+		const shape = block.getShape();
+		const block_position = block.getPosition();
 
 		shape.forEach((row, y) => {
 			row.forEach((cell, x) => {
 				if (cell === CellValue.Empty) return;
 				this.boards[y + block_position[1]][x + block_position[0]].push({
 					value: cell,
-					block: this.active_block as Block
+					block: block
 				});
 			});
 		});
+	}
+	private updateBoardsFromActiveBlock() {
+		if (!this.active_block) return;
+		this.updateBoardsFromBlock(this.active_block);
 	}
 
 	private bindEvents() {
@@ -234,34 +236,32 @@ export class Game {
 		this.bindGamepadEvents();
 	}
 
-	private unbindEvents() {
-	}
+	private unbindEvents() {}
 
 	private bindKeyboardEvents() {
 		document.addEventListener("keydown", (e) => {
 			switch (e.key) {
-			case "ArrowUp":
-				this.active_block?.rotateIfNotCollide(this.boards);
-				break;
-			case "ArrowDown":
-				this.active_block?.moveIfNotCollide(MoveDirection.Down, this.boards);
-				break;
-			case "ArrowLeft":
-				this.active_block?.moveIfNotCollide(MoveDirection.Left, this.boards);
-				break;
-			case "ArrowRight":
-				this.active_block?.moveIfNotCollide(MoveDirection.Right, this.boards);
-				break;
-			case " ":
-				this.active_block?.flipIfNotCollide(this.boards);
-				break;
+				case "ArrowUp":
+					this.active_block?.rotateIfNotCollide(this.boards);
+					break;
+				case "ArrowDown":
+					this.active_block?.moveIfNotCollide(MoveDirection.Down, this.boards);
+					break;
+				case "ArrowLeft":
+					this.active_block?.moveIfNotCollide(MoveDirection.Left, this.boards);
+					break;
+				case "ArrowRight":
+					this.active_block?.moveIfNotCollide(MoveDirection.Right, this.boards);
+					break;
+				case " ":
+					this.active_block?.flipIfNotCollide(this.boards);
+					break;
 			}
 			this.draw();
 		});
 	}
 
-	private bindGamepadEvents() {
-	}
+	private bindGamepadEvents() {}
 
 	private getAllBlocksFromSquare(square: Square) {
 		const {
@@ -280,14 +280,29 @@ export class Game {
 		return need_clear_blocks;
 	}
 
-	private clearBlocks(blocks: Set<Block>) {
-		setBlocksEmpty(blocks);
+	private clearBoardFromSquare(square: Square) {
+		const {
+			size,
+			bottom_right: [bottom, right]
+		} = square;
 
-		this.removeEmptyBlocks();
-		console.log("dead_blocks: ", this.dead_blocks);
+		for (let i = bottom - size + 1; i <= bottom; i++) {
+			for (let j = right - size + 1; j <= right; j++) {
+				this.boards[i][j].length = 0;
+			}
+		}
 	}
 
-	private removeEmptyBlocks() {
-		this.dead_blocks = this.dead_blocks.filter((block) => !block.isEmpty);
+	private clearBoardFromBlocks(blocks: Set<Block>) {
+		blocks.forEach((block) => {
+			const position = block.getPosition();
+			const shape = block.getShape();
+			shape.forEach((row, y) => {
+				row.forEach((cell, x) => {
+					if (cell === CellValue.Empty) return;
+					this.boards[y + position[1]][x + position[0]].length = 0;
+				});
+			});
+		});
 	}
 }

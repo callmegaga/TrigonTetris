@@ -31,10 +31,12 @@ export class Fragment {
 		this.x += this.velocity_x;
 		this.y += this.velocity_y;
 		this.velocity_y += this.gravity;
-		this.alpha -= 0.02;
+		this.alpha -= 0.01;
+		this.alpha = Math.max(0, this.alpha);
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {
+		if (!this.show) return;
 		ctx.fillStyle = this.color;
 		ctx.globalAlpha = this.alpha;
 		ctx.fillRect(this.x, this.y, FRAGMENT_SIZE, FRAGMENT_SIZE);
@@ -73,25 +75,11 @@ export class GlowBlocks {
 			drawBlock(this.ctx, block);
 			this.ctx.restore();
 		});
-		// const { size, bottom_right: [bottom, right] } = this.square;
-		// const x = (right - size + 1) * GAME_BOARD_CELL_SIZE;
-		// const y = (bottom - size + 1) * GAME_BOARD_CELL_SIZE;
-		// const width = size * GAME_BOARD_CELL_SIZE;
-		// const height = size * GAME_BOARD_CELL_SIZE;
-
-		// this.ctx.save();
-		// this.ctx.shadowColor = this.color;
-		// this.ctx.shadowBlur = 20 * this.intensity;
-		// this.ctx.fillStyle = this.color;
-		// this.ctx.globalAlpha = this.glow_alpha;
-		// this.ctx.fillRect(x, y, width, height);
-		// this.ctx.restore();
 	}
 }
 
 // 可复用的破碎效果函数
 function createFragments(blocks: Set<Block>) {
-	// const { size, bottom_right: [bottom, right] } = square;
 	const fragments: Fragment[] = [];
 	blocks.forEach((block) => {
 		const [x, y] = block.getPosition();
@@ -111,29 +99,6 @@ function createFragments(blocks: Set<Block>) {
 			});
 		});
 	});
-	// const x = (right - size + 1) * GAME_BOARD_CELL_SIZE;
-	// const y = (bottom - size + 1) * GAME_BOARD_CELL_SIZE;
-	// const width = size * GAME_BOARD_CELL_SIZE;
-	// const height = size * GAME_BOARD_CELL_SIZE;
-	//
-	// for (let i = x; i < width + x; i += FRAGMENT_SIZE) {
-	// 	const col = Math.floor((i) / GAME_BOARD_CELL_SIZE);
-	// 	for (let j = y; j < height + y; j += FRAGMENT_SIZE) {
-	// 		const row = Math.floor((j) / GAME_BOARD_CELL_SIZE);
-	// 		const cell = board[row][col];
-	//
-	// 		if (cell.length === 0) continue;
-	// 		if (cell.length === 1) {
-	// 			fragments.push(new Fragment(i, j, cell[0].block.getColor()));
-	// 		} else {
-	// 			if (j % 2) {
-	// 				fragments.push(new Fragment(i, j, cell[0].block.getColor()));
-	// 			} else {
-	// 				fragments.push(new Fragment(i, j, cell[1].block.getColor()));
-	// 			}
-	// 		}
-	// 	}
-	// }
 	return fragments;
 }
 

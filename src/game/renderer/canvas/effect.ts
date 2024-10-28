@@ -1,5 +1,5 @@
-import { FRAGMENT_SIZE, GAME_BOARD_CELL_SIZE } from "@/game/config";
-import { CellValue } from "@/game/types";
+import { FRAGMENT_SIZE } from "@/game/config";
+import { CellValue, type Rectangle, type Square } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
 import { drawBlock } from "@/game/renderer/canvas/canvas_utils";
 
@@ -55,11 +55,13 @@ export class GlowBlocks {
 	private intensity: number = 0;
 	private color: string = "#fff";
 	private readonly blocks: Set<Block>;
+	private board_cell_size: number;
 
-	constructor(ctx: CanvasRenderingContext2D, blocks: Set<Block>) {
+	constructor(ctx: CanvasRenderingContext2D, blocks: Set<Block>, board_cell_size: number) {
 		this.ctx = ctx;
 		this.glow_alpha = 0;
 		this.blocks = blocks;
+		this.board_cell_size = board_cell_size;
 	}
 
 	update() {
@@ -72,14 +74,14 @@ export class GlowBlocks {
 			this.ctx.shadowColor = this.color;
 			this.ctx.shadowBlur = 20 * this.intensity;
 			this.ctx.globalAlpha = this.glow_alpha;
-			drawBlock(this.ctx, block);
+			drawBlock(this.ctx, block, this.board_cell_size);
 			this.ctx.restore();
 		});
 	}
 }
 
 // 可复用的破碎效果函数
-function createFragments(blocks: Set<Block>) {
+function createFragments(blocks: Set<Block>, board_cell_size: number) {
 	const fragments: Fragment[] = [];
 	blocks.forEach((block) => {
 		const [x, y] = block.getPosition();
@@ -88,10 +90,10 @@ function createFragments(blocks: Set<Block>) {
 		shape.forEach((row, row_index) => {
 			row.forEach((cell, col_index) => {
 				if (cell === CellValue.Empty) return;
-				const cell_x = (x + col_index) * GAME_BOARD_CELL_SIZE;
-				const cell_y = (y + row_index) * GAME_BOARD_CELL_SIZE;
+				const cell_x = (x + col_index) * board_cell_size;
+				const cell_y = (y + row_index) * board_cell_size;
 				const color = block.getColor();
-				const count = Math.ceil(GAME_BOARD_CELL_SIZE / FRAGMENT_SIZE);
+				const count = Math.ceil(board_cell_size / FRAGMENT_SIZE);
 
 				for (let i = 0; i < count; i++) {
 					fragments.push(new Fragment(cell_x + i, cell_y, color));
@@ -102,17 +104,17 @@ function createFragments(blocks: Set<Block>) {
 	return fragments;
 }
 
-// 动画控制器
-export class AnimationController {
+// 板块动画控制器
+export class BlockEraseAnimation {
 	private readonly ctx: CanvasRenderingContext2D;
 	private fragments: Fragment[];
 	private glow_square: GlowBlocks;
 	private state: AnimationState = AnimationState.glow;
 
-	constructor(ctx: CanvasRenderingContext2D, blocks: Set<Block>) {
+	constructor(ctx: CanvasRenderingContext2D, blocks: Set<Block>, board_cell_size: number) {
 		this.ctx = ctx;
-		this.fragments = createFragments(blocks);
-		this.glow_square = new GlowBlocks(ctx, blocks);
+		this.fragments = createFragments(blocks, board_cell_size);
+		this.glow_square = new GlowBlocks(ctx, blocks, board_cell_size);
 	}
 
 	update() {
@@ -135,7 +137,61 @@ export class AnimationController {
 		}
 	}
 
-	isAnimationComplete() {
+	get isAnimationComplete() {
 		return this.fragments.length === 0;
+	}
+}
+
+// 光线扩散动画
+export class SpreadLightAnimation {
+	private readonly ctx: CanvasRenderingContext2D;
+	private readonly step: number;
+	private up_light_rectangle: Rectangle;
+	private left_light_rectangle: Rectangle;
+	private right_light_rectangle: Rectangle;
+	private down_light_rectangle: Rectangle;
+
+	constructor(ctx: CanvasRenderingContext2D, square: Square, step: number, board_cell_size: number) {
+		this.ctx = ctx;
+		this.step = step;
+
+		const {
+			size,
+			bottom_right: [bottom_board, right_board]
+		} = square;
+
+		const left = (right_board - size) * board_cell_size;
+		const top = (bottom_board - size) * board_cell_size;
+		const right = right_board * board_cell_size;
+		const bottom = bottom_board * board_cell_size;
+		const width = size * board_cell_size;
+		const height = size * board_cell_size;
+
+		this.up_light_rectangle = [left, top - 1, width, 1];
+		this.left_light_rectangle = [left - 1, top, 1, height];
+		this.right_light_rectangle = [right, top, 1, height];
+		this.down_light_rectangle = [left, bottom, width, 1];
+	}
+
+	update() {
+		this.up_light_rectangle[1] -= this.step;
+		this.up_light_rectangle[3] += this.step;
+		this.left_light_rectangle[0] -= this.step;
+		this.left_light_rectangle[2] += this.step;
+		this.right_light_rectangle[2] += this.step;
+		this.down_light_rectangle[3] += this.step;
+	}
+
+	draw() {
+		this.ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+
+		this.ctx.fillRect(...this.up_light_rectangle);
+		this.ctx.fillRect(...this.left_light_rectangle);
+		this.ctx.fillRect(...this.right_light_rectangle);
+		this.ctx.fillRect(...this.down_light_rectangle);
+	}
+
+	get isAnimationComplete() {
+		return this.up_light_rectangle[1] <= 0 && this.left_light_rectangle[0] <= 0 && this.right_light_rectangle[0] + this.right_light_rectangle[2] >= this.ctx.canvas.width && this.down_light_rectangle[3] + this.down_light_rectangle[1] >= this.ctx.canvas.height;
 	}
 }

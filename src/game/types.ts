@@ -11,6 +11,8 @@ export type Square = {
 	bottom_right: [number, number];
 };
 
+export type Rectangle = [number, number, number, number];
+
 export enum GameStatus {
 	//	游戏未开始
 	NotStart,

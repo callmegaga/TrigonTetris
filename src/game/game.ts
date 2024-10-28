@@ -196,8 +196,19 @@ export class Game {
 
 		this.renderer.renderBlockEffect(need_clear_blocks, this.boards).then(() => {
 			console.log("finish animation end");
-			this.state = GameStatus.MoveBoard;
-			this.loop();
+			this.renderer.renderSpreadLight(this.boards, square).then(() => {
+
+				const other_clear_blocks = this.findBlocksInSpreadLight(square);
+
+				this.clearBoardFromBlocks(other_clear_blocks);
+
+				this.dead_blocks = this.dead_blocks.filter((block) => !other_clear_blocks.has(block));
+
+				this.renderer.renderBlockEffect(other_clear_blocks, this.boards).then(() => {
+					this.state = GameStatus.MoveBoard;
+					this.loop();
+				})
+			});
 		});
 		this.cleared_squares = square;
 		this.state = GameStatus.ClearAnimation;
@@ -226,6 +237,7 @@ export class Game {
 			});
 		});
 	}
+
 	private updateBoardsFromActiveBlock() {
 		if (!this.active_block) return;
 		this.updateBoardsFromBlock(this.active_block);
@@ -304,5 +316,32 @@ export class Game {
 				});
 			});
 		});
+	}
+
+	private findBlocksInSpreadLight(square: Square) {
+		const {
+			size,
+			bottom_right: [bottom, right]
+		} = square;
+		const result: Set<Block> = new Set();
+
+		for (let y = 0; y < this.boards.length; y++) {
+			for (let x = right- size + 1; x <= right; x++) {
+				const cell = this.boards[y][x];
+				cell.forEach((block_cell) => {
+					result.add(block_cell.block);
+				});
+			}
+		}
+
+		for (let x = 0; x < this.boards[0].length; x++) {
+			for (let y = bottom - size + 1; y <= bottom; y++) {
+				const cell = this.boards[y][x];
+				cell.forEach((block_cell) => {
+					result.add(block_cell.block);
+				});
+			}
+		}
+		return result;
 	}
 }

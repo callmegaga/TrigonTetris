@@ -1,9 +1,9 @@
 import { Renderer } from "@/game/renderer/renderer";
-import { type Board } from "@/game/types";
+import { type Board, type Square } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
 import { MAX_SHAPE_SIZE, STAND_BY_COUNT } from "@/game/config";
-import { AnimationController } from "@/game/renderer/canvas/canvas_effect";
-import { drawBlock, drawBoard } from "@/game/renderer/canvas/canvas_utils";
+import { BlockEraseAnimation, SpreadLightAnimation } from "@/game/renderer/canvas/effect";
+import { drawBlock, drawBoard, drawGrid, createBackground } from "@/game/renderer/canvas/canvas_utils";
 
 const next_size = [MAX_SHAPE_SIZE[0] * STAND_BY_COUNT + 3, MAX_SHAPE_SIZE[1] + 2];
 
@@ -36,39 +36,39 @@ export class CanvasRenderer extends Renderer {
 
 		this.next_container.appendChild(next_canvas);
 
-		this.background = this.createBackground(game_canvas.width, game_canvas.height);
+		this.background = createBackground(game_canvas.width, game_canvas.height);
 	}
 
 	render(board: Board, active_block: Block | null) {
-		this.game_ctx.clearRect(0, 0, this.game_ctx.canvas.width, this.game_ctx.canvas.height);
+		this.clear();
 		this.drawBackground(this.game_ctx);
-		this.drawGrid(this.game_ctx, board);
-		drawBoard(this.game_ctx, board);
-		drawBlock(this.game_ctx, active_block);
+		drawGrid(this.game_ctx, board, this.board_cell_size);
+		drawBoard(this.game_ctx, board, this.board_cell_size);
+		drawBlock(this.game_ctx, active_block, this.board_cell_size);
 	}
 
 	renderNextBlock(blocks: Block[]) {
-		this.next_ctx.clearRect(0, 0, this.next_ctx.canvas.width, this.next_ctx.canvas.height);
-		this.drawGrid(this.next_ctx, next_board);
+		this.clear();
+		drawGrid(this.game_ctx, next_board, this.board_cell_size);
 		blocks.forEach((block, index) => {
 			block.setPosition([1 + (1 + MAX_SHAPE_SIZE[0]) * index, 1]);
-			drawBlock(this.next_ctx, block);
+			drawBlock(this.next_ctx, block, this.board_cell_size);
 			block.setPosition([0, 0]);
 		});
 	}
 
 	renderBlockEffect(blocks: Set<Block>, boards: Board) {
-		const animationController = new AnimationController(this.game_ctx, blocks);
+		const animation = new BlockEraseAnimation(this.game_ctx, blocks, this.board_cell_size);
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		const that: CanvasRenderer = this;
 		return new Promise<void>((resolve) => {
 			function animate() {
 				that.render(boards, null);
 
-				animationController.update();
-				animationController.draw();
+				animation.update();
+				animation.draw();
 
-				if (animationController.isAnimationComplete()) {
+				if (animation.isAnimationComplete) {
 					resolve();
 				} else {
 					requestAnimationFrame(animate);
@@ -79,42 +79,34 @@ export class CanvasRenderer extends Renderer {
 		});
 	}
 
-	private createBackground(width: number, height: number) {
-		const bgCanvas = document.createElement("canvas");
-		const bgCtx = bgCanvas.getContext("2d") as CanvasRenderingContext2D;
-		bgCanvas.width = width;
-		bgCanvas.height = height;
+	renderSpreadLight(boards: Board, square: Square): Promise<void> {
+		const animation = new SpreadLightAnimation(this.game_ctx, square, 8, this.board_cell_size);
 
-		const gradient = bgCtx.createLinearGradient(0, 0, 0, bgCanvas.height);
-		gradient.addColorStop(0, "#000033");
-		gradient.addColorStop(1, "#000066");
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that: CanvasRenderer = this;
+		return new Promise<void>((resolve) => {
+			function animate() {
+				that.render(boards, null);
 
-		bgCtx.fillStyle = gradient;
-		bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+				animation.update();
+				animation.draw();
 
-		return bgCanvas;
+				if (animation.isAnimationComplete) {
+					resolve();
+				} else {
+					requestAnimationFrame(animate);
+				}
+			}
+
+			animate();
+		});
+	}
+
+	private clear() {
+		this.game_ctx.clearRect(0, 0, this.game_ctx.canvas.width, this.game_ctx.canvas.height);
 	}
 
 	private drawBackground(ctx: CanvasRenderingContext2D) {
 		ctx.drawImage(this.background, 0, 0);
-	}
-
-	private drawGrid(ctx: CanvasRenderingContext2D, board: Board) {
-		const rows = board.length;
-		const columns = board[0].length;
-
-		ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
-		for (let x = 0; x <= columns; x++) {
-			ctx.beginPath();
-			ctx.moveTo(x * this.board_cell_size, 0);
-			ctx.lineTo(x * this.board_cell_size, rows * this.board_cell_size);
-			ctx.stroke();
-		}
-		for (let y = 0; y <= rows; y++) {
-			ctx.beginPath();
-			ctx.moveTo(0, y * this.board_cell_size);
-			ctx.lineTo(columns * this.board_cell_size, y * this.board_cell_size);
-			ctx.stroke();
-		}
 	}
 }

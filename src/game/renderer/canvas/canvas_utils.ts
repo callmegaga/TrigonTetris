@@ -1,18 +1,36 @@
 import { type Board, type Position, CellValue } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
-import { GAME_BOARD_CELL_SIZE } from "@/game/config";
 
-export function drawBoard(ctx: CanvasRenderingContext2D, board: Board) {
+export function drawBoard(ctx: CanvasRenderingContext2D, board: Board, board_cell_size: number) {
 	board.forEach((row, y) => {
 		row.forEach((cell, x) => {
 			cell.forEach((block) => {
-				drawCell(ctx, [x, y], block.value, block.block.getColor(), GAME_BOARD_CELL_SIZE);
+				drawCell(ctx, [x, y], block.value, block.block.getColor(), board_cell_size);
 			});
 		});
 	});
 }
 
-export function drawBlock(ctx: CanvasRenderingContext2D, block: Block | null) {
+export function drawGrid(ctx: CanvasRenderingContext2D, board: Board, board_cell_size: number) {
+	const rows = board.length;
+	const columns = board[0].length;
+
+	ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+	for (let x = 0; x <= columns; x++) {
+		ctx.beginPath();
+		ctx.moveTo(x * board_cell_size, 0);
+		ctx.lineTo(x * board_cell_size, rows * board_cell_size);
+		ctx.stroke();
+	}
+	for (let y = 0; y <= rows; y++) {
+		ctx.beginPath();
+		ctx.moveTo(0, y * board_cell_size);
+		ctx.lineTo(columns * board_cell_size, y * board_cell_size);
+		ctx.stroke();
+	}
+}
+
+export function drawBlock(ctx: CanvasRenderingContext2D, block: Block | null, board_cell_size: number) {
 	if (!block) return;
 
 	const shape = block.getShape();
@@ -21,7 +39,7 @@ export function drawBlock(ctx: CanvasRenderingContext2D, block: Block | null) {
 
 	shape.forEach((row, y) => {
 		row.forEach((cell, x) => {
-			drawCell(ctx, [x + block_position[0], y + block_position[1]], cell, color, GAME_BOARD_CELL_SIZE);
+			drawCell(ctx, [x + block_position[0], y + block_position[1]], cell, color, board_cell_size);
 		});
 	});
 }
@@ -64,4 +82,20 @@ export function drawCell(ctx: CanvasRenderingContext2D, position: Position, cell
 	}
 	ctx.closePath();
 	ctx.fill();
+}
+
+export function createBackground(width: number, height: number) {
+	const bgCanvas = document.createElement("canvas");
+	const bgCtx = bgCanvas.getContext("2d") as CanvasRenderingContext2D;
+	bgCanvas.width = width;
+	bgCanvas.height = height;
+
+	const gradient = bgCtx.createLinearGradient(0, 0, 0, bgCanvas.height);
+	gradient.addColorStop(0, "#000033");
+	gradient.addColorStop(1, "#000066");
+
+	bgCtx.fillStyle = gradient;
+	bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+	return bgCanvas;
 }

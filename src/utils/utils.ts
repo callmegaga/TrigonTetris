@@ -1,4 +1,4 @@
-import { type Board, type BoardCell, CellValue, type Position, type Square } from "@/game/types";
+import { type BevelledSquare, type Board, type BoardCell, CellValue, type Position, type Square } from "@/game/types";
 import { Shape1 } from "@/game/blocks/shape-1";
 import { Shape5 } from "@/game/blocks/shape-5";
 import type { Block } from "@/game/blocks/block";
@@ -22,9 +22,13 @@ export function buildShape(width: number, height: number) {
 }
 
 export function copyBoard(board: Board) {
-	return board.map((row) => row.map((cell) => cell.map((block) => {
-		return {value: block.value, block: block.block}
-	})));
+	return board.map((row) =>
+		row.map((cell) =>
+			cell.map((block) => {
+				return { value: block.value, block: block.block };
+			})
+		)
+	);
 }
 
 export function boardEraseBlock(board: Board, block: Block) {
@@ -136,6 +140,104 @@ export function findMaxValidSquare(boards: Board) {
 	}
 
 	return max_squares;
+}
+
+export function findMaxValidBevelledSquare(boards: Board) {
+	const all_bevelled_square = findAllBevelledSquares(boards);
+	let max_squares: BevelledSquare | undefined = undefined;
+	let max_square_size = 0;
+
+	all_bevelled_square.forEach((bevelled_square) => {
+		if (bevelled_square.size > max_square_size) {
+			max_squares = bevelled_square;
+			max_square_size = bevelled_square.size;
+		}
+	});
+	return max_squares;
+}
+
+export function findAllBevelledSquares(boards: Board) {
+	const result: BevelledSquare[] = [];
+	const max_bevelled_square_size = Math.min(boards.length, boards[0].length);
+
+	for (let y = 0; y < boards.length - 1; y++) {
+		for (let x = 0; x < boards[0].length - 1; x++) {
+			const tile = boards[y][x];
+			const neighbor_tile = boards[y][x + 1];
+
+			if (tile.length === 0 || neighbor_tile.length === 0) continue;
+			if (tile.length === 1 && tile[0].value !== CellValue.Full && tile[0].value !== CellValue.TriangleRightBottom) continue;
+			if (neighbor_tile.length === 1 && neighbor_tile[0].value !== CellValue.Full && neighbor_tile[0].value !== CellValue.TriangleLeftBottom) continue;
+
+			for (let size = 1; size <= max_bevelled_square_size; size += 1) {
+				if (checkBevelledSquaresValid(boards, x, y, size)) {
+					result.push({ size, top_left: [x, y] });
+				} else {
+					break;
+				}
+			}
+		}
+	}
+	return result;
+}
+
+export function checkBevelledSquaresValid(boards: Board, x: number, y: number, size: number) {
+	console.log("checkBevelledSquaresValid", x, y, size);
+	if (x + size >= boards[0].length) return false;
+	if (x - size < 0) return false;
+	if (y + 2 * size - 1 >= boards.length) return false;
+
+	for (let i = 0; i < size; i++) {
+		//	check left top border
+		if (!checkTileHavaValue(boards[y + i][x - i], [CellValue.TriangleRightBottom, CellValue.Full])) {
+			console.log("check left top border");
+			return false;
+		}
+
+		//	check right top border
+		if (!checkTileHavaValue(boards[y + i][x + i + 1], [CellValue.TriangleLeftBottom, CellValue.Full])) {
+			console.log("check right top border");
+			return false;
+		}
+
+		//	check left bottom border
+		if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i], [CellValue.TriangleRightTop, CellValue.Full])) {
+			console.log("check left bottom border");
+			return false;
+		}
+
+		//	check right bottom border
+		if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x + i + 1], [CellValue.TriangleLeftTop, CellValue.Full])) {
+			console.log("check right bottom border");
+			return false;
+		}
+
+		//	check inside
+		if (i > 0) {
+			const count = i * 2;
+			for (let j = 1; j <= count; j++) {
+				if (!checkTileHavaValue(boards[y + i][x - i + j], [CellValue.Full])) {
+					console.log("check up inside")
+					return false;
+				}
+				if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i + j], [CellValue.Full])) {
+					console.log("check bottom inside")
+					return false;
+				}
+			}
+		}
+	}
+	return true;
+}
+
+export function checkTileHavaValue(tile: BoardCell, value: CellValue[]) {
+	let result = false;
+	tile.forEach((cell) => {
+		if (value.includes(cell.value)) {
+			result = true;
+		}
+	});
+	return result;
 }
 
 export function getSquareColorsAndBlocks(square: Square, boards: Board) {

@@ -11,6 +11,11 @@ export type Square = {
 	bottom_right: [number, number];
 };
 
+export type BevelledSquare = {
+	size: number;
+	top_left: [number, number];
+};
+
 export type Rectangle = [number, number, number, number];
 
 export enum GameStatus {

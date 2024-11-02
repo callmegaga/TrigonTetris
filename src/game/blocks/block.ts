@@ -1,4 +1,4 @@
-import { type Board, CellValue, FlipTable, MoveDirection, type Position, RotateTable, type Shape } from "@/game/types";
+import { type Board, CellValue, FlipTable, MoveDirection, type Position, RotateTable, type Shape, type Square } from "@/game/types";
 import { buildShape, isCollideShapeAndBoardCell, isEmptyBoardCell } from "@/utils/utils";
 
 export abstract class Block {
@@ -140,23 +140,22 @@ export abstract class Block {
 		console.log("jump");
 	}
 
-	setShapeEmpty(): void {
-		const shape = this.getShape();
-		this.shape = shape.map((row) => {
-			return row.map(() => CellValue.Empty);
-		});
-	}
+	isInSquare(square: Square): boolean {
+		const [position_x, position_y] = this.current_position;
+		const {
+			size,
+			bottom_right: [bottom, right]
+		} = square;
+		const top = bottom - size + 1;
+		const left = right - size + 1;
 
-	get isEmpty(): boolean {
-		let result = true;
-		const shape = this.getShape();
-		shape.forEach((row) => {
-			row.forEach((cell) => {
-				if (cell !== CellValue.Empty) {
-					result = false;
-				}
-			});
-		});
-		return result;
+		for (let y = 0; y < this.height; y++) {
+			for (let x = 0; x < this.width; x++) {
+				if (this.shape[y][x] === CellValue.Empty) continue;
+				if (position_x + x < left || position_x + x > right) return false;
+				if (position_y + y < top || position_y + y > bottom) return false;
+			}
+		}
+		return true;
 	}
 }

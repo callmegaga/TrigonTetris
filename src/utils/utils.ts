@@ -85,15 +85,101 @@ export function isEmptyBoardCell(board_cell: BoardCell) {
 	return board_cell.length === 0;
 }
 
-export function calculateScore(square: Square, boards: Board) {
+export function getBevelledSquareColorsAndBlocks(bevelled_square: BevelledSquare, boards: Board) {
+	const {
+		size,
+		top_left: [y, x]
+	} = bevelled_square;
+	const colors = new Set();
+	const blocks = new Set<Block>();
+
+	for (let i = 0; i < size; i++) {
+		//	check left top border
+		let board_cell = boards[y + i][x - i];
+		board_cell.forEach((cell) => {
+			blocks.add(cell.block);
+			colors.add(cell.block.getColor());
+		});
+
+		//	check right top border
+		board_cell = boards[y + i][x + i + 1];
+		board_cell.forEach((cell) => {
+			blocks.add(cell.block);
+			colors.add(cell.block.getColor());
+		});
+
+		//	check left bottom border
+		board_cell = boards[y + 2 * size - 1 - i][x - i];
+		board_cell.forEach((cell) => {
+			blocks.add(cell.block);
+			colors.add(cell.block.getColor());
+		});
+
+		//	check right bottom border
+		board_cell = boards[y + 2 * size - 1 - i][x + i + 1];
+		board_cell.forEach((cell) => {
+			blocks.add(cell.block);
+			colors.add(cell.block.getColor());
+		});
+
+		//	check inside
+		if (i > 0) {
+			const count = i * 2;
+			for (let j = 1; j <= count; j++) {
+				board_cell = boards[y + i][x - i + j];
+				board_cell.forEach((cell) => {
+					blocks.add(cell.block);
+					colors.add(cell.block.getColor());
+				});
+
+				board_cell = boards[y + 2 * size - 1 - i][x - i + j];
+				board_cell.forEach((cell) => {
+					blocks.add(cell.block);
+					colors.add(cell.block.getColor());
+				});
+			}
+		}
+	}
+
+	return {
+		colors,
+		blocks
+	};
+}
+
+export function calculateBevelledSquareScore(bevelled_square: BevelledSquare, boards: Board) {
+	const size = bevelled_square.size;
+	const { colors, blocks } = getBevelledSquareColorsAndBlocks(bevelled_square, boards);
+
+	console.log("calculateBevelledSquareScore:", size, colors.size, blocks.size);
+	return Math.pow(2 * size * size, 2) * blocks.size * Math.pow(5, colors.size);
+}
+
+export function calculateSquareScore(square: Square, boards: Board) {
 	const size = square.size;
 	const { colors, blocks } = getSquareColorsAndBlocks(square, boards);
 
-	return size * size * blocks.length * Math.pow(5, colors.size);
+	return size * size * blocks.size * Math.pow(5, colors.size);
 }
 
 export function isSquareValid(square: Square, boards: Board) {
 	const { colors } = getSquareColorsAndBlocks(square, boards);
+	return colors.size > 1;
+}
+
+export function isSquarePerfect(square: Square, boards: Board) {
+	const { blocks } = getSquareColorsAndBlocks(square, boards);
+	let result = true;
+	blocks.forEach((block) => {
+		if (!block.isInSquare(square)) {
+			result = false;
+		}
+	});
+	return result;
+}
+
+export function isBevelledSquareValid(bevelled_square: BevelledSquare, boards: Board) {
+	const { colors } = getBevelledSquareColorsAndBlocks(bevelled_square, boards);
 	return colors.size > 1;
 }
 
@@ -120,7 +206,7 @@ export function findAllSquares(boards: Board) {
 	return dp;
 }
 
-export function findMaxValidSquare(boards: Board) {
+export function findMaxValidSquare(boards: Board, is_perfect: boolean) {
 	const height = boards.length;
 	const width = boards[0].length;
 
@@ -131,6 +217,9 @@ export function findMaxValidSquare(boards: Board) {
 	for (let i = 0; i < height; i++) {
 		for (let j = 0; j < width; j++) {
 			if (isSquareValid({ size: square_table[i][j], bottom_right: [i, j] }, boards)) {
+				if (is_perfect && !isSquarePerfect({ size: square_table[i][j], bottom_right: [i, j] }, boards)) {
+					continue;
+				}
 				if (square_table[i][j] > max_square_size) {
 					max_square_size = square_table[i][j];
 					max_squares = { size: max_square_size, bottom_right: [i, j] };
@@ -142,8 +231,9 @@ export function findMaxValidSquare(boards: Board) {
 	return max_squares;
 }
 
-export function findMaxValidBevelledSquare(boards: Board) {
-	const all_bevelled_square = findAllBevelledSquares(boards);
+export function findMaxValidBevelledSquare(boards: Board, is_perfect: boolean) {
+	const all_bevelled_square = findAllBevelledSquares(boards, is_perfect).filter((bevelled_square) => isBevelledSquareValid(bevelled_square, boards));
+
 	let max_squares: BevelledSquare | undefined = undefined;
 	let max_square_size = 0;
 
@@ -156,7 +246,7 @@ export function findMaxValidBevelledSquare(boards: Board) {
 	return max_squares;
 }
 
-export function findAllBevelledSquares(boards: Board) {
+export function findAllBevelledSquares(boards: Board, is_perfect: boolean) {
 	const result: BevelledSquare[] = [];
 	const max_bevelled_square_size = Math.min(boards.length, boards[0].length);
 
@@ -170,10 +260,16 @@ export function findAllBevelledSquares(boards: Board) {
 			if (neighbor_tile.length === 1 && neighbor_tile[0].value !== CellValue.Full && neighbor_tile[0].value !== CellValue.TriangleLeftBottom) continue;
 
 			for (let size = 1; size <= max_bevelled_square_size; size += 1) {
-				if (checkBevelledSquaresValid(boards, x, y, size)) {
-					result.push({ size, top_left: [x, y] });
+				if (is_perfect) {
+					if (checkBevelledSquaresPerfect(boards, x, y, size)) {
+						result.push({ size, top_left: [y, x] });
+					}
 				} else {
-					break;
+					if (checkBevelledSquaresValid(boards, x, y, size)) {
+						result.push({ size, top_left: [y, x] });
+					} else {
+						break;
+					}
 				}
 			}
 		}
@@ -184,7 +280,7 @@ export function findAllBevelledSquares(boards: Board) {
 export function checkBevelledSquaresValid(boards: Board, x: number, y: number, size: number) {
 	console.log("checkBevelledSquaresValid", x, y, size);
 	if (x + size >= boards[0].length) return false;
-	if (x - size < 0) return false;
+	if (x - size + 1 < 0) return false;
 	if (y + 2 * size - 1 >= boards.length) return false;
 
 	for (let i = 0; i < size; i++) {
@@ -217,11 +313,60 @@ export function checkBevelledSquaresValid(boards: Board, x: number, y: number, s
 			const count = i * 2;
 			for (let j = 1; j <= count; j++) {
 				if (!checkTileHavaValue(boards[y + i][x - i + j], [CellValue.Full])) {
-					console.log("check up inside")
+					console.log("check up inside");
 					return false;
 				}
 				if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i + j], [CellValue.Full])) {
-					console.log("check bottom inside")
+					console.log("check bottom inside");
+					return false;
+				}
+			}
+		}
+	}
+	return true;
+}
+
+export function checkBevelledSquaresPerfect(boards: Board, x: number, y: number, size: number) {
+	console.log("checkBevelledSquaresPerfect", x, y, size);
+	if (x + size >= boards[0].length) return false;
+	if (x - size + 1 < 0) return false;
+	if (y + 2 * size - 1 >= boards.length) return false;
+
+	for (let i = 0; i < size; i++) {
+		//	check left top border
+		if (!checkTileHavaValue(boards[y + i][x - i], [CellValue.TriangleRightBottom])) {
+			console.log("check left top border");
+			return false;
+		}
+
+		//	check right top border
+		if (!checkTileHavaValue(boards[y + i][x + i + 1], [CellValue.TriangleLeftBottom])) {
+			console.log("check right top border");
+			return false;
+		}
+
+		//	check left bottom border
+		if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i], [CellValue.TriangleRightTop])) {
+			console.log("check left bottom border");
+			return false;
+		}
+
+		//	check right bottom border
+		if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x + i + 1], [CellValue.TriangleLeftTop])) {
+			console.log("check right bottom border");
+			return false;
+		}
+
+		//	check inside
+		if (i > 0) {
+			const count = i * 2;
+			for (let j = 1; j <= count; j++) {
+				if (!checkTileHavaValue(boards[y + i][x - i + j], [CellValue.Full])) {
+					console.log("check up inside");
+					return false;
+				}
+				if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i + j], [CellValue.Full])) {
+					console.log("check bottom inside");
 					return false;
 				}
 			}
@@ -246,13 +391,13 @@ export function getSquareColorsAndBlocks(square: Square, boards: Board) {
 		bottom_right: [bottom, right]
 	} = square;
 	const colors = new Set();
-	const blocks: Block[] = [];
+	const blocks = new Set<Block>();
 
 	for (let i = bottom - size + 1; i <= bottom; i++) {
 		for (let j = right - size + 1; j <= right; j++) {
 			const board_cell = boards[i][j];
 			board_cell.forEach((cell) => {
-				blocks.push(cell.block);
+				blocks.add(cell.block);
 				colors.add(cell.block.getColor());
 			});
 		}
@@ -311,8 +456,8 @@ export function getAdaptCellSize(element_size: [number, number], board_size: [nu
 	return Math.min(cell_width, cell_height);
 }
 
-export function setBlocksEmpty(blocks: Set<Block>) {
-	blocks.forEach((block) => {
-		block.setShapeEmpty();
-	});
+export function getBevelledSquareMaxSquare(bevelled_square: BevelledSquare): Square {
+	const { size, top_left } = bevelled_square;
+	const [y, x] = top_left;
+	return { size: 2 * size, bottom_right: [y + 2 * size - 1, x + size] };
 }

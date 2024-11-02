@@ -160,10 +160,10 @@ export class SpreadLightAnimation {
 			bottom_right: [bottom_board, right_board]
 		} = square;
 
-		const left = (right_board - size) * board_cell_size;
-		const top = (bottom_board - size) * board_cell_size;
-		const right = right_board * board_cell_size;
-		const bottom = bottom_board * board_cell_size;
+		const left = (right_board - size + 1) * board_cell_size;
+		const top = (bottom_board - size + 1) * board_cell_size;
+		const right = (right_board + 1) * board_cell_size;
+		const bottom = (bottom_board + 1) * board_cell_size;
 		const width = size * board_cell_size;
 		const height = size * board_cell_size;
 

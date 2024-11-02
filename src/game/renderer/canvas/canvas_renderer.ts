@@ -1,7 +1,7 @@
 import { Renderer } from "@/game/renderer/renderer";
 import { type Board, type Square } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
-import { MAX_SHAPE_SIZE, STAND_BY_COUNT } from "@/game/config";
+import { MAX_SHAPE_SIZE, SPREAD_LIGHT_STEP, STAND_BY_COUNT } from "@/game/config";
 import { BlockEraseAnimation, SpreadLightAnimation } from "@/game/renderer/canvas/effect";
 import { drawBlock, drawBoard, drawGrid, createBackground } from "@/game/renderer/canvas/canvas_utils";
 
@@ -48,7 +48,7 @@ export class CanvasRenderer extends Renderer {
 	}
 
 	renderNextBlock(blocks: Block[]) {
-		this.clear();
+		this.clearNext();
 		drawGrid(this.game_ctx, next_board, this.board_cell_size);
 		blocks.forEach((block, index) => {
 			block.setPosition([1 + (1 + MAX_SHAPE_SIZE[0]) * index, 1]);
@@ -80,7 +80,7 @@ export class CanvasRenderer extends Renderer {
 	}
 
 	renderSpreadLight(boards: Board, square: Square): Promise<void> {
-		const animation = new SpreadLightAnimation(this.game_ctx, square, 8, this.board_cell_size);
+		const animation = new SpreadLightAnimation(this.game_ctx, square, SPREAD_LIGHT_STEP, this.board_cell_size);
 
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		const that: CanvasRenderer = this;
@@ -104,6 +104,10 @@ export class CanvasRenderer extends Renderer {
 
 	private clear() {
 		this.game_ctx.clearRect(0, 0, this.game_ctx.canvas.width, this.game_ctx.canvas.height);
+	}
+
+	private clearNext() {	
+		this.next_ctx.clearRect(0, 0, this.next_ctx.canvas.width, this.next_ctx.canvas.height);
 	}
 
 	private drawBackground(ctx: CanvasRenderingContext2D) {

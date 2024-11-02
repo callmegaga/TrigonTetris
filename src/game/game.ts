@@ -2,7 +2,7 @@ import type { Block } from "@/game/blocks/block";
 import { type BevelledSquare, type Board, CellValue, GameStatus, MoveDirection, type Square } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas/canvas_renderer";
-import { boardEraseBlock, calculateScore, findMaxValidBevelledSquare, findMaxValidSquare, getRandomShape, isPositionEqual } from "@/utils/utils";
+import { boardEraseBlock, calculateBevelledSquareScore, calculateSquareScore, getBevelledSquareMaxSquare, findMaxValidBevelledSquare, findMaxValidSquare, getBevelledSquareColorsAndBlocks, getRandomShape, isPositionEqual } from "@/utils/utils";
 import { STAND_BY_COUNT } from "@/game/config";
 import { Shape1 } from "@/game/blocks/shape-1";
 import { Shape5 } from "@/game/blocks/shape-5";
@@ -41,7 +41,7 @@ export class Game {
 		// for (let i = 0; i < STAND_BY_COUNT + 1; i++) {
 		// 	this.block_queue.push(new (getRandomShape())());
 		// }
-		// this.block_queue.push(new Shape5());
+		this.block_queue.push(new Shape5());
 		// this.block_queue.push(new Shape1());
 		// this.block_queue.push(new Shape1());
 		this.block_queue.push(new Shape1());
@@ -117,7 +117,7 @@ export class Game {
 				this.dead_blocks.push(this.active_block);
 				console.log("dead_blocks: ", this.dead_blocks);
 				this.active_block = null;
-				const max_bevelled_square = findMaxValidBevelledSquare(this.boards);
+				const max_bevelled_square = findMaxValidBevelledSquare(this.boards, true);
 				if (max_bevelled_square) {
 					this.onBevelledSquareFind(max_bevelled_square);
 					this.draw();
@@ -125,7 +125,7 @@ export class Game {
 					return;
 				}
 
-				const max_square = findMaxValidSquare(this.boards);
+				const max_square = findMaxValidSquare(this.boards, true);
 
 				if (max_square) {
 					this.onSquareFind(max_square);
@@ -141,7 +141,7 @@ export class Game {
 
 		this.draw();
 		if (!is_board_changed) {
-			const max_square = findMaxValidSquare(this.boards);
+			const max_square = findMaxValidSquare(this.boards, true);
 			if (max_square) {
 				this.onSquareFind(max_square);
 			} else {
@@ -197,11 +197,12 @@ export class Game {
 
 	private onSquareFind(square: Square) {
 		console.log("max_square: ", square);
-		const score = calculateScore(square, this.boards);
+		const score = calculateSquareScore(square, this.boards);
 		console.log("score: ", score);
 		this.options.onScore(score);
 		const need_clear_blocks = this.getAllBlocksFromSquare(square);
-		this.clearBoardFromSquare(square);
+		// maybe this is not necessary
+		//this.clearBoardFromSquare(square);
 		this.clearBoardFromBlocks(need_clear_blocks);
 		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
 
@@ -226,6 +227,33 @@ export class Game {
 
 	private onBevelledSquareFind(square: BevelledSquare) {
 		console.log("find bevelled square:", square);
+		const score = calculateBevelledSquareScore(square, this.boards);
+		console.log("score: ", score);
+		this.options.onScore(score);
+
+		const { blocks: need_clear_blocks } = getBevelledSquareColorsAndBlocks(square, this.boards);
+		// maybe this is not necessary
+		//this.clearBoardFromSquare(square);
+		this.clearBoardFromBlocks(need_clear_blocks);
+		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
+
+		this.renderer.renderBlockEffect(need_clear_blocks, this.boards).then(() => {
+			console.log("finish animation end");
+			this.renderer.renderSpreadLight(this.boards, getBevelledSquareMaxSquare(square)).then(() => {
+				const other_clear_blocks = this.findBlocksInSpreadLight(getBevelledSquareMaxSquare(square));
+
+				this.clearBoardFromBlocks(other_clear_blocks);
+
+				this.dead_blocks = this.dead_blocks.filter((block) => !other_clear_blocks.has(block));
+
+				this.renderer.renderBlockEffect(other_clear_blocks, this.boards).then(() => {
+					this.state = GameStatus.MoveBoard;
+					this.loop();
+				});
+			});
+		});
+		this.state = GameStatus.ClearAnimation;
+		console.log("finish animation start");
 	}
 
 	private draw() {
@@ -332,6 +360,7 @@ export class Game {
 	}
 
 	private findBlocksInSpreadLight(square: Square) {
+		console.log("findBlocksInSpreadLight: ", square);
 		const {
 			size,
 			bottom_right: [bottom, right]

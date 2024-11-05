@@ -39,6 +39,7 @@ export function drawBlock(ctx: CanvasRenderingContext2D, block: Block | null, bo
 
 	shape.forEach((row, y) => {
 		row.forEach((cell, x) => {
+			if (y + block_position[1] < 0) return;
 			drawCell(ctx, [x + block_position[0], y + block_position[1]], cell, color, board_cell_size);
 		});
 	});

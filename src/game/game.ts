@@ -2,7 +2,7 @@ import type { Block } from "@/game/blocks/block";
 import { type BevelledSquare, type Board, CellValue, GameStatus, MoveDirection, type Square } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas/canvas_renderer";
-import { boardEraseBlock, calculateBevelledSquareScore, calculateSquareScore, getBevelledSquareMaxSquare, findMaxValidBevelledSquare, findMaxValidSquare, getBevelledSquareColorsAndBlocks, getRandomShape, isPositionEqual } from "@/utils/utils";
+import { boardEraseBlock, calculateBevelledSquareScore, calculateSquareScore, findMaxValidBevelledSquare, findMaxValidSquare, getBevelledSquareColorsAndBlocks, getBevelledSquareMaxSquare, getRandomShape, getSquareColorsAndBlocks } from "@/utils/utils";
 import { STAND_BY_COUNT } from "@/game/config";
 import { Shape1 } from "@/game/blocks/shape-1";
 import { Shape5 } from "@/game/blocks/shape-5";
@@ -83,10 +83,11 @@ export class Game {
 			case GameStatus.Active:
 				this.loopWhenActive();
 				break;
-			case GameStatus.ClearAnimation:
-				break;
 			case GameStatus.MoveBoard:
 				this.loopWhenMoveBoard();
+				break;
+			case GameStatus.ExtendLife:
+				this.loopWhenExtendLife();
 				break;
 			case GameStatus.Fail:
 				console.log("game over");
@@ -104,13 +105,14 @@ export class Game {
 		} else {
 			this.active_block?.move(MoveDirection.Down);
 		}
-		console.log("collide: ", this.active_block.isCollide(this.boards));
 
 		if (this.active_block.isCollide(this.boards)) {
+			console.log("collide the boards");
 			const position = this.active_block.getPosition();
-			if (isPositionEqual(position, [0, 0])) {
+			console.log("the active block position", position);
+			if (position[1] <= 0) {
 				this.options.onFail();
-				this.state = GameStatus.Fail;
+				this.state = GameStatus.ExtendLife;
 			} else {
 				this.active_block.moveUp();
 				this.updateBoardsFromActiveBlock();
@@ -119,16 +121,14 @@ export class Game {
 				this.active_block = null;
 				const max_bevelled_square = findMaxValidBevelledSquare(this.boards, true);
 				if (max_bevelled_square) {
-					this.onBevelledSquareFind(max_bevelled_square);
-					this.draw();
-					this.loop_timer = window.setTimeout(() => this.loop(), 1000);
+					this.onPerfectBevelledSquareFind(max_bevelled_square);
 					return;
-				}
-
-				const max_square = findMaxValidSquare(this.boards, true);
-
-				if (max_square) {
-					this.onSquareFind(max_square);
+				} else {
+					const max_square = findMaxValidSquare(this.boards, true);
+					if (max_square) {
+						this.onPerfectSquareFind(max_square);
+						return;
+					}
 				}
 			}
 		}
@@ -143,12 +143,33 @@ export class Game {
 		if (!is_board_changed) {
 			const max_square = findMaxValidSquare(this.boards, true);
 			if (max_square) {
-				this.onSquareFind(max_square);
+				this.onPerfectSquareFind(max_square);
 			} else {
 				this.state = GameStatus.Active;
 			}
 		}
 		this.loop_timer = window.setTimeout(() => this.loop(), 1000);
+	}
+
+	private loopWhenExtendLife() {
+		const max_bevelled_square = findMaxValidBevelledSquare(this.boards, false);
+		if (max_bevelled_square) {
+			this.onPerfectBevelledSquareFind(max_bevelled_square);
+			this.draw();
+			this.loop_timer = window.setTimeout(() => this.loop(), 1000);
+			return;
+		}
+
+		const max_square = findMaxValidSquare(this.boards, false);
+		if (max_square) {
+			this.onPerfectSquareFind(max_square);
+			this.draw();
+			this.loop_timer = window.setTimeout(() => this.loop(), 1000);
+			return;
+		}
+
+		this.state = GameStatus.Fail; // game over
+		this.options.onFail();
 	}
 
 	private moveDeadBlocksFall() {
@@ -195,14 +216,13 @@ export class Game {
 		}
 	}
 
-	private onSquareFind(square: Square) {
+	private onPerfectSquareFind(square: Square) {
 		console.log("max_square: ", square);
 		const score = calculateSquareScore(square, this.boards);
 		console.log("score: ", score);
 		this.options.onScore(score);
-		const need_clear_blocks = this.getAllBlocksFromSquare(square);
-		// maybe this is not necessary
-		//this.clearBoardFromSquare(square);
+		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(square, this.boards);
+
 		this.clearBoardFromBlocks(need_clear_blocks);
 		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
 
@@ -221,19 +241,16 @@ export class Game {
 				});
 			});
 		});
-		this.state = GameStatus.ClearAnimation;
-		console.log("finish animation start");
 	}
 
-	private onBevelledSquareFind(square: BevelledSquare) {
+	private onPerfectBevelledSquareFind(square: BevelledSquare) {
 		console.log("find bevelled square:", square);
 		const score = calculateBevelledSquareScore(square, this.boards);
 		console.log("score: ", score);
 		this.options.onScore(score);
 
 		const { blocks: need_clear_blocks } = getBevelledSquareColorsAndBlocks(square, this.boards);
-		// maybe this is not necessary
-		//this.clearBoardFromSquare(square);
+
 		this.clearBoardFromBlocks(need_clear_blocks);
 		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
 
@@ -252,8 +269,6 @@ export class Game {
 				});
 			});
 		});
-		this.state = GameStatus.ClearAnimation;
-		console.log("finish animation start");
 	}
 
 	private draw() {
@@ -315,36 +330,6 @@ export class Game {
 	}
 
 	private bindGamepadEvents() {}
-
-	private getAllBlocksFromSquare(square: Square) {
-		const {
-			size,
-			bottom_right: [bottom, right]
-		} = square;
-		const need_clear_blocks: Set<Block> = new Set();
-
-		for (let i = bottom - size + 1; i <= bottom; i++) {
-			for (let j = right - size + 1; j <= right; j++) {
-				this.boards[i][j].forEach((cell) => {
-					need_clear_blocks.add(cell.block);
-				});
-			}
-		}
-		return need_clear_blocks;
-	}
-
-	private clearBoardFromSquare(square: Square) {
-		const {
-			size,
-			bottom_right: [bottom, right]
-		} = square;
-
-		for (let i = bottom - size + 1; i <= bottom; i++) {
-			for (let j = right - size + 1; j <= right; j++) {
-				this.boards[i][j].length = 0;
-			}
-		}
-	}
 
 	private clearBoardFromBlocks(blocks: Set<Block>) {
 		blocks.forEach((block) => {

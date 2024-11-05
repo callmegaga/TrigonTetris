@@ -50,19 +50,6 @@ export function getBoardCellValue(block: BoardCell): CellValue {
 	return result;
 }
 
-export function isCollideTwoBoardCell(board_cell_1: BoardCell, board_cell_2: BoardCell) {
-	let result = false;
-	board_cell_1.forEach((block_1) => {
-		board_cell_2.forEach((block_2) => {
-			if (isCollideTwoCell(block_1.value, block_2.value)) {
-				result = true;
-			}
-		});
-	});
-
-	return result;
-}
-
 export function isCollideTwoCell(cell_1: CellValue, cell_2: CellValue) {
 	if (cell_1 === CellValue.Empty) return false;
 	if (cell_2 === CellValue.Empty) return false;
@@ -83,68 +70,6 @@ export function isCollideShapeAndBoardCell(shape_cell: CellValue, board_cell: Bo
 
 export function isEmptyBoardCell(board_cell: BoardCell) {
 	return board_cell.length === 0;
-}
-
-export function getBevelledSquareColorsAndBlocks(bevelled_square: BevelledSquare, boards: Board) {
-	const {
-		size,
-		top_left: [y, x]
-	} = bevelled_square;
-	const colors = new Set();
-	const blocks = new Set<Block>();
-
-	for (let i = 0; i < size; i++) {
-		//	check left top border
-		let board_cell = boards[y + i][x - i];
-		board_cell.forEach((cell) => {
-			blocks.add(cell.block);
-			colors.add(cell.block.getColor());
-		});
-
-		//	check right top border
-		board_cell = boards[y + i][x + i + 1];
-		board_cell.forEach((cell) => {
-			blocks.add(cell.block);
-			colors.add(cell.block.getColor());
-		});
-
-		//	check left bottom border
-		board_cell = boards[y + 2 * size - 1 - i][x - i];
-		board_cell.forEach((cell) => {
-			blocks.add(cell.block);
-			colors.add(cell.block.getColor());
-		});
-
-		//	check right bottom border
-		board_cell = boards[y + 2 * size - 1 - i][x + i + 1];
-		board_cell.forEach((cell) => {
-			blocks.add(cell.block);
-			colors.add(cell.block.getColor());
-		});
-
-		//	check inside
-		if (i > 0) {
-			const count = i * 2;
-			for (let j = 1; j <= count; j++) {
-				board_cell = boards[y + i][x - i + j];
-				board_cell.forEach((cell) => {
-					blocks.add(cell.block);
-					colors.add(cell.block.getColor());
-				});
-
-				board_cell = boards[y + 2 * size - 1 - i][x - i + j];
-				board_cell.forEach((cell) => {
-					blocks.add(cell.block);
-					colors.add(cell.block.getColor());
-				});
-			}
-		}
-	}
-
-	return {
-		colors,
-		blocks
-	};
 }
 
 export function calculateBevelledSquareScore(bevelled_square: BevelledSquare, boards: Board) {
@@ -278,7 +203,6 @@ export function findAllBevelledSquares(boards: Board, is_perfect: boolean) {
 }
 
 export function checkBevelledSquaresValid(boards: Board, x: number, y: number, size: number) {
-	console.log("checkBevelledSquaresValid", x, y, size);
 	if (x + size >= boards[0].length) return false;
 	if (x - size + 1 < 0) return false;
 	if (y + 2 * size - 1 >= boards.length) return false;
@@ -286,25 +210,21 @@ export function checkBevelledSquaresValid(boards: Board, x: number, y: number, s
 	for (let i = 0; i < size; i++) {
 		//	check left top border
 		if (!checkTileHavaValue(boards[y + i][x - i], [CellValue.TriangleRightBottom, CellValue.Full])) {
-			console.log("check left top border");
 			return false;
 		}
 
 		//	check right top border
 		if (!checkTileHavaValue(boards[y + i][x + i + 1], [CellValue.TriangleLeftBottom, CellValue.Full])) {
-			console.log("check right top border");
 			return false;
 		}
 
 		//	check left bottom border
 		if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i], [CellValue.TriangleRightTop, CellValue.Full])) {
-			console.log("check left bottom border");
 			return false;
 		}
 
 		//	check right bottom border
 		if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x + i + 1], [CellValue.TriangleLeftTop, CellValue.Full])) {
-			console.log("check right bottom border");
 			return false;
 		}
 
@@ -313,11 +233,9 @@ export function checkBevelledSquaresValid(boards: Board, x: number, y: number, s
 			const count = i * 2;
 			for (let j = 1; j <= count; j++) {
 				if (!checkTileHavaValue(boards[y + i][x - i + j], [CellValue.Full])) {
-					console.log("check up inside");
 					return false;
 				}
 				if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i + j], [CellValue.Full])) {
-					console.log("check bottom inside");
 					return false;
 				}
 			}
@@ -327,7 +245,6 @@ export function checkBevelledSquaresValid(boards: Board, x: number, y: number, s
 }
 
 export function checkBevelledSquaresPerfect(boards: Board, x: number, y: number, size: number) {
-	console.log("checkBevelledSquaresPerfect", x, y, size);
 	if (x + size >= boards[0].length) return false;
 	if (x - size + 1 < 0) return false;
 	if (y + 2 * size - 1 >= boards.length) return false;
@@ -335,25 +252,21 @@ export function checkBevelledSquaresPerfect(boards: Board, x: number, y: number,
 	for (let i = 0; i < size; i++) {
 		//	check left top border
 		if (!checkTileHavaValue(boards[y + i][x - i], [CellValue.TriangleRightBottom])) {
-			console.log("check left top border");
 			return false;
 		}
 
 		//	check right top border
 		if (!checkTileHavaValue(boards[y + i][x + i + 1], [CellValue.TriangleLeftBottom])) {
-			console.log("check right top border");
 			return false;
 		}
 
 		//	check left bottom border
 		if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i], [CellValue.TriangleRightTop])) {
-			console.log("check left bottom border");
 			return false;
 		}
 
 		//	check right bottom border
 		if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x + i + 1], [CellValue.TriangleLeftTop])) {
-			console.log("check right bottom border");
 			return false;
 		}
 
@@ -362,11 +275,9 @@ export function checkBevelledSquaresPerfect(boards: Board, x: number, y: number,
 			const count = i * 2;
 			for (let j = 1; j <= count; j++) {
 				if (!checkTileHavaValue(boards[y + i][x - i + j], [CellValue.Full])) {
-					console.log("check up inside");
 					return false;
 				}
 				if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i + j], [CellValue.Full])) {
-					console.log("check bottom inside");
 					return false;
 				}
 			}
@@ -409,24 +320,66 @@ export function getSquareColorsAndBlocks(square: Square, boards: Board) {
 	};
 }
 
-export function squashBlock(block: Block) {
-	let is_change = false;
-	const shape = block.getShape();
-	const width = block.width;
-	const height = block.height;
+export function getBevelledSquareColorsAndBlocks(bevelled_square: BevelledSquare, boards: Board) {
+	const {
+		size,
+		top_left: [y, x]
+	} = bevelled_square;
+	const colors = new Set();
+	const blocks = new Set<Block>();
 
-	for (let row = height - 2; row >= 0; row--) {
-		for (let col = 0; col < width; col++) {
-			const next_row = row + 1;
-			if (shape[row][col] === CellValue.Empty) continue;
-			if (isCollideTwoCell(shape[row][col], shape[next_row][col])) continue;
-			shape[next_row][col] = shape[row][col];
-			shape[row][col] = CellValue.Empty;
-			is_change = true;
+	for (let i = 0; i < size; i++) {
+		//	check left top border
+		let board_cell = boards[y + i][x - i];
+		board_cell.forEach((cell) => {
+			blocks.add(cell.block);
+			colors.add(cell.block.getColor());
+		});
+
+		//	check right top border
+		board_cell = boards[y + i][x + i + 1];
+		board_cell.forEach((cell) => {
+			blocks.add(cell.block);
+			colors.add(cell.block.getColor());
+		});
+
+		//	check left bottom border
+		board_cell = boards[y + 2 * size - 1 - i][x - i];
+		board_cell.forEach((cell) => {
+			blocks.add(cell.block);
+			colors.add(cell.block.getColor());
+		});
+
+		//	check right bottom border
+		board_cell = boards[y + 2 * size - 1 - i][x + i + 1];
+		board_cell.forEach((cell) => {
+			blocks.add(cell.block);
+			colors.add(cell.block.getColor());
+		});
+
+		//	check inside
+		if (i > 0) {
+			const count = i * 2;
+			for (let j = 1; j <= count; j++) {
+				board_cell = boards[y + i][x - i + j];
+				board_cell.forEach((cell) => {
+					blocks.add(cell.block);
+					colors.add(cell.block.getColor());
+				});
+
+				board_cell = boards[y + 2 * size - 1 - i][x - i + j];
+				board_cell.forEach((cell) => {
+					blocks.add(cell.block);
+					colors.add(cell.block.getColor());
+				});
+			}
 		}
 	}
 
-	return is_change;
+	return {
+		colors,
+		blocks
+	};
 }
 
 export function isPositionEqual(position1: Position, position2: Position) {

@@ -9,6 +9,7 @@ export abstract class Block {
 	protected constructor(shape: Shape, color: string) {
 		this.shape = shape;
 		this.color = color;
+		this.current_position[1] = -this.height;
 	}
 
 	moveUp() {
@@ -45,6 +46,7 @@ export abstract class Block {
 
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
+				if (y + this.current_position[1] < 0) continue;
 				const board_cell = boards[y + this.current_position[1]][x + this.current_position[0]];
 				if (this.shape[y][x] === CellValue.Empty) continue;
 				if (isEmptyBoardCell(board_cell)) continue;

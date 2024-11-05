@@ -53,7 +53,7 @@ export class CanvasRenderer extends Renderer {
 		blocks.forEach((block, index) => {
 			block.setPosition([1 + (1 + MAX_SHAPE_SIZE[0]) * index, 1]);
 			drawBlock(this.next_ctx, block, this.board_cell_size);
-			block.setPosition([0, 0]);
+			block.setPosition([0, -block.height]);
 		});
 	}
 
@@ -106,7 +106,7 @@ export class CanvasRenderer extends Renderer {
 		this.game_ctx.clearRect(0, 0, this.game_ctx.canvas.width, this.game_ctx.canvas.height);
 	}
 
-	private clearNext() {	
+	private clearNext() {
 		this.next_ctx.clearRect(0, 0, this.next_ctx.canvas.width, this.next_ctx.canvas.height);
 	}
 

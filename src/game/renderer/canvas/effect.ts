@@ -1,5 +1,5 @@
 import { FRAGMENT_SIZE } from "@/game/config";
-import { CellValue, type Rectangle, type Square } from "@/game/types";
+import { CellValue, type Rectangle, type NormalSquare } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
 import { drawBlock } from "@/game/renderer/canvas/canvas_utils";
 
@@ -151,7 +151,7 @@ export class SpreadLightAnimation {
 	private right_light_rectangle: Rectangle;
 	private down_light_rectangle: Rectangle;
 
-	constructor(ctx: CanvasRenderingContext2D, square: Square, step: number, board_cell_size: number) {
+	constructor(ctx: CanvasRenderingContext2D, square: NormalSquare, step: number, board_cell_size: number) {
 		this.ctx = ctx;
 		this.step = step;
 

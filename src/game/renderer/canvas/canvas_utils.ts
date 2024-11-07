@@ -11,18 +11,19 @@ export function drawBoard(ctx: CanvasRenderingContext2D, board: Board, board_cel
 	});
 }
 
-export function drawGrid(ctx: CanvasRenderingContext2D, board: Board, board_cell_size: number) {
+export function drawGrid(ctx: CanvasRenderingContext2D, board: Board, board_cell_size: number, skip_row: number) {
 	const rows = board.length;
 	const columns = board[0].length;
 
 	ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
 	for (let x = 0; x <= columns; x++) {
 		ctx.beginPath();
-		ctx.moveTo(x * board_cell_size, 0);
+		ctx.moveTo(x * board_cell_size, skip_row * board_cell_size);
 		ctx.lineTo(x * board_cell_size, rows * board_cell_size);
 		ctx.stroke();
 	}
 	for (let y = 0; y <= rows; y++) {
+		if (y < skip_row) continue;
 		ctx.beginPath();
 		ctx.moveTo(0, y * board_cell_size);
 		ctx.lineTo(columns * board_cell_size, y * board_cell_size);

@@ -1,15 +1,14 @@
-import { type Board, CellValue, FlipTable, MoveDirection, type Position, RotateTable, type Shape, type Square } from "@/game/types";
+import { type Board, CellValue, type Color, FlipTable, MoveDirection, type Position, RotateTable, type Shape, type NormalSquare } from "@/game/types";
 import { buildShape, isCollideShapeAndBoardCell, isEmptyBoardCell } from "@/utils/utils";
 
 export abstract class Block {
 	protected shape: Shape;
-	private readonly color: string;
+	private readonly color: Color;
 	protected current_position: Position = [0, 0];
 
 	protected constructor(shape: Shape, color: string) {
 		this.shape = shape;
 		this.color = color;
-		this.current_position[1] = -this.height;
 	}
 
 	moveUp() {
@@ -142,7 +141,7 @@ export abstract class Block {
 		console.log("jump");
 	}
 
-	isInSquare(square: Square): boolean {
+	isInSquare(square: NormalSquare): boolean {
 		const [position_x, position_y] = this.current_position;
 		const {
 			size,

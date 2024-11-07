@@ -6,12 +6,23 @@ export type Position = [number, number];
 
 export type Shape = CellValue[][];
 
-export type Square = {
+export type Color = string;
+
+export enum SquareType {
+	// 水平和垂直构成的正方形
+	normal,
+	// 斜正方形
+	bevelled
+}
+
+export type NormalSquare = {
+	type: SquareType.normal;
 	size: number;
 	bottom_right: [number, number];
 };
 
 export type BevelledSquare = {
+	type: SquareType.bevelled;
 	size: number;
 	top_left: [number, number];
 };

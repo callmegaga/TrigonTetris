@@ -1,5 +1,5 @@
 import type { Block } from "@/game/blocks/block";
-import { type Board, type Square } from "@/game/types";
+import { type BevelledSquare, type Board, type NormalSquare } from "@/game/types";
 
 export abstract class Renderer {
 	protected game_container: HTMLElement;
@@ -13,6 +13,7 @@ export abstract class Renderer {
 			board_cell_size: number;
 			columns: number;
 			rows: number;
+			active_board_rows: number;
 		}
 	) {
 		this.game_container = game_dom;
@@ -25,5 +26,5 @@ export abstract class Renderer {
 
 	abstract renderBlockEffect(blocks: Set<Block>, boards: Board): Promise<void>;
 
-	abstract renderSpreadLight(boards: Board, square: Square): Promise<void>;
+	abstract renderSpreadLight(boards: Board, square: NormalSquare | BevelledSquare): Promise<void>;
 }

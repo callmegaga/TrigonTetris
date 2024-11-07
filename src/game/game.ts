@@ -1,9 +1,9 @@
 import type { Block } from "@/game/blocks/block";
-import { type BevelledSquare, type Board, CellValue, GameStatus, MoveDirection, type Square } from "@/game/types";
+import { type BevelledSquare, type Board, CellValue, GameStatus, MoveDirection, type NormalSquare, SquareType } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas/canvas_renderer";
-import { boardEraseBlock, calculateBevelledSquareScore, calculateSquareScore, findMaxValidBevelledSquare, findMaxValidSquare, getBevelledSquareColorsAndBlocks, getBevelledSquareMaxSquare, getRandomShape, getSquareColorsAndBlocks } from "@/utils/utils";
-import { STAND_BY_COUNT } from "@/game/config";
+import { boardEraseBlock, calculateSquareScore, findMaxValidBevelledSquare, findMaxValidSquare, getBevelledSquareMaxSquare, getRandomShape, getSquareColorsAndBlocks } from "@/utils/utils";
+import { ACTIVE_BOARD_ROWS, GAME_INTERVAL_TIME, STAND_BY_COUNT } from "@/game/config";
 import { Shape1 } from "@/game/blocks/shape-1";
 import { Shape5 } from "@/game/blocks/shape-5";
 import { Shape2 } from "@/game/blocks/shape-2";
@@ -32,9 +32,10 @@ export class Game {
 		this.renderer = new CanvasRenderer(options.game_container, options.next_container, {
 			board_cell_size: options.board_cell_size,
 			columns: options.columns,
-			rows: options.rows
+			rows: options.rows,
+			active_board_rows: ACTIVE_BOARD_ROWS
 		});
-		this.boards = Array(options.rows)
+		this.boards = Array(options.rows + ACTIVE_BOARD_ROWS)
 			.fill(0)
 			.map(() => new Array(options.columns).fill(0).map(() => []));
 		this.options = options;
@@ -52,7 +53,7 @@ export class Game {
 	start() {
 		this.bindEvents();
 		this.state = GameStatus.Active;
-		this.loop();
+		this.loop_timer = window.setTimeout(() => this.loop(), 0);
 	}
 
 	restart() {
@@ -67,7 +68,7 @@ export class Game {
 			this.block_queue.push(new (getRandomShape())());
 		}
 		this.state = GameStatus.Active;
-		this.loop();
+		this.loop_timer = window.setTimeout(() => this.loop(), 0);
 	}
 
 	end() {
@@ -90,7 +91,6 @@ export class Game {
 				this.loopWhenExtendLife();
 				break;
 			case GameStatus.Fail:
-				console.log("game over");
 				break;
 		}
 	}
@@ -108,32 +108,35 @@ export class Game {
 
 		if (this.active_block.isCollide(this.boards)) {
 			console.log("collide the boards");
+
+			this.active_block.moveUp();
 			const position = this.active_block.getPosition();
 			console.log("the active block position", position);
-			if (position[1] <= 0) {
-				this.options.onFail();
+
+			this.updateBoardsFromActiveBlock();
+			this.dead_blocks.push(this.active_block);
+			console.log("dead_blocks: ", this.dead_blocks);
+			this.active_block = null;
+
+			if (position[1] <= ACTIVE_BOARD_ROWS - 1) {
 				this.state = GameStatus.ExtendLife;
+				this.loop_timer = window.setTimeout(() => this.loop(), 0);
 			} else {
-				this.active_block.moveUp();
-				this.updateBoardsFromActiveBlock();
-				this.dead_blocks.push(this.active_block);
-				console.log("dead_blocks: ", this.dead_blocks);
-				this.active_block = null;
 				const max_bevelled_square = findMaxValidBevelledSquare(this.boards, true);
 				if (max_bevelled_square) {
-					this.onPerfectBevelledSquareFind(max_bevelled_square);
+					this.onPerfectSquareFind(max_bevelled_square);
 					return;
-				} else {
-					const max_square = findMaxValidSquare(this.boards, true);
-					if (max_square) {
-						this.onPerfectSquareFind(max_square);
-						return;
-					}
+				}
+
+				const max_square = findMaxValidSquare(this.boards, true);
+				if (max_square) {
+					this.onPerfectSquareFind(max_square);
+					return;
 				}
 			}
 		}
 		this.draw();
-		this.loop_timer = window.setTimeout(() => this.loop(), 1000);
+		this.loop_timer = window.setTimeout(() => this.loop(), GAME_INTERVAL_TIME);
 	}
 
 	private loopWhenMoveBoard() {
@@ -148,23 +151,19 @@ export class Game {
 				this.state = GameStatus.Active;
 			}
 		}
-		this.loop_timer = window.setTimeout(() => this.loop(), 1000);
+		this.loop_timer = window.setTimeout(() => this.loop(), GAME_INTERVAL_TIME);
 	}
 
 	private loopWhenExtendLife() {
 		const max_bevelled_square = findMaxValidBevelledSquare(this.boards, false);
 		if (max_bevelled_square) {
-			this.onPerfectBevelledSquareFind(max_bevelled_square);
-			this.draw();
-			this.loop_timer = window.setTimeout(() => this.loop(), 1000);
+			this.onPerfectSquareFind(max_bevelled_square);
 			return;
 		}
 
 		const max_square = findMaxValidSquare(this.boards, false);
 		if (max_square) {
 			this.onPerfectSquareFind(max_square);
-			this.draw();
-			this.loop_timer = window.setTimeout(() => this.loop(), 1000);
 			return;
 		}
 
@@ -216,11 +215,12 @@ export class Game {
 		}
 	}
 
-	private onPerfectSquareFind(square: Square) {
-		console.log("max_square: ", square);
-		const score = calculateSquareScore(square, this.boards);
+	private onPerfectSquareFind(square: NormalSquare | BevelledSquare) {
+		console.log("find square: ", square);
+		const score = calculateSquareScore(square, this.boards, true);
 		console.log("score: ", score);
 		this.options.onScore(score);
+
 		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(square, this.boards);
 
 		this.clearBoardFromBlocks(need_clear_blocks);
@@ -237,35 +237,7 @@ export class Game {
 
 				this.renderer.renderBlockEffect(other_clear_blocks, this.boards).then(() => {
 					this.state = GameStatus.MoveBoard;
-					this.loop();
-				});
-			});
-		});
-	}
-
-	private onPerfectBevelledSquareFind(square: BevelledSquare) {
-		console.log("find bevelled square:", square);
-		const score = calculateBevelledSquareScore(square, this.boards);
-		console.log("score: ", score);
-		this.options.onScore(score);
-
-		const { blocks: need_clear_blocks } = getBevelledSquareColorsAndBlocks(square, this.boards);
-
-		this.clearBoardFromBlocks(need_clear_blocks);
-		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
-
-		this.renderer.renderBlockEffect(need_clear_blocks, this.boards).then(() => {
-			console.log("finish animation end");
-			this.renderer.renderSpreadLight(this.boards, getBevelledSquareMaxSquare(square)).then(() => {
-				const other_clear_blocks = this.findBlocksInSpreadLight(getBevelledSquareMaxSquare(square));
-
-				this.clearBoardFromBlocks(other_clear_blocks);
-
-				this.dead_blocks = this.dead_blocks.filter((block) => !other_clear_blocks.has(block));
-
-				this.renderer.renderBlockEffect(other_clear_blocks, this.boards).then(() => {
-					this.state = GameStatus.MoveBoard;
-					this.loop();
+					this.loop_timer = window.setTimeout(() => this.loop(), 0);
 				});
 			});
 		});
@@ -344,8 +316,10 @@ export class Game {
 		});
 	}
 
-	private findBlocksInSpreadLight(square: Square) {
-		console.log("findBlocksInSpreadLight: ", square);
+	private findBlocksInSpreadLight(square: NormalSquare | BevelledSquare) {
+		if (square.type === SquareType.bevelled) {
+			square = getBevelledSquareMaxSquare(square);
+		}
 		const {
 			size,
 			bottom_right: [bottom, right]

@@ -157,13 +157,13 @@ export class Game {
 	private loopWhenExtendLife() {
 		const max_bevelled_square = findMaxValidBevelledSquare(this.boards, false);
 		if (max_bevelled_square) {
-			this.onPerfectSquareFind(max_bevelled_square);
+			this.onCoverSquareFind(max_bevelled_square);
 			return;
 		}
 
 		const max_square = findMaxValidSquare(this.boards, false);
 		if (max_square) {
-			this.onPerfectSquareFind(max_square);
+			this.onCoverSquareFind(max_square);
 			return;
 		}
 
@@ -215,8 +215,26 @@ export class Game {
 		}
 	}
 
+	private onCoverSquareFind(square: NormalSquare | BevelledSquare) {
+		console.log("find cover square: ", square);
+		const score = calculateSquareScore(square, this.boards, false);
+		console.log("score: ", score);
+		this.options.onScore(score);
+
+		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(square, this.boards);
+
+		this.clearBoardFromBlocks(need_clear_blocks);
+		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
+
+		this.renderer.renderBlockEffect(need_clear_blocks, this.boards).then(() => {
+			console.log("finish animation end");
+			this.state = GameStatus.MoveBoard;
+			this.loop_timer = window.setTimeout(() => this.loop(), 0);
+		});
+	}
+
 	private onPerfectSquareFind(square: NormalSquare | BevelledSquare) {
-		console.log("find square: ", square);
+		console.log("find perfect square: ", square);
 		const score = calculateSquareScore(square, this.boards, true);
 		console.log("score: ", score);
 		this.options.onScore(score);

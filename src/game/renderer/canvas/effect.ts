@@ -140,6 +140,10 @@ export class BlockEraseAnimation {
 	get isAnimationComplete() {
 		return this.fragments.length === 0;
 	}
+
+	get isGlowComplete() {
+		return this.state === AnimationState.fade;
+	}
 }
 
 // 光线扩散动画

@@ -3,7 +3,7 @@ import { type BevelledSquare, type Board, type NormalSquare, SquareType } from "
 import type { Block } from "@/game/blocks/block";
 import { MAX_SHAPE_SIZE, SPREAD_LIGHT_STEP, STAND_BY_COUNT } from "@/game/config";
 import { BlockEraseAnimation, SpreadLightAnimation } from "@/game/renderer/canvas/effect";
-import { createBackground, drawBlock, drawBoard, drawGrid } from "@/game/renderer/canvas/canvas_utils";
+import { createBackground, drawBevelledSquare, drawBlock, drawBoard, drawGrid, drawSquare } from "@/game/renderer/canvas/canvas_utils";
 import { getBevelledSquareMaxSquare } from "@/utils/utils";
 
 const next_size = [MAX_SHAPE_SIZE[0] * STAND_BY_COUNT + 3, MAX_SHAPE_SIZE[1] + 2];
@@ -54,7 +54,7 @@ export class CanvasRenderer extends Renderer {
 
 	renderNextBlock(blocks: Block[]) {
 		this.clearNext();
-		drawGrid(this.game_ctx, next_board, this.board_cell_size, 0);
+		drawGrid(this.next_ctx, next_board, this.board_cell_size, 0);
 		blocks.forEach((block, index) => {
 			block.setPosition([1 + (1 + MAX_SHAPE_SIZE[0]) * index, 1]);
 			drawBlock(this.next_ctx, block, this.board_cell_size);
@@ -62,7 +62,7 @@ export class CanvasRenderer extends Renderer {
 		});
 	}
 
-	renderBlockEffect(blocks: Set<Block>, boards: Board) {
+	renderBlockEffect(blocks: Set<Block>, boards: Board, square?: NormalSquare | BevelledSquare): Promise<void> {
 		const animation = new BlockEraseAnimation(this.game_ctx, blocks, this.board_cell_size);
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		const that: CanvasRenderer = this;
@@ -72,6 +72,10 @@ export class CanvasRenderer extends Renderer {
 
 				animation.update();
 				animation.draw();
+
+				if (square && !animation.isGlowComplete) {
+					that.renderSquare(boards, square);
+				}
 
 				if (animation.isAnimationComplete) {
 					resolve();
@@ -108,6 +112,16 @@ export class CanvasRenderer extends Renderer {
 
 			animate();
 		});
+	}
+
+	renderSquare(boards: Board, square: NormalSquare | BevelledSquare) {
+		if (square.type === SquareType.bevelled) {
+			drawBevelledSquare(this.game_ctx, square, this.board_cell_size);
+		}
+
+		if (square.type === SquareType.normal) {
+			drawSquare(this.game_ctx, square, this.board_cell_size);
+		}
 	}
 
 	private clear() {

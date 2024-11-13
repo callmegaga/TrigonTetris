@@ -24,7 +24,9 @@ export abstract class Renderer {
 
 	abstract renderNextBlock(blocks: Block[]): void;
 
-	abstract renderBlockEffect(blocks: Set<Block>, boards: Board): Promise<void>;
+	abstract renderBlockEffect(blocks: Set<Block>, boards: Board, square?: NormalSquare | BevelledSquare): Promise<void>;
 
 	abstract renderSpreadLight(boards: Board, square: NormalSquare | BevelledSquare): Promise<void>;
+
+	abstract renderSquare(boards: Board, square: NormalSquare | BevelledSquare): void;
 }

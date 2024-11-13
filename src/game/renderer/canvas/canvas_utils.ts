@@ -1,4 +1,4 @@
-import { type Board, type Position, CellValue } from "@/game/types";
+import { type Board, type Position, CellValue, type NormalSquare, type BevelledSquare } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
 
 export function drawBoard(ctx: CanvasRenderingContext2D, board: Board, board_cell_size: number) {
@@ -84,6 +84,52 @@ export function drawCell(ctx: CanvasRenderingContext2D, position: Position, cell
 	}
 	ctx.closePath();
 	ctx.fill();
+}
+
+export function drawSquare(ctx: CanvasRenderingContext2D, square: NormalSquare, board_cell_size: number) {
+	const {
+		size,
+		bottom_right: [bottom, right]
+	} = square;
+	const x = (right - size + 1) * board_cell_size;
+	const y = (bottom - size + 1) * board_cell_size;
+	const width = size * board_cell_size;
+	const height = size * board_cell_size;
+
+	ctx.save();
+	ctx.fillStyle = "#f00";
+	ctx.fillRect(x, y, width, height);
+	ctx.restore();
+}
+
+export function drawBevelledSquare(ctx: CanvasRenderingContext2D, square: BevelledSquare, board_cell_size: number) {
+	const {
+		size,
+		top_left: [top, left]
+	} = square;
+
+	const start_x = (left + 1) * board_cell_size;
+	const start_y = top * board_cell_size;
+
+	const left_x = (left - size + 1) * board_cell_size;
+	const left_y = (top + size) * board_cell_size;
+
+	const bottom_x = (left + 1) * board_cell_size;
+	const bottom_y = (top + 2 * size) * board_cell_size;
+
+	const right_x = (left + size + 1) * board_cell_size;
+	const right_y = (top + size) * board_cell_size;
+
+	ctx.save();
+	ctx.beginPath();
+	ctx.moveTo(start_x, start_y);
+	ctx.lineTo(left_x, left_y);
+	ctx.lineTo(bottom_x, bottom_y);
+	ctx.lineTo(right_x, right_y);
+	ctx.closePath();
+	ctx.fillStyle = "#f00";
+	ctx.fill();
+	ctx.restore();
 }
 
 export function createBackground(width: number, height: number) {

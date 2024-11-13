@@ -121,6 +121,7 @@ export class Game {
 			if (position[1] <= ACTIVE_BOARD_ROWS - 1) {
 				this.state = GameStatus.ExtendLife;
 				this.loop_timer = window.setTimeout(() => this.loop(), 0);
+				return;
 			} else {
 				const max_bevelled_square = findMaxValidBevelledSquare(this.boards, true);
 				if (max_bevelled_square) {
@@ -135,6 +136,7 @@ export class Game {
 				}
 			}
 		}
+
 		this.draw();
 		this.loop_timer = window.setTimeout(() => this.loop(), GAME_INTERVAL_TIME);
 	}
@@ -226,7 +228,7 @@ export class Game {
 		this.clearBoardFromBlocks(need_clear_blocks);
 		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
 
-		this.renderer.renderBlockEffect(need_clear_blocks, this.boards).then(() => {
+		this.renderer.renderBlockEffect(need_clear_blocks, this.boards, square).then(() => {
 			console.log("finish animation end");
 			this.state = GameStatus.MoveBoard;
 			this.loop_timer = window.setTimeout(() => this.loop(), 0);

@@ -9,6 +9,7 @@ export abstract class Block {
 	protected constructor(shape: Shape, color: string) {
 		this.shape = shape;
 		this.color = color;
+		this.current_position[0] = Math.floor(Math.random() * 7);
 	}
 
 	moveUp() {

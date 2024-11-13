@@ -41,7 +41,7 @@ export class CanvasRenderer extends Renderer {
 		this.next_container.appendChild(next_canvas);
 
 		const background_height = game_canvas.height - options.board_cell_size * this.active_board_rows;
-		this.background = createBackground(game_canvas.width, background_height);
+		this.background = createBackground(game_canvas.width, background_height, this.board_cell_size);
 	}
 
 	render(board: Board, active_block: Block | null) {

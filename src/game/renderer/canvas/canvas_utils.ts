@@ -1,5 +1,6 @@
 import { type Board, type Position, CellValue, type NormalSquare, type BevelledSquare } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
+import { BOARD_DARK_COLOR, BOARD_LIGHT_COLOR } from "@/game/config";
 
 export function drawBoard(ctx: CanvasRenderingContext2D, board: Board, board_cell_size: number) {
 	board.forEach((row, y) => {
@@ -132,18 +133,28 @@ export function drawBevelledSquare(ctx: CanvasRenderingContext2D, square: Bevell
 	ctx.restore();
 }
 
-export function createBackground(width: number, height: number) {
-	const bgCanvas = document.createElement("canvas");
-	const bgCtx = bgCanvas.getContext("2d") as CanvasRenderingContext2D;
-	bgCanvas.width = width;
-	bgCanvas.height = height;
+export function createBackground(width: number, height: number, board_cell_size: number) {
+	const canvas = document.createElement("canvas");
+	const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+	canvas.width = width;
+	canvas.height = height;
 
-	const gradient = bgCtx.createLinearGradient(0, 0, 0, bgCanvas.height);
-	gradient.addColorStop(0, "#000033");
-	gradient.addColorStop(1, "#000066");
+	// const gradient = bgCtx.createLinearGradient(0, 0, 0, bgCanvas.height);
+	// gradient.addColorStop(0, "#000033");
+	// gradient.addColorStop(1, "#000066");
+	//
+	// bgCtx.fillStyle = gradient;
+	// bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+	//
+	// return bgCanvas;
+	for (let y = 0; y < height; y += board_cell_size) {
+		for (let x = 0; x < width; x += board_cell_size) {
+			// 使用不同的颜色填充每个方格，形成深浅交替的效果
+			const isDark = Math.floor((x + y) / board_cell_size) % 2 === 0;
+			ctx.fillStyle = isDark ? BOARD_DARK_COLOR : BOARD_LIGHT_COLOR; // 深浅交替的颜色
+			ctx.fillRect(x, y, board_cell_size, board_cell_size); // 绘制方格
+		}
+	}
 
-	bgCtx.fillStyle = gradient;
-	bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
-
-	return bgCanvas;
+	return canvas;
 }

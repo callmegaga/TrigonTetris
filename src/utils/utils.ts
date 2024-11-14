@@ -4,11 +4,19 @@ import { Shape5 } from "@/game/blocks/shape-5";
 import type { Block } from "@/game/blocks/block";
 
 // const ShapeTable: { new (): Block }[] = [Shape1, Shape2, Shape3, Shape4, Shape5, Shape6, Shape7];
-export const ShapeTable: { new (): Block }[] = [Shape1, Shape5];
+export const ShapeTable: { new(): Block }[] = [Shape1, Shape5];
 
 export function getRandomShape() {
-	const index = Math.floor(Math.random() * ShapeTable.length);
-	return ShapeTable[index];
+	// 概率8-4-4-1-7-5-7
+	const random = Math.random();
+	const sum = 8 + 4 + 4 + 1 + 7 + 5 + 7;
+	if (random <= 8 / sum) return ShapeTable[0];
+	if (random <= (8 + 4) / sum) return ShapeTable[1];
+	if (random <= (8 + 4 + 4) / sum) return ShapeTable[2];
+	if (random <= (8 + 4 + 4 + 1) / sum) return ShapeTable[3];
+	if (random <= (8 + 4 + 4 + 1 + 7) / sum) return ShapeTable[4];
+	if (random <= (8 + 4 + 4 + 1 + 7 + 5) / sum) return ShapeTable[5];
+	return ShapeTable[6];
 }
 
 export function buildShape(width: number, height: number) {

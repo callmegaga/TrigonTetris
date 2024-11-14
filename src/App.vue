@@ -12,25 +12,36 @@
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
 	<game-over v-if="is_game_over" />
+	<score-tooltip :score="score" :left="new_score_left" :top="new_score_top"/>
 </template>
 
 <script setup lang="ts">
 import TheWelcome from "@/components/TheWelcome.vue";
 import { Game } from "@/game/game";
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import GameSample from "@/components/GameSample.vue";
 import GamePad from "@/components/GamePad.vue";
 import GameScore from "@/components/GameScore.vue";
 import { GAME_BOARD_CELL_SIZE, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";
-import { getHistoryMaxScore, setHistoryMaxScore } from "@/utils/utils";
+import {
+	getElementScreenPosition,
+	getHistoryMaxScore,
+	getSquareCenterPixelPosition,
+	setHistoryMaxScore
+} from "@/utils/utils";
 import GameOver from "@/components/GameOver.vue";
+import ScoreTooltip from "@/components/ScoreTooltip.vue";
+import type { BevelledSquare, NormalSquare } from "@/game/types";
 
 const is_show_welcome = ref(true);
 const is_game_over = ref(false);
-const score = ref(0);
+const score = ref(176000000);
 const max_score = ref(0);
 const cheer_audio = new Audio("/audio/cheer.mp3");
 const shooo_audio = new Audio("/audio/shooo.mp3");
+const new_score_top = ref(100);
+const new_score_left = ref(100);
+
 
 let game: Game;
 
@@ -42,9 +53,16 @@ function startGame() {
 window.document.addEventListener("click", () => {
 });
 
-function onScore(gain: number) {
+function onScore(gain: number, square: NormalSquare | BevelledSquare) {
+	console.log(square);
 	console.log("score", gain);
+	const square_center_position = getSquareCenterPixelPosition(square, GAME_BOARD_CELL_SIZE);
+	const element_position = getElementScreenPosition(document.querySelector("#game canvas") as HTMLElement);
+
+	new_score_left.value = square_center_position[0] + element_position[0] - 60;
+	new_score_top.value = square_center_position[1] + element_position[1] - 45;
 	score.value += gain;
+
 	cheer_audio.play();
 	setTimeout(() => {
 		shooo_audio.play();

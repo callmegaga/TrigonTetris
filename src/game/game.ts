@@ -15,7 +15,7 @@ interface GameOptions {
 	rows: number;
 	board_cell_size: number;
 	onFail: () => void;
-	onScore: (score: number) => void;
+	onScore: (score: number, square: NormalSquare | BevelledSquare) => void;
 }
 
 export class Game {
@@ -219,11 +219,11 @@ export class Game {
 
 	private onCoverSquareFind(square: NormalSquare | BevelledSquare) {
 		console.log("find cover square: ", square);
-		const score = calculateSquareScore(square, this.boards, false);
+		const score = calculateSquareScore(this.boards, square, false);
 		console.log("score: ", score);
-		this.options.onScore(score);
+		this.options.onScore(score, square);
 
-		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(square, this.boards);
+		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(this.boards, square);
 
 		this.clearBoardFromBlocks(need_clear_blocks);
 		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
@@ -239,11 +239,11 @@ export class Game {
 
 	private onPerfectSquareFind(square: NormalSquare | BevelledSquare) {
 		console.log("find perfect square: ", square);
-		const score = calculateSquareScore(square, this.boards, true);
+		const score = calculateSquareScore(this.boards, square, true);
 		console.log("score: ", score);
-		this.options.onScore(score);
+		this.options.onScore(score, square);
 
-		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(square, this.boards);
+		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(this.boards, square);
 
 		this.clearBoardFromBlocks(need_clear_blocks);
 		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));

@@ -435,3 +435,29 @@ export function getBevelledSquareMaxSquare(bevelled_square: BevelledSquare): Nor
 	const [y, x] = top_left;
 	return { type: SquareType.normal, size: 2 * size, bottom_right: [y + 2 * size - 1, x + size] };
 }
+
+export function getSquareCenterPixelPosition(square: NormalSquare | BevelledSquare, board_cell_size: number): [number, number] {
+	const result: [number, number] = [0, 0];
+
+	if (square.type === SquareType.normal) {
+		const {
+			size,
+			bottom_right: [bottom, right]
+		} = square;
+		result[0] = ((right - size + right) / 2) * board_cell_size;
+		result[1] = ((bottom - size + bottom) / 2) * board_cell_size;
+	} else {
+		const {
+			size,
+			top_left: [y, x]
+		} = square;
+		result[0] = (x + size / 2) * board_cell_size;
+		result[1] = (y + size) * board_cell_size;
+	}
+	return result;
+}
+
+export function getElementScreenPosition(element: HTMLElement): [number, number] {
+	const { top, left } = element.getBoundingClientRect();
+	return [left, top];
+}

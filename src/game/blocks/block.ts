@@ -82,7 +82,7 @@ export abstract class Block {
 		}
 	}
 
-	moveIfNotCollide(direction: MoveDirection, boards: Board): void {
+	moveIfNotCollide(boards: Board, direction: MoveDirection): void {
 		this.move(direction);
 		if (this.isCollide(boards)) {
 			switch (direction) {

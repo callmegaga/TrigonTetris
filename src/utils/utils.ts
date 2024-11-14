@@ -72,41 +72,41 @@ export function isEmptyBoardCell(board_cell: BoardCell) {
 	return board_cell.length === 0;
 }
 
-export function calculateSquareScore(square: NormalSquare | BevelledSquare, boards: Board, is_perfect: boolean) {
+export function calculateSquareScore(boards: Board, square: NormalSquare | BevelledSquare, is_perfect: boolean) {
 	if (is_perfect) {
 		if (square.type === SquareType.normal) {
 			const size = square.size;
-			const { colors, blocks } = getSquareColorsAndBlocks(square, boards);
+			const { colors, blocks } = getSquareColorsAndBlocks(boards, square);
 
 			return size * size * blocks.size * Math.pow(5, colors.size);
 		} else {
 			const size = square.size;
-			const { colors, blocks } = getBevelledSquareColorsAndBlocks(square, boards);
+			const { colors, blocks } = getBevelledSquareColorsAndBlocks(boards, square);
 
 			return Math.pow(2 * size * size, 2) * blocks.size * Math.pow(5, colors.size);
 		}
 	} else {
 		if (square.type === SquareType.normal) {
 			const size = square.size;
-			const { colors } = getSquareColorsAndBlocks(square, boards);
+			const { colors } = getSquareColorsAndBlocks(boards, square);
 
 			return size * size * colors.size;
 		} else {
 			const size = square.size;
-			const { colors } = getBevelledSquareColorsAndBlocks(square, boards);
+			const { colors } = getBevelledSquareColorsAndBlocks(boards, square);
 
 			return size * size * colors.size;
 		}
 	}
 }
 
-export function isSquareValid(square: NormalSquare, boards: Board) {
-	const { colors } = getSquareColorsAndBlocks(square, boards);
+export function isSquareValid(boards: Board, square: NormalSquare) {
+	const { colors } = getSquareColorsAndBlocks(boards, square);
 	return colors.size > 1;
 }
 
-export function isSquarePerfect(square: NormalSquare, boards: Board) {
-	const { blocks } = getSquareColorsAndBlocks(square, boards);
+export function isSquarePerfect(boards: Board, square: NormalSquare) {
+	const { blocks } = getSquareColorsAndBlocks(boards, square);
 	let result = true;
 	blocks.forEach((block) => {
 		if (!block.isInSquare(square)) {
@@ -116,8 +116,8 @@ export function isSquarePerfect(square: NormalSquare, boards: Board) {
 	return result;
 }
 
-export function isBevelledSquareValid(bevelled_square: BevelledSquare, boards: Board) {
-	const { colors } = getBevelledSquareColorsAndBlocks(bevelled_square, boards);
+export function isBevelledSquareValid(boards: Board, bevelled_square: BevelledSquare) {
+	const { colors } = getBevelledSquareColorsAndBlocks(boards, bevelled_square);
 	return colors.size > 1;
 }
 
@@ -154,8 +154,8 @@ export function findMaxValidSquare(boards: Board, is_perfect: boolean) {
 
 	for (let i = 0; i < height; i++) {
 		for (let j = 0; j < width; j++) {
-			if (isSquareValid({ type: SquareType.normal, size: square_table[i][j], bottom_right: [i, j] }, boards)) {
-				if (is_perfect && !isSquarePerfect({ type: SquareType.normal, size: square_table[i][j], bottom_right: [i, j] }, boards)) {
+			if (isSquareValid(boards, { type: SquareType.normal, size: square_table[i][j], bottom_right: [i, j] })) {
+				if (is_perfect && !isSquarePerfect(boards, { type: SquareType.normal, size: square_table[i][j], bottom_right: [i, j] })) {
 					continue;
 				}
 				if (square_table[i][j] > max_square_size) {
@@ -170,7 +170,7 @@ export function findMaxValidSquare(boards: Board, is_perfect: boolean) {
 }
 
 export function findMaxValidBevelledSquare(boards: Board, is_perfect: boolean) {
-	const all_bevelled_square = findAllBevelledSquares(boards, is_perfect).filter((bevelled_square) => isBevelledSquareValid(bevelled_square, boards));
+	const all_bevelled_square = findAllBevelledSquares(boards, is_perfect).filter((bevelled_square) => isBevelledSquareValid(boards, bevelled_square));
 
 	let max_squares: BevelledSquare | undefined = undefined;
 	let max_square_size = 0;
@@ -309,15 +309,15 @@ export function checkTileHavaValue(tile: BoardCell, value: CellValue[]) {
 	return result;
 }
 
-export function getSquareColorsAndBlocks(square: NormalSquare | BevelledSquare, boards: Board) {
+export function getSquareColorsAndBlocks(boards: Board, square: NormalSquare | BevelledSquare) {
 	if (square.type === SquareType.normal) {
-		return getNormalSquareColorsAndBlocks(square, boards);
+		return getNormalSquareColorsAndBlocks(boards, square);
 	} else {
-		return getBevelledSquareColorsAndBlocks(square, boards);
+		return getBevelledSquareColorsAndBlocks(boards, square);
 	}
 }
 
-export function getNormalSquareColorsAndBlocks(square: NormalSquare, boards: Board) {
+export function getNormalSquareColorsAndBlocks(boards: Board, square: NormalSquare) {
 	const {
 		size,
 		bottom_right: [bottom, right]
@@ -341,7 +341,7 @@ export function getNormalSquareColorsAndBlocks(square: NormalSquare, boards: Boa
 	};
 }
 
-export function getBevelledSquareColorsAndBlocks(bevelled_square: BevelledSquare, boards: Board) {
+export function getBevelledSquareColorsAndBlocks(boards: Board, bevelled_square: BevelledSquare) {
 	const {
 		size,
 		top_left: [y, x]

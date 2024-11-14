@@ -307,13 +307,13 @@ export class Game {
 					this.active_block?.rotateIfNotCollide(this.boards);
 					break;
 				case "ArrowDown":
-					this.active_block?.moveIfNotCollide(MoveDirection.Down, this.boards);
+					this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Down);
 					break;
 				case "ArrowLeft":
-					this.active_block?.moveIfNotCollide(MoveDirection.Left, this.boards);
+					this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Left);
 					break;
 				case "ArrowRight":
-					this.active_block?.moveIfNotCollide(MoveDirection.Right, this.boards);
+					this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Right);
 					break;
 				case " ":
 					this.active_block?.flipIfNotCollide(this.boards);

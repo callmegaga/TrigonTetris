@@ -8,5 +8,5 @@ export const SPREAD_LIGHT_STEP = 8;
 export const ACTIVE_BOARD_ROWS = 4;
 export const GAME_INTERVAL_TIME = 1000;
 export const GAME_MOVE_BOARD_MULTIPLIER = 8;
-export const BOARD_LIGHT_COLOR = "#8187fe";
-export const BOARD_DARK_COLOR = "#86fffd";
+export const BOARD_LIGHT_COLOR = "#fff";
+export const BOARD_DARK_COLOR = "#eaeaea";

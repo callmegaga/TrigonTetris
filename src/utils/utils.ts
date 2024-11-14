@@ -1,10 +1,14 @@
 import { type BevelledSquare, type Board, type BoardCell, CellValue, type Color, type Position, type NormalSquare, SquareType } from "@/game/types";
 import { Shape1 } from "@/game/blocks/shape-1";
+import { Shape2 } from "@/game/blocks/shape-2";
+import { Shape3 } from "@/game/blocks/shape-3";
+import { Shape4 } from "@/game/blocks/shape-4";
 import { Shape5 } from "@/game/blocks/shape-5";
+import { Shape6 } from "@/game/blocks/shape-6";
+import { Shape7 } from "@/game/blocks/shape-7";
 import type { Block } from "@/game/blocks/block";
 
-// const ShapeTable: { new (): Block }[] = [Shape1, Shape2, Shape3, Shape4, Shape5, Shape6, Shape7];
-export const ShapeTable: { new(): Block }[] = [Shape1, Shape5];
+const ShapeTable: { new (): Block }[] = [Shape1, Shape2, Shape3, Shape4, Shape5, Shape6, Shape7];
 
 export function getRandomShape() {
 	// 概率8-4-4-1-7-5-7

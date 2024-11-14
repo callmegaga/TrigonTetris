@@ -1,6 +1,6 @@
 <template>
 	<div class="score-tooltip">
-		<div class="cloud"></div>
+<!--		<div class="cloud"></div>-->
 		<div class="score">
 			{{ props.score }}
 		</div>
@@ -26,7 +26,7 @@ watch(
 
 		setTimeout(() => {
 			display.value = "none";
-		}, 2500);
+		}, 2000);
 	}
 );
 const left = computed(() => {

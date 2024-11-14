@@ -5,7 +5,6 @@ export abstract class Renderer {
 	protected game_container: HTMLElement;
 	protected next_container: HTMLElement;
 
-
 	protected constructor(
 		game_dom: HTMLElement,
 		next_dom: HTMLElement,
@@ -24,9 +23,9 @@ export abstract class Renderer {
 
 	abstract renderNextBlock(blocks: Block[]): void;
 
-	abstract renderBlockEffect(blocks: Set<Block>, boards: Board, square?: NormalSquare | BevelledSquare): Promise<void>;
+	abstract renderBlockEffect(boards: Board, blocks: Set<Block>): Promise<void>;
 
 	abstract renderSpreadLight(boards: Board, square: NormalSquare | BevelledSquare): Promise<void>;
 
-	abstract renderSquare(boards: Board, square: NormalSquare | BevelledSquare): void;
+	abstract renderSquare(boards: Board, square: NormalSquare | BevelledSquare): Promise<void>;
 }

@@ -64,7 +64,7 @@ export class CanvasRenderer extends Renderer {
 		});
 	}
 
-	renderBlockEffect(blocks: Set<Block>, boards: Board, square?: NormalSquare | BevelledSquare): Promise<void> {
+	renderBlockEffect(boards: Board,blocks: Set<Block>): Promise<void> {
 		const animation = new BlockEraseAnimation(this.game_ctx, blocks, this.board_cell_size);
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		const that: CanvasRenderer = this;
@@ -74,10 +74,6 @@ export class CanvasRenderer extends Renderer {
 
 				animation.update();
 				animation.draw();
-
-				if (square && !animation.isGlowComplete) {
-					that.renderSquare(boards, square);
-				}
 
 				if (animation.isAnimationComplete) {
 					resolve();
@@ -124,6 +120,13 @@ export class CanvasRenderer extends Renderer {
 		if (square.type === SquareType.normal) {
 			drawSquare(this.game_ctx, square, this.board_cell_size);
 		}
+
+		return new Promise<void>((resolve) => {
+			setTimeout(() => {
+				this.render(boards, null);
+				resolve();
+			}, 3000);
+		});
 	}
 
 	private clear() {

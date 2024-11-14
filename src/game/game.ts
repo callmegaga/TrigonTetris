@@ -228,10 +228,12 @@ export class Game {
 		this.clearBoardFromBlocks(need_clear_blocks);
 		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
 
-		this.renderer.renderBlockEffect(need_clear_blocks, this.boards, square).then(() => {
-			console.log("finish animation end");
-			this.state = GameStatus.MoveBoard;
-			this.loop_timer = window.setTimeout(() => this.loop(), 0);
+		this.renderer.renderSquare(this.boards, square).then(() => {
+			this.renderer.renderBlockEffect(this.boards, need_clear_blocks).then(() => {
+				console.log("finish animation end");
+				this.state = GameStatus.MoveBoard;
+				this.loop_timer = window.setTimeout(() => this.loop(), 0);
+			});
 		});
 	}
 
@@ -246,7 +248,7 @@ export class Game {
 		this.clearBoardFromBlocks(need_clear_blocks);
 		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
 
-		this.renderer.renderBlockEffect(need_clear_blocks, this.boards).then(() => {
+		this.renderer.renderBlockEffect(this.boards, need_clear_blocks).then(() => {
 			console.log("finish animation end");
 			this.renderer.renderSpreadLight(this.boards, square).then(() => {
 				const other_clear_blocks = this.findBlocksInSpreadLight(square);
@@ -255,7 +257,7 @@ export class Game {
 
 				this.dead_blocks = this.dead_blocks.filter((block) => !other_clear_blocks.has(block));
 
-				this.renderer.renderBlockEffect(other_clear_blocks, this.boards).then(() => {
+				this.renderer.renderBlockEffect(this.boards, other_clear_blocks).then(() => {
 					this.state = GameStatus.MoveBoard;
 					this.loop_timer = window.setTimeout(() => this.loop(), 0);
 				});

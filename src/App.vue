@@ -1,13 +1,13 @@
 <template>
 	<main>
 		<div class="controller-and-score">
-<!--			<game-score :score="score" :max_score="max_score" />-->
-<!--			<game-pad class="gamepad" />-->
+			<game-score :score="score" :max_score="max_score" />
+			<game-pad class="gamepad" />
 		</div>
 		<div class="game" id="game"></div>
 		<div class="next-and-sample">
 			<div id="next"></div>
-<!--			<game-sample class="game-sample" />-->
+			<game-sample class="game-sample" />
 		</div>
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
@@ -35,7 +35,7 @@ import type { BevelledSquare, NormalSquare } from "@/game/types";
 
 const is_show_welcome = ref(true);
 const is_game_over = ref(false);
-const score = ref(176000000);
+const score = ref(0);
 const max_score = ref(0);
 const cheer_audio = new Audio("/audio/cheer.mp3");
 const shooo_audio = new Audio("/audio/shooo.mp3");

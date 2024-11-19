@@ -1,13 +1,13 @@
 <template>
 	<main>
 		<div class="controller-and-score">
-			<game-score :score="score" :max_score="max_score" />
-			<game-pad class="gamepad" />
+<!--			<game-score :score="score" :max_score="max_score" />-->
+<!--			<game-pad class="gamepad" />-->
 		</div>
 		<div class="game" id="game"></div>
 		<div class="next-and-sample">
 			<div id="next"></div>
-			<game-sample class="game-sample" />
+<!--			<game-sample class="game-sample" />-->
 		</div>
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />

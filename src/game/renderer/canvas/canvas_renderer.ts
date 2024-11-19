@@ -47,7 +47,6 @@ export class CanvasRenderer extends Renderer {
 	render(board: Board, active_block: Block | null) {
 		this.clear();
 		this.drawBackground(this.game_ctx);
-		// drawGrid(this.game_ctx, board, this.board_cell_size, this.active_board_rows);
 		drawBoard(this.game_ctx, board, this.board_cell_size);
 		drawBlock(this.game_ctx, active_block, this.board_cell_size);
 	}

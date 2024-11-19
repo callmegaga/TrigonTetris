@@ -1,10 +1,12 @@
 <template>
-	<div class="score-tooltip">
-<!--		<div class="cloud"></div>-->
-		<div class="score">
-			{{ props.score }}
+	<Transition>
+		<div class="score-tooltip" v-if="is_show">
+			<!--		<div class="cloud"></div>-->
+			<div class="score">
+				{{ props.score }}
+			</div>
 		</div>
-	</div>
+	</Transition>
 </template>
 
 <script setup lang="ts">
@@ -16,16 +18,16 @@ const props = defineProps<{
 	left: number;
 }>();
 
-const display = ref("none");
+const is_show = ref(false);
 
 watch(
 	() => props.score,
 	(new_score) => {
 		console.log("new_score", new_score);
-		display.value = "block";
+		is_show.value = true;
 
 		setTimeout(() => {
-			display.value = "none";
+			is_show.value = false;
 		}, 2000);
 	}
 );
@@ -39,8 +41,17 @@ const top = computed(() => {
 </script>
 
 <style scoped>
+.v-enter-active,
+.v-leave-active {
+	transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+	opacity: 0;
+}
+
 .score-tooltip {
-	display: v-bind(display);
 	position: absolute;
 	top: v-bind(top);
 	left: v-bind(left);

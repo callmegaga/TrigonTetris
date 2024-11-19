@@ -327,6 +327,9 @@ export class Game {
 				case " ":
 					this.active_block?.flipIfNotCollide(this.boards);
 					break;
+				case "Enter":
+					this.active_block?.jump(this.boards);
+					break;
 			}
 			this.draw();
 		});

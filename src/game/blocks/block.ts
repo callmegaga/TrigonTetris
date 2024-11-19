@@ -138,8 +138,20 @@ export abstract class Block {
 		this.current_position = position;
 	}
 
-	jump(): void {
+	jump(boards: Board): void {
 		console.log("jump");
+		const y = this.current_position[1];
+		const board_height = boards.length;
+		for (let new_y = board_height - 1; new_y > y; new_y--) {
+			this.current_position[1] = new_y;
+			if (this.isCollide(boards)) {
+				this.current_position[1] = new_y - 1;
+			} else {
+				this.current_position[1] = new_y;
+				return
+			}
+		}
+		this.current_position[1] = y;
 	}
 
 	isInSquare(square: NormalSquare): boolean {

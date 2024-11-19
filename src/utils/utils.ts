@@ -473,3 +473,17 @@ export function getElementScreenPosition(element: HTMLElement): [number, number]
 	const { top, left } = element.getBoundingClientRect();
 	return [left, top];
 }
+
+export function isBoardFirstNLineEmpty(boards: Board, n: number) {
+	if ( n > boards.length) return false;
+
+	for (let i = 0; i < n; i++) {
+		for (let j = 0; j < boards[i].length; j++) {
+			if (!isEmptyBoardCell(boards[i][j])) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}

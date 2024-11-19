@@ -310,6 +310,7 @@ export class Game {
 
 	private bindKeyboardEvents() {
 		document.addEventListener("keydown", (e) => {
+			if (this.state !== GameStatus.Active) return;
 			switch (e.key) {
 				case "ArrowUp":
 					this.active_block?.rotateIfNotCollide(this.boards);

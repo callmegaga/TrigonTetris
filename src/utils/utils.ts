@@ -107,7 +107,7 @@ export function calculateSquareScore(boards: Board, square: NormalSquare | Bevel
 			const size = square.size;
 			const { colors } = getBevelledSquareColorsAndBlocks(boards, square);
 
-			return size * size * colors.size;
+			return 2 * size * size * colors.size;
 		}
 	}
 }

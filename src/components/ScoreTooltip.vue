@@ -24,6 +24,9 @@ watch(
 	() => props.score,
 	(new_score) => {
 		console.log("new_score", new_score);
+		if (new_score === 0) {
+			return;
+		}
 		is_show.value = true;
 
 		setTimeout(() => {

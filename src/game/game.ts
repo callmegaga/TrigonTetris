@@ -144,6 +144,7 @@ export class Game {
 	private loopWhenMoveBoard() {
 		const is_board_changed = this.moveDeadBlocksFall();
 
+		console.log("is_board_changed: ", is_board_changed);
 		this.draw();
 		if (!is_board_changed) {
 			const max_square = findMaxValidSquare(this.boards, true);

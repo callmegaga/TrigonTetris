@@ -12,7 +12,7 @@
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
 	<game-over v-if="is_game_over" />
-	<score-tooltip :score="score" :left="new_score_left" :top="new_score_top"/>
+	<score-tooltip :score="new_score" :left="new_score_left" :top="new_score_top"/>
 </template>
 
 <script setup lang="ts">
@@ -36,6 +36,7 @@ import type { BevelledSquare, NormalSquare } from "@/game/types";
 const is_show_welcome = ref(true);
 const is_game_over = ref(false);
 const score = ref(0);
+const new_score = ref(0);
 const max_score = ref(0);
 const cheer_audio = new Audio("/audio/cheer.mp3");
 const shooo_audio = new Audio("/audio/shooo.mp3");
@@ -62,6 +63,11 @@ function onScore(gain: number, square: NormalSquare | BevelledSquare) {
 	new_score_left.value = square_center_position[0] + element_position[0] - 60;
 	new_score_top.value = square_center_position[1] + element_position[1] - 45;
 	score.value += gain;
+	new_score.value = gain;
+
+	setTimeout(() => {
+		new_score.value = 0;
+	}, 2500);
 
 	cheer_audio.play();
 	setTimeout(() => {

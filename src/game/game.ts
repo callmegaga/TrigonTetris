@@ -345,7 +345,9 @@ export class Game {
 			shape.forEach((row, y) => {
 				row.forEach((cell, x) => {
 					if (cell === CellValue.Empty) return;
-					this.boards[y + position[1]][x + position[0]].length = 0;
+
+					const board_cell = this.boards[y + position[1]][x + position[0]];
+					this.boards[y + position[1]][x + position[0]] = board_cell.filter((block_cell) => block_cell.block !== block);
 				});
 			});
 		});

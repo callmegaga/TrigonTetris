@@ -114,7 +114,7 @@ export function calculateSquareScore(boards: Board, square: NormalSquare | Bevel
 
 export function isSquareValid(boards: Board, square: NormalSquare) {
 	const { colors } = getSquareColorsAndBlocks(boards, square);
-	return colors.size > 1;
+	return colors.size > 1 && square.size > 1;
 }
 
 export function isSquarePerfect(boards: Board, square: NormalSquare) {

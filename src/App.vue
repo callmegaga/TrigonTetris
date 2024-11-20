@@ -3,6 +3,7 @@
 		<div class="controller-and-score">
 <!--			<game-score :score="score" :max_score="max_score" />-->
 <!--			<game-pad class="gamepad" />-->
+			<button @click="game.stop()">STOP</button>
 		</div>
 		<div class="game" id="game"></div>
 		<div class="next-and-sample">

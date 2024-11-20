@@ -19,7 +19,7 @@ interface GameOptions {
 }
 
 export class Game {
-	private loop_timer: number | null = null;
+	private loop_timer: number | undefined = undefined;
 	private active_block: Block | null = null;
 	private block_queue: Block[] = [];
 	private readonly boards: Board = [];
@@ -69,6 +69,13 @@ export class Game {
 		}
 		this.state = GameStatus.Active;
 		this.loop_timer = window.setTimeout(() => this.loop(), 0);
+	}
+
+	stop() {
+		clearTimeout(this.loop_timer);
+		console.log("boards: ", this.boards);
+		console.log("active_block: ", this.active_block);
+		console.log("dead blocks: ", this.dead_blocks);
 	}
 
 	end() {

@@ -58,7 +58,7 @@ const top = computed(() => {
 	position: absolute;
 	top: v-bind(top);
 	left: v-bind(left);
-	background-color: #ff514d;
+	transform: translateX(-50%) translateY(-50%);
 }
 
 .cloud {

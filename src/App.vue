@@ -60,8 +60,8 @@ function onScore(gain: number, square: NormalSquare | BevelledSquare) {
 	const square_center_position = getSquareCenterPixelPosition(square, GAME_BOARD_CELL_SIZE);
 	const element_position = getElementScreenPosition(document.querySelector("#game canvas") as HTMLElement);
 
-	new_score_left.value = square_center_position[0] + element_position[0] - 60;
-	new_score_top.value = square_center_position[1] + element_position[1] - 45;
+	new_score_left.value = square_center_position[0] + element_position[0];
+	new_score_top.value = square_center_position[1] + element_position[1];
 	score.value += gain;
 	new_score.value = gain;
 

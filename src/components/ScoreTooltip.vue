@@ -58,17 +58,7 @@ const top = computed(() => {
 	position: absolute;
 	top: v-bind(top);
 	left: v-bind(left);
-	width: 120px;
-	height: 90px;
-}
-
-.score {
-	position: absolute;
-	width: 100%;
-	top: 50%;
-	text-align: center;
-	font-size: 18px;
-	font-weight: bold;
+	background-color: #ff514d;
 }
 
 .cloud {

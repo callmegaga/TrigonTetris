@@ -450,22 +450,24 @@ export function getBevelledSquareMaxSquare(bevelled_square: BevelledSquare): Nor
 
 export function getSquareCenterPixelPosition(square: NormalSquare | BevelledSquare, board_cell_size: number): [number, number] {
 	const result: [number, number] = [0, 0];
+	console.log("calculate center square: ", square);
 
 	if (square.type === SquareType.normal) {
 		const {
 			size,
 			bottom_right: [bottom, right]
 		} = square;
-		result[0] = ((right - size + right) / 2) * board_cell_size;
-		result[1] = ((bottom - size + bottom) / 2) * board_cell_size;
+		result[0] = (size / 2 + right - size + 1) * board_cell_size;
+		result[1] = (size / 2 + bottom - size + 1) * board_cell_size;
 	} else {
 		const {
 			size,
 			top_left: [y, x]
 		} = square;
-		result[0] = (x + size / 2) * board_cell_size;
+		result[0] = (x + 1) * board_cell_size;
 		result[1] = (y + size) * board_cell_size;
 	}
+	console.log("center position: ", result);
 	return result;
 }
 
@@ -475,7 +477,7 @@ export function getElementScreenPosition(element: HTMLElement): [number, number]
 }
 
 export function isBoardFirstNLineEmpty(boards: Board, n: number) {
-	if ( n > boards.length) return false;
+	if (n > boards.length) return false;
 
 	for (let i = 0; i < n; i++) {
 		for (let j = 0; j < boards[i].length; j++) {

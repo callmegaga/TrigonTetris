@@ -227,6 +227,7 @@ export class Game {
 				}
 			}
 		}
+		return is_board_changed;
 	}
 
 	private onCoverSquareFind(square: NormalSquare | BevelledSquare) {

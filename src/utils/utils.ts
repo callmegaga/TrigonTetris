@@ -33,16 +33,6 @@ export function buildShape(width: number, height: number) {
 	return shape;
 }
 
-export function copyBoard(board: Board) {
-	return board.map((row) =>
-		row.map((cell) =>
-			cell.map((block) => {
-				return { value: block.value, block: block.block };
-			})
-		)
-	);
-}
-
 export function boardEraseBlock(board: Board, block: Block) {
 	const height = board.length;
 	const width = board[0].length;
@@ -415,10 +405,6 @@ export function getBevelledSquareColorsAndBlocks(boards: Board, bevelled_square:
 	};
 }
 
-export function isPositionEqual(position1: Position, position2: Position) {
-	return position1[0] === position2[0] && position1[1] === position2[1];
-}
-
 export function getHistoryMaxScore() {
 	const history_max_score = localStorage.getItem("history_max_score");
 	return history_max_score ? parseInt(history_max_score) : 0;
@@ -426,20 +412,6 @@ export function getHistoryMaxScore() {
 
 export function setHistoryMaxScore(score: number) {
 	localStorage.setItem("history_max_score", score.toString());
-}
-
-export function getElementWidthHeight(element: HTMLElement): [number, number] {
-	const { width, height } = element.getBoundingClientRect();
-	return [width, height];
-}
-
-export function getAdaptCellSize(element_size: [number, number], board_size: [number, number]) {
-	const [element_width, element_height] = element_size;
-	const [columns, rows] = board_size;
-	const cell_width = element_width / columns;
-	const cell_height = element_height / rows;
-
-	return Math.min(cell_width, cell_height);
 }
 
 export function getBevelledSquareMaxSquare(bevelled_square: BevelledSquare): NormalSquare {

@@ -119,8 +119,9 @@ export function isSquarePerfect(boards: Board, square: NormalSquare) {
 }
 
 export function isBevelledSquareValid(boards: Board, bevelled_square: BevelledSquare) {
-	const { colors } = getBevelledSquareColorsAndBlocks(boards, bevelled_square);
-	return colors.size > 1;
+	const { colors, blocks } = getBevelledSquareColorsAndBlocks(boards, bevelled_square);
+	// boarder is bigger than 2 and have more than 1 color
+	return colors.size > 1 && blocks.size > 4;
 }
 
 export function findAllSquares(boards: Board) {

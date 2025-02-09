@@ -119,9 +119,9 @@ export function isSquarePerfect(boards: Board, square: NormalSquare) {
 }
 
 export function isBevelledSquareValid(boards: Board, bevelled_square: BevelledSquare) {
-	const { colors, blocks } = getBevelledSquareColorsAndBlocks(boards, bevelled_square);
+	const { colors } = getBevelledSquareColorsAndBlocks(boards, bevelled_square);
 	// boarder is bigger than 2 and have more than 1 color
-	return colors.size > 1 && blocks.size > 4;
+	return colors.size > 1 && bevelled_square.size > 1;
 }
 
 export function findAllSquares(boards: Board) {
@@ -158,7 +158,14 @@ export function findMaxValidSquare(boards: Board, is_perfect: boolean) {
 	for (let i = 0; i < height; i++) {
 		for (let j = 0; j < width; j++) {
 			if (isSquareValid(boards, { type: SquareType.normal, size: square_table[i][j], bottom_right: [i, j] })) {
-				if (is_perfect && !isSquarePerfect(boards, { type: SquareType.normal, size: square_table[i][j], bottom_right: [i, j] })) {
+				if (
+					is_perfect &&
+					!isSquarePerfect(boards, {
+						type: SquareType.normal,
+						size: square_table[i][j],
+						bottom_right: [i, j]
+					})
+				) {
 					continue;
 				}
 				if (square_table[i][j] > max_square_size) {

@@ -34,8 +34,8 @@ const is_game_over = ref(false);
 const score = ref(0);
 const new_score = ref(0);
 const max_score = ref(0);
-const cheer_audio = new Audio("/audio/cheer.mp3");
-const shooo_audio = new Audio("/audio/shooo.mp3");
+const cheer_audio = new Audio(import.meta.env.BASE_URL + "/audio/cheer.mp3");
+const shooo_audio = new Audio(import.meta.env.BASE_URL + "/audio/shooo.mp3");
 const new_score_top = ref(100);
 const new_score_left = ref(100);
 

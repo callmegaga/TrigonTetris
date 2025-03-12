@@ -8,6 +8,6 @@ export class Shape1 extends Block {
 			[CellValue.TriangleRightBottom, CellValue.Full, CellValue.Full, CellValue.TriangleLeftBottom]
 		];
 
-		super(shape, "#fefe3c");
+		super(shape, "#5d2e8c");
 	}
 }

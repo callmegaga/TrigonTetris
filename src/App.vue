@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import TheWelcome from "@/components/TheWelcome.vue";
-import { Game } from "@/game/game";
+import { Game, ScoreType } from "@/game/game";
 import { onMounted, onUnmounted, ref } from "vue";
 import GameSample from "@/components/GameSample.vue";
 import GamePad from "@/components/GamePad.vue";
@@ -48,7 +48,7 @@ function startGame() {
 
 window.document.addEventListener("click", () => {});
 
-function onScore(gain: number, square: NormalSquare | BevelledSquare) {
+function onScore(gain: number, square: NormalSquare | BevelledSquare, type) {
 	console.log(square);
 	console.log("score", gain);
 	const square_center_position = getSquareCenterPixelPosition(square, GAME_BOARD_CELL_SIZE);
@@ -63,10 +63,17 @@ function onScore(gain: number, square: NormalSquare | BevelledSquare) {
 		new_score.value = 0;
 	}, 2500);
 
-	cheer_audio.play();
-	setTimeout(() => {
-		shooo_audio.play();
-	}, 5000);
+	if (type === ScoreType.Perfect) {
+		cheer_audio.play();
+		setTimeout(() => {
+			shooo_audio.play();
+		}, 1000);
+	} else {
+
+		setTimeout(() => {
+			shooo_audio.play();
+		}, 3000);
+	}
 	if (score.value > max_score.value) {
 		max_score.value = score.value;
 		setHistoryMaxScore(score.value);

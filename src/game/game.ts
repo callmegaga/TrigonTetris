@@ -8,6 +8,11 @@ import { Shape1 } from "@/game/blocks/shape-1";
 import { Shape5 } from "@/game/blocks/shape-5";
 import { Shape2 } from "@/game/blocks/shape-2";
 
+export enum ScoreType {
+	Perfect,
+	Cover,
+}
+
 interface GameOptions {
 	game_container: HTMLElement;
 	next_container: HTMLElement;
@@ -15,7 +20,7 @@ interface GameOptions {
 	rows: number;
 	board_cell_size: number;
 	onFail: () => void;
-	onScore: (score: number, square: NormalSquare | BevelledSquare) => void;
+	onScore: (score: number, square: NormalSquare | BevelledSquare, type: ScoreType) => void;
 }
 
 export class Game {
@@ -234,7 +239,7 @@ export class Game {
 		console.log("find cover square: ", square);
 		const score = calculateSquareScore(this.boards, square, false);
 		console.log("score: ", score);
-		this.options.onScore(score, square);
+		this.options.onScore(score, square, ScoreType.Cover);
 
 		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(this.boards, square);
 
@@ -254,7 +259,7 @@ export class Game {
 		console.log("find perfect square: ", square);
 		const score = calculateSquareScore(this.boards, square, true);
 		console.log("score: ", score);
-		this.options.onScore(score, square);
+		this.options.onScore(score, square, ScoreType.Perfect);
 
 		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(this.boards, square);
 

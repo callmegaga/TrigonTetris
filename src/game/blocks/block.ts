@@ -82,24 +82,25 @@ export abstract class Block {
 		}
 	}
 
-	moveIfNotCollide(boards: Board, direction: MoveDirection): void {
+	moveIfNotCollide(boards: Board, direction: MoveDirection): boolean {
 		this.move(direction);
 		if (this.isCollide(boards)) {
 			switch (direction) {
 				case MoveDirection.Left:
 					this.current_position[0]++;
-					break;
+					return false;
 				case MoveDirection.Right:
 					this.current_position[0]--;
-					break;
+					return false;
 				case MoveDirection.Down:
 					this.current_position[1]--;
-					break;
+					return false;
 			}
 		}
+		return true;
 	}
 
-	rotateIfNotCollide(boards: Board): void {
+	rotateIfNotCollide(boards: Board): boolean {
 		console.log("rotate");
 		const width = this.width;
 		const height = this.height;
@@ -116,11 +117,12 @@ export abstract class Block {
 
 		if (this.isCollide(boards)) {
 			this.shape = old_shape;
+			return false;
 		}
+		return true
 	}
 
-	flipIfNotCollide(boards: Board): void {
-		console.log("flip");
+	flipIfNotCollide(boards: Board): boolean {
 		const old_shape = this.copyShape();
 
 		this.shape.forEach((row, y) => {
@@ -131,14 +133,16 @@ export abstract class Block {
 
 		if (this.isCollide(boards)) {
 			this.shape = old_shape;
+			return false;
 		}
+		return true;
 	}
 
 	setPosition(position: Position): void {
 		this.current_position = position;
 	}
 
-	jump(boards: Board): void {
+	jump(boards: Board): boolean {
 		console.log("jump");
 		const y = this.current_position[1];
 		const board_height = boards.length;
@@ -148,10 +152,11 @@ export abstract class Block {
 				this.current_position[1] = new_y - 1;
 			} else {
 				this.current_position[1] = new_y;
-				return
+				return true;
 			}
 		}
 		this.current_position[1] = y;
+		return false
 	}
 
 	isInSquare(square: NormalSquare): boolean {

@@ -11,5 +11,6 @@ import game_sample from "@/assets/game-sample.png";
 <style scoped>
 	.sample {
 		width: 80%;
+		max-width: 300px;
 	}
 </style>

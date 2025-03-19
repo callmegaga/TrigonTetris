@@ -10,7 +10,7 @@ import { Shape2 } from "@/game/blocks/shape-2";
 
 export enum ScoreType {
 	Perfect,
-	Cover,
+	Cover
 }
 
 interface GameOptions {
@@ -21,6 +21,10 @@ interface GameOptions {
 	board_cell_size: number;
 	onFail: () => void;
 	onScore: (score: number, square: NormalSquare | BevelledSquare, type: ScoreType) => void;
+	onJump: () => void;
+	onRotate: () => void;
+	onMove: () => void;
+	onFlip: () => void;
 }
 
 export class Game {
@@ -327,22 +331,34 @@ export class Game {
 			if (this.state !== GameStatus.Active) return;
 			switch (e.key) {
 				case "ArrowUp":
-					this.active_block?.rotateIfNotCollide(this.boards);
+					if (this.active_block?.rotateIfNotCollide(this.boards)) {
+						this.options.onRotate();
+					}
 					break;
 				case "ArrowDown":
-					this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Down);
+					if (this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Down)) {
+						this.options.onMove();
+					}
 					break;
 				case "ArrowLeft":
-					this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Left);
+					if (this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Left)) {
+						this.options.onMove();
+					}
 					break;
 				case "ArrowRight":
-					this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Right);
+					if (this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Right)) {
+						this.options.onMove();
+					}
 					break;
 				case " ":
-					this.active_block?.flipIfNotCollide(this.boards);
+					if (this.active_block?.flipIfNotCollide(this.boards)) {
+						this.options.onFlip();
+					}
 					break;
 				case "Enter":
-					this.active_block?.jump(this.boards);
+					if (this.active_block?.jump(this.boards)) {
+						this.options.onJump();
+					}
 					break;
 			}
 			this.draw();

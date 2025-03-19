@@ -1,9 +1,10 @@
 <template>
 	<main>
 		<div class="controller-and-score">
-			<game-score :score="score" :max_score="max_score" />
-			<game-pad class="gamepad" />
+			<game-score :score="score" :max-score="max_score" />
+			<!--			<game-pad class="gamepad" />-->
 			<!--			<button @click="game.stop()">STOP</button>-->
+			<game-keyboard class="game-controller"/>
 		</div>
 		<div class="game" id="game"></div>
 		<div class="next-and-sample">
@@ -21,13 +22,13 @@ import TheWelcome from "@/components/TheWelcome.vue";
 import { Game, ScoreType } from "@/game/game";
 import { onMounted, onUnmounted, ref } from "vue";
 import GameSample from "@/components/GameSample.vue";
-import GamePad from "@/components/GamePad.vue";
 import GameScore from "@/components/GameScore.vue";
 import { GAME_BOARD_CELL_SIZE, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";
 import { getElementScreenPosition, getHistoryMaxScore, getSquareCenterPixelPosition, setHistoryMaxScore } from "@/utils/utils";
 import GameOver from "@/components/GameOver.vue";
 import ScoreTooltip from "@/components/ScoreTooltip.vue";
 import type { BevelledSquare, NormalSquare } from "@/game/types";
+import GameKeyboard from "@/components/GameKeyboard.vue";
 
 const is_show_welcome = ref(true);
 const is_game_over = ref(false);
@@ -36,6 +37,7 @@ const new_score = ref(0);
 const max_score = ref(0);
 const cheer_audio = new Audio(import.meta.env.BASE_URL + "/audio/cheer.mp3");
 const shooo_audio = new Audio(import.meta.env.BASE_URL + "/audio/shooo.mp3");
+const jump_audio = new Audio(import.meta.env.BASE_URL + "/audio/jump.flac");
 const new_score_top = ref(100);
 const new_score_left = ref(100);
 
@@ -48,7 +50,7 @@ function startGame() {
 
 window.document.addEventListener("click", () => {});
 
-function onScore(gain: number, square: NormalSquare | BevelledSquare, type) {
+function onScore(gain: number, square: NormalSquare | BevelledSquare, type: ScoreType) {
 	console.log(square);
 	console.log("score", gain);
 	const square_center_position = getSquareCenterPixelPosition(square, GAME_BOARD_CELL_SIZE);
@@ -69,7 +71,6 @@ function onScore(gain: number, square: NormalSquare | BevelledSquare, type) {
 			shooo_audio.play();
 		}, 1000);
 	} else {
-
 		setTimeout(() => {
 			shooo_audio.play();
 		}, 3000);
@@ -96,7 +97,19 @@ onMounted(() => {
 		board_cell_size: GAME_BOARD_CELL_SIZE,
 		onScore: onScore,
 		onFail: onFail,
-		next_container: document.querySelector("#next") as HTMLElement
+		next_container: document.querySelector("#next") as HTMLElement,
+		onJump: () => {
+			jump_audio.play();
+		},
+		onRotate: () => {
+			new Audio(import.meta.env.BASE_URL + "/audio/rotate.flac").play();
+		},
+		onMove: () => {
+			new Audio(import.meta.env.BASE_URL + "/audio/move.flac").play();
+		},
+		onFlip: () => {
+			new Audio(import.meta.env.BASE_URL + "/audio/flip.flac").play();
+		},
 	});
 });
 
@@ -111,8 +124,10 @@ main {
 	height: 100%;
 	width: 100%;
 	overflow: hidden;
-	background-color: #2c3e50;
+	background-color: #1e293b;
 	text-align: center;
+	justify-content: center;
+
 	.game {
 		display: flex;
 		text-align: center;
@@ -121,22 +136,27 @@ main {
 	}
 
 	.controller-and-score {
-		width: 400px;
+		width: 200px;
 		display: flex;
 		flex-direction: column;
-		justify-content: space-around;
+		justify-content: space-evenly;
+		padding-right: 32px;
+		align-items: self-end;
 
-		.gamepad {
-			height: 300px;
+		.game-controller {
+			width: 100%;
+			position: relative;
 		}
 	}
 
 	.next-and-sample {
 		text-align: center;
 		width: 25%;
+		padding-left: 32px;
 		display: flex;
 		flex-direction: column;
-		justify-content: space-around;
+		justify-content: space-evenly;
+		align-items: self-start;
 	}
 
 	#next {

@@ -111,11 +111,11 @@ main {
 	height: 100%;
 	width: 100%;
 	overflow: hidden;
-
+	background-color: #2c3e50;
+	text-align: center;
 	.game {
 		display: flex;
 		text-align: center;
-		flex: 1;
 		justify-content: center;
 		align-items: center;
 	}
@@ -124,7 +124,7 @@ main {
 		width: 400px;
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
+		justify-content: space-around;
 
 		.gamepad {
 			height: 300px;
@@ -134,6 +134,9 @@ main {
 	.next-and-sample {
 		text-align: center;
 		width: 25%;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-around;
 	}
 
 	#next {

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<link rel="icon" href="/favicon.ico">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Vite App</title>
+	<style>
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+		}
+
+		main {
+			display: flex;
+			height: 100%;
+			width: 100%;
+			overflow: hidden;
+			background-color: #1e293b;
+			text-align: center;
+			justify-content: center;
+
+			.game {
+				display: flex;
+				text-align: center;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.controller-and-score {
+				width: 200px;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-evenly;
+				padding-right: 32px;
+				align-items: self-end;
+
+				.game-controller {
+					width: 100%;
+					position: relative;
+				}
+			}
+
+			.next-and-sample {
+				text-align: center;
+				width: 25%;
+				padding-left: 32px;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-evenly;
+				align-items: self-start;
+			}
+
+			#next {
+				display: inline-block;
+				border: 5px dashed #ddd;
+				padding: 10px;
+			}
+		}
+	</style>
+</head>
+<body>
+<main>
+	<div class="controller-and-score">
+	</div>
+	<div class="game" id="game"></div>
+	<div class="next-and-sample">
+		<div id="next"></div>
+	</div>
+</main>
+<script type="module" src="./main.ts"></script>
+</body>
+</html>

@@ -22,16 +22,38 @@ export function createCoverBoard() {
 	const dead_blocks: Block[] = [];
 
 	let block: Block = new Shape5();
-	block.setPosition([0, 26]);
+	block.setPosition([3, 24]);
+	block.rotateIfNotCollide(boards);
+	block.rotateIfNotCollide(boards);
 	moveBlockToBoard(block, boards);
 
 	block = new Shape1();
-	block.setPosition([0, 24]);
+	block.rotateIfNotCollide(boards);
+	block.flipIfNotCollide(boards);
+	block.setPosition([3, 22]);
 	moveBlockToBoard(block, boards);
 
 
 	block = new Shape2();
-	block.setPosition([1, 27]);
+	block.setPosition([5, 22]);
+	moveBlockToBoard(block, boards);
+
+	block = new Shape3();
+	block.setPosition([3, 27]);
+	moveBlockToBoard(block, boards);
+
+	block = new Shape3();
+	block.setPosition([6, 27]);
+	moveBlockToBoard(block, boards);
+
+	block = new Shape4();
+	block.setPosition([2, 28]);
+	moveBlockToBoard(block, boards);
+
+	block = new Shape1();
+	block.rotateIfNotCollide(boards);
+	block.flipIfNotCollide(boards);
+	block.setPosition([1, 24]);
 	moveBlockToBoard(block, boards);
 
 	return { boards, dead_blocks };

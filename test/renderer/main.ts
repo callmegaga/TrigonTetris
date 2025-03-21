@@ -9,17 +9,16 @@ const renderer = new CanvasRenderer(document.getElementById("game"), document.ge
 	rows: GAME_BOARD_ROW,
 	active_board_rows: ACTIVE_BOARD_ROWS
 });
+
 const { boards } = createCoverBoard();
+renderer.render(boards, null);
 
 const square = findMaxValidSquare(boards, false);
-console.log(square);
-
 console.log("find cover square: ", square);
 const score = calculateSquareScore(boards, square, false);
 console.log("score: ", score);
 
 const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(boards, square);
-
 clearBoardFromBlocks(need_clear_blocks, boards);
 renderer.render(boards, null);
 renderer.renderSquare(boards, square).then(() => {

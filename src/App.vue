@@ -29,7 +29,6 @@ import GameOver from "@/components/GameOver.vue";
 import ScoreTooltip from "@/components/ScoreTooltip.vue";
 import type { BevelledSquare, NormalSquare } from "@/game/types";
 import GameKeyboard from "@/components/GameKeyboard.vue";
-import { au } from "vitest/dist/chunks/reporters.C4ZHgdxQ";
 
 const is_show_welcome = ref(true);
 const is_game_over = ref(false);

@@ -29,6 +29,7 @@ import GameOver from "@/components/GameOver.vue";
 import ScoreTooltip from "@/components/ScoreTooltip.vue";
 import type { BevelledSquare, NormalSquare } from "@/game/types";
 import GameKeyboard from "@/components/GameKeyboard.vue";
+import { au } from "vitest/dist/chunks/reporters.C4ZHgdxQ";
 
 const is_show_welcome = ref(true);
 const is_game_over = ref(false);
@@ -102,13 +103,19 @@ onMounted(() => {
 			jump_audio.play();
 		},
 		onRotate: () => {
-			new Audio(import.meta.env.BASE_URL + "/audio/rotate.flac").play();
+			const audio = new Audio(import.meta.env.BASE_URL + "/audio/rotate.flac");
+			audio.volume = 0.3;
+			audio.play();
 		},
 		onMove: () => {
-			new Audio(import.meta.env.BASE_URL + "/audio/move.flac").play();
+			const audio = new Audio(import.meta.env.BASE_URL + "/audio/move.flac");
+			audio.volume = 0.3;
+			audio.play();
 		},
 		onFlip: () => {
-			new Audio(import.meta.env.BASE_URL + "/audio/flip.flac").play();
+			const audio = new Audio(import.meta.env.BASE_URL + "/audio/flip.flac");
+			audio.volume = 0.2;
+			audio.play();
 		},
 	});
 });

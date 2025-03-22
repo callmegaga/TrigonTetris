@@ -249,8 +249,8 @@ export class Game {
 
 		this.clearBoardFromBlocks(need_clear_blocks);
 		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
-
-		this.renderer.renderSquare(this.boards, square).then(() => {
+		this.renderer.renderBlocks(need_clear_blocks, "red");
+		this.renderer.renderSquare(this.boards, square, false).then(() => {
 			this.renderer.renderBlockEffect(this.boards, need_clear_blocks).then(() => {
 				console.log("finish animation end");
 				this.state = GameStatus.MoveBoard;

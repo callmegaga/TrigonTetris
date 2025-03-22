@@ -21,11 +21,15 @@ export abstract class Renderer {
 
 	abstract render(board: Board, active_block: Block | null): void;
 
+	abstract renderBlocks(blocks: Set<Block>, color?: string): void;
+
 	abstract renderNextBlock(blocks: Block[]): void;
 
 	abstract renderBlockEffect(boards: Board, blocks: Set<Block>): Promise<void>;
 
 	abstract renderSpreadLight(boards: Board, square: NormalSquare | BevelledSquare): Promise<void>;
 
-	abstract renderSquare(boards: Board, square: NormalSquare | BevelledSquare): Promise<void>;
+	abstract renderSquare(boards: Board, square: NormalSquare | BevelledSquare, is_perfect: boolean): Promise<void>;
+
+
 }

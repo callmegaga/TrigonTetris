@@ -46,7 +46,7 @@ export class CanvasRenderer extends Renderer {
 		drawBlock(this.game_ctx, active_block, this.board_cell_size);
 	}
 
-	renderNextBlock(blocks: Block[]) {
+	renderNext(blocks: Block[]) {
 		this.clearNext();
 		drawGrid(this.next_ctx, next_board, this.board_cell_size, 0);
 		blocks.forEach((block, index) => {

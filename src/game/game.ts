@@ -296,7 +296,7 @@ export class Game {
 	}
 
 	private drawNextBlock() {
-		this.renderer.renderNextBlock([this.block_queue[0], this.block_queue[1]]);
+		this.renderer.renderNext([this.block_queue[0], this.block_queue[1]]);
 	}
 
 	private updateBoardsFromBlock(block: Block) {

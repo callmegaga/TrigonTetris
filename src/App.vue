@@ -10,6 +10,7 @@
 		<div class="next-and-sample">
 			<div id="next"></div>
 			<game-sample class="game-sample" />
+			<game-sample-canvas class="game-sample" />
 		</div>
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
@@ -22,6 +23,7 @@ import TheWelcome from "@/components/TheWelcome.vue";
 import { Game, ScoreType } from "@/game/game";
 import { onMounted, onUnmounted, ref } from "vue";
 import GameSample from "@/components/GameSample.vue";
+import GameSampleCanvas from "@/components/GameSampleCanvas.vue";
 import GameScore from "@/components/GameScore.vue";
 import { GAME_BOARD_CELL_SIZE, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";
 import { getElementScreenPosition, getHistoryMaxScore, getSquareCenterPixelPosition, setHistoryMaxScore } from "@/utils/utils";
@@ -29,15 +31,13 @@ import GameOver from "@/components/GameOver.vue";
 import ScoreTooltip from "@/components/ScoreTooltip.vue";
 import type { BevelledSquare, NormalSquare } from "@/game/types";
 import GameKeyboard from "@/components/GameKeyboard.vue";
+import { audioManager, SoundEffect } from "@/utils/audio_manager";
 
 const is_show_welcome = ref(true);
 const is_game_over = ref(false);
 const score = ref(0);
 const new_score = ref(0);
 const max_score = ref(0);
-const cheer_audio = new Audio(import.meta.env.BASE_URL + "/audio/cheer.mp3");
-const shooo_audio = new Audio(import.meta.env.BASE_URL + "/audio/shooo.mp3");
-const jump_audio = new Audio(import.meta.env.BASE_URL + "/audio/jump.flac");
 const new_score_top = ref(100);
 const new_score_left = ref(100);
 
@@ -69,13 +69,13 @@ function onScore(gain: number, square: NormalSquare | BevelledSquare, type: Scor
 	}, 2500);
 
 	if (type === ScoreType.Perfect) {
-		cheer_audio.play();
+		audioManager.play(SoundEffect.CHEER);
 		setTimeout(() => {
-			shooo_audio.play();
+			audioManager.play(SoundEffect.SHOOO);
 		}, 1000);
 	} else {
 		setTimeout(() => {
-			shooo_audio.play();
+			audioManager.play(SoundEffect.SHOOO);
 		}, 3000);
 	}
 	if (score.value > max_score.value) {
@@ -102,22 +102,16 @@ onMounted(() => {
 		onFail: onFail,
 		next_container: document.querySelector("#next") as HTMLElement,
 		onJump: () => {
-			jump_audio.play();
+			audioManager.play(SoundEffect.JUMP);
 		},
 		onRotate: () => {
-			const audio = new Audio(import.meta.env.BASE_URL + "/audio/rotate.flac");
-			audio.volume = 0.3;
-			audio.play();
+			audioManager.play(SoundEffect.ROTATE);
 		},
 		onMove: () => {
-			const audio = new Audio(import.meta.env.BASE_URL + "/audio/move.flac");
-			audio.volume = 0.3;
-			audio.play();
+			audioManager.play(SoundEffect.MOVE);
 		},
 		onFlip: () => {
-			const audio = new Audio(import.meta.env.BASE_URL + "/audio/flip.flac");
-			audio.volume = 0.2;
-			audio.play();
+			audioManager.play(SoundEffect.FLIP);
 		},
 	});
 });
@@ -172,6 +166,17 @@ main {
 		display: inline-block;
 		border: 5px dashed #ddd;
 		padding: 10px;
+	}
+
+	.samples-container {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+		width: 100%;
+	}
+
+	.game-sample {
+		width: 100%;
 	}
 }
 

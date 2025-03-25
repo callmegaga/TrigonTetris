@@ -1,4 +1,4 @@
-import { type BevelledSquare, type Board, type BoardCell, CellValue, type Color, type Position, type NormalSquare, SquareType } from "@/game/types";
+import { type BevelledSquare, type Board, type BoardCell, CellValue, type Color, type NormalSquare, SquareType } from "@/game/types";
 import { Shape1 } from "@/game/blocks/shape-1";
 import { Shape2 } from "@/game/blocks/shape-2";
 import { Shape3 } from "@/game/blocks/shape-3";

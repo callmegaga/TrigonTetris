@@ -3,8 +3,8 @@ import { type BevelledSquare, type Board, type NormalSquare, SquareType } from "
 import type { Block } from "@/game/blocks/block";
 import { MAX_SHAPE_SIZE, SPREAD_LIGHT_STEP, STAND_BY_COUNT } from "@/game/config";
 import { BlockEraseAnimation, SpreadLightAnimation } from "@/game/renderer/canvas/effect";
-import { createBackground, drawBevelledSquare, drawBlock, drawBoard, drawGrid, drawSquare, drawCell, drawSquareBorder, drawBevelledSquareBorder } from "@/game/renderer/canvas/canvas_utils";
-import { getBevelledSquareMaxSquare, getSquareColorsAndBlocks } from "@/utils/utils";
+import { createBackground, drawBevelledSquare, drawBlock, drawBoard, drawGrid, drawSquare, drawSquareBorder, drawBevelledSquareBorder } from "@/game/renderer/canvas/canvas_utils";
+import { getBevelledSquareMaxSquare } from "@/utils/utils";
 
 const next_size = [MAX_SHAPE_SIZE[0] * STAND_BY_COUNT + 3, MAX_SHAPE_SIZE[1] + 2];
 
@@ -16,17 +16,12 @@ export class CanvasRenderer extends Renderer {
 	private readonly game_ctx: CanvasRenderingContext2D;
 	private readonly next_ctx: CanvasRenderingContext2D;
 	private readonly background: HTMLCanvasElement;
-	private readonly board_cell_size: number;
-	private readonly active_board_rows: number;
 
 	constructor(game_dom: HTMLElement, next_dom: HTMLElement, options: { board_cell_size: number; columns: number; rows: number; active_board_rows: number }) {
 		super(game_dom, next_dom, options);
 		const game_canvas = document.createElement("canvas");
 
 		this.game_ctx = game_canvas.getContext("2d") as CanvasRenderingContext2D;
-		this.board_cell_size = options.board_cell_size;
-
-		this.active_board_rows = options.active_board_rows;
 
 		game_canvas.width = options.board_cell_size * options.columns;
 		game_canvas.height = options.board_cell_size * (options.rows + this.active_board_rows);

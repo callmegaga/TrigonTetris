@@ -6,8 +6,6 @@ import { Shape2 } from "../../src/game/blocks/shape-2";
 import { Shape3 } from "../../src/game/blocks/shape-3";
 import { Shape4 } from "../../src/game/blocks/shape-4";
 import { Shape5 } from "../../src/game/blocks/shape-5";
-import { Shape6 } from "../../src/game/blocks/shape-6";
-import { Shape7 } from "../../src/game/blocks/shape-7";
 
 export function createBoard(): Board {
 	const boards = Array(GAME_BOARD_ROW + ACTIVE_BOARD_ROWS)

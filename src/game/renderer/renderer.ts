@@ -4,6 +4,9 @@ import { type BevelledSquare, type Board, type NormalSquare } from "@/game/types
 export abstract class Renderer {
 	protected game_container: HTMLElement;
 	protected next_container: HTMLElement;
+	protected readonly board_cell_size: number;
+	protected readonly active_board_rows: number;
+
 
 	protected constructor(
 		game_dom: HTMLElement,
@@ -17,6 +20,8 @@ export abstract class Renderer {
 	) {
 		this.game_container = game_dom;
 		this.next_container = next_dom;
+		this.board_cell_size = options.board_cell_size;
+		this.active_board_rows = options.active_board_rows;
 	}
 
 	abstract render(board: Board, active_block: Block | null): void;

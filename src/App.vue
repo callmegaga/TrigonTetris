@@ -51,6 +51,9 @@ function startGame() {
 window.document.addEventListener("click", () => {});
 
 function onScore(gain: number, square: NormalSquare | BevelledSquare, type: ScoreType) {
+	if (gain === 0) {
+		return;
+	}
 	console.log(square);
 	console.log("score", gain);
 	const square_center_position = getSquareCenterPixelPosition(square, GAME_BOARD_CELL_SIZE);

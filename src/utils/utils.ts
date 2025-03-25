@@ -88,17 +88,7 @@ export function calculateSquareScore(boards: Board, square: NormalSquare | Bevel
 			return Math.pow(2 * size * size, 2) * blocks.size * Math.pow(5, colors.size);
 		}
 	} else {
-		if (square.type === SquareType.normal) {
-			const size = square.size;
-			const { colors } = getSquareColorsAndBlocks(boards, square);
-
-			return size * size * colors.size;
-		} else {
-			const size = square.size;
-			const { colors } = getBevelledSquareColorsAndBlocks(boards, square);
-
-			return 2 * size * size * colors.size;
-		}
+		return 0;
 	}
 }
 

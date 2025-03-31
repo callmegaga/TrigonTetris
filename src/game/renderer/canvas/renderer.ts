@@ -1,24 +1,17 @@
-import { Renderer } from "@/game/renderer/renderer";
+import { Renderer, type RendererOptions } from "@/game/renderer/renderer";
 import { type BevelledSquare, type Board, type NormalSquare, SquareType } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
-import { MAX_SHAPE_SIZE, SPREAD_LIGHT_STEP, STAND_BY_COUNT } from "@/game/config";
+import { SPREAD_LIGHT_STEP } from "@/game/config";
 import { BlockEraseAnimation, SpreadLightAnimation } from "@/game/renderer/canvas/effect";
-import { createBackground, drawBevelledSquare, drawBlock, drawBoard, drawGrid, drawSquare, drawSquareBorder, drawBevelledSquareBorder } from "@/game/renderer/canvas/canvas_utils";
+import { createBackground, drawBevelledSquare, drawBlock, drawBoard, drawSquare, drawSquareBorder, drawBevelledSquareBorder } from "@/game/renderer/canvas/utils";
 import { getBevelledSquareMaxSquare } from "@/utils/utils";
-
-const next_size = [MAX_SHAPE_SIZE[0] * STAND_BY_COUNT + 3, MAX_SHAPE_SIZE[1] + 2];
-
-const next_board: Board = Array(next_size[1])
-	.fill(0)
-	.map(() => new Array(next_size[0]).fill(0).map(() => []));
 
 export class CanvasRenderer extends Renderer {
 	private readonly game_ctx: CanvasRenderingContext2D;
-	private readonly next_ctx: CanvasRenderingContext2D;
 	private readonly background: HTMLCanvasElement;
 
-	constructor(game_dom: HTMLElement, next_dom: HTMLElement, options: { board_cell_size: number; columns: number; rows: number; active_board_rows: number }) {
-		super(game_dom, next_dom, options);
+	constructor(game_dom: HTMLElement, options: RendererOptions) {
+		super(game_dom, options);
 		const game_canvas = document.createElement("canvas");
 
 		this.game_ctx = game_canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -27,13 +20,6 @@ export class CanvasRenderer extends Renderer {
 		game_canvas.height = options.board_cell_size * (options.rows + this.active_board_rows);
 
 		this.game_container.appendChild(game_canvas);
-
-		const next_canvas = document.createElement("canvas");
-		this.next_ctx = next_canvas.getContext("2d") as CanvasRenderingContext2D;
-		next_canvas.width = next_size[0] * options.board_cell_size;
-		next_canvas.height = next_size[1] * options.board_cell_size;
-
-		this.next_container.appendChild(next_canvas);
 
 		const background_height = game_canvas.height - options.board_cell_size * this.active_board_rows;
 		this.background = createBackground(game_canvas.width, background_height, this.board_cell_size);
@@ -44,18 +30,6 @@ export class CanvasRenderer extends Renderer {
 		this.drawBackground(this.game_ctx);
 		drawBoard(this.game_ctx, board, this.board_cell_size);
 		drawBlock(this.game_ctx, active_block, this.board_cell_size);
-	}
-
-	renderNext(blocks: Block[]) {
-		this.clearNext();
-		drawGrid(this.next_ctx, next_board, this.board_cell_size, 0);
-		blocks.forEach((block, index) => {
-			const [x, y] = block.getPosition();
-			console.log(x, y);
-			block.setPosition([1 + (1 + MAX_SHAPE_SIZE[0]) * index, 1]);
-			drawBlock(this.next_ctx, block, this.board_cell_size);
-			block.setPosition([x, 0]);
-		});
 	}
 
 	renderBlocks(blocks: Set<Block>, color?: string): void {
@@ -141,10 +115,6 @@ export class CanvasRenderer extends Renderer {
 
 	private clear() {
 		this.game_ctx.clearRect(0, 0, this.game_ctx.canvas.width, this.game_ctx.canvas.height);
-	}
-
-	private clearNext() {
-		this.next_ctx.clearRect(0, 0, this.next_ctx.canvas.width, this.next_ctx.canvas.height);
 	}
 
 	private drawBackground(ctx: CanvasRenderingContext2D) {

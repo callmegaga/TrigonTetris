@@ -1,117 +1,52 @@
-import { GAME_BOARD_CELL_SIZE } from "@/game/config";
 import type { Block } from "@/game/blocks/block";
-import { Shape1 } from "@/game/blocks/shape-1";
-import { Shape2 } from "@/game/blocks/shape-2";
-import { Shape5 } from "@/game/blocks/shape-5";
+import { drawBlock, drawGrid } from "@/game/renderer/canvas/utils";
+import type { Board } from "@/game/types";
 
 export class SampleRenderer {
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
-  private blocks: Block[] = [];
-  private animationFrameId: number | null = null;
-  private currentBlockIndex = 0;
-  private rotationAngle = 0;
+	private canvas: HTMLCanvasElement;
+	private ctx: CanvasRenderingContext2D;
+	private board_cell_size = 30;
 
-  constructor(container: HTMLElement) {
-    this.canvas = document.createElement('canvas');
-    this.ctx = this.canvas.getContext('2d')!;
-    container.appendChild(this.canvas);
-    
-    // 设置画布大小
-    this.canvas.width = 300;
-    this.canvas.height = 300;
-    
-    // 初始化示例方块
-    this.blocks = [
-      new Shape5(),
-      new Shape1(),
-      new Shape2()
-    ];
-    
-    // 设置初始位置
-    this.blocks.forEach(block => {
-      block.setPosition([2, 2]);
-    });
-  }
+	constructor(board_cell_size: number) {
+		this.canvas = document.createElement("canvas");
+		this.ctx = this.canvas.getContext("2d")!;
+		this.board_cell_size = board_cell_size;
+	}
 
-  private drawBlock(block: Block) {
-    const cells = block.getCells();
-    const position = block.getPosition();
-    
-    cells.forEach((row, y) => {
-      row.forEach((cell, x) => {
-        if (cell === 0) return;
-        
-        const cellX = position[0] + x;
-        const cellY = position[1] + y;
-        
-        this.ctx.save();
-        this.ctx.translate(
-          this.canvas.width / 2,
-          this.canvas.height / 2
-        );
-        this.ctx.rotate(this.rotationAngle * Math.PI / 180);
-        this.ctx.translate(
-          -this.canvas.width / 2,
-          -this.canvas.height / 2
-        );
-        
-        // 绘制单元格
-        this.ctx.fillStyle = '#4ade80';
-        this.ctx.fillRect(
-          cellX * GAME_BOARD_CELL_SIZE,
-          cellY * GAME_BOARD_CELL_SIZE,
-          GAME_BOARD_CELL_SIZE,
-          GAME_BOARD_CELL_SIZE
-        );
-        
-        // 绘制边框
-        this.ctx.strokeStyle = '#22c55e';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(
-          cellX * GAME_BOARD_CELL_SIZE,
-          cellY * GAME_BOARD_CELL_SIZE,
-          GAME_BOARD_CELL_SIZE,
-          GAME_BOARD_CELL_SIZE
-        );
-        
-        this.ctx.restore();
-      });
-    });
-  }
+	public drawSample(blocks: Block[]) {
+		this.canvas.width = 100;
+		this.canvas.height = 100;
+		this.clear();
 
-  private animate = () => {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    
-    // 绘制当前方块
-    this.drawBlock(this.blocks[this.currentBlockIndex]);
-    
-    // 更新旋转角度
-    this.rotationAngle = (this.rotationAngle + 1) % 360;
-    
-    // 每3秒切换一次方块
-    if (this.rotationAngle === 0) {
-      this.currentBlockIndex = (this.currentBlockIndex + 1) % this.blocks.length;
-    }
-    
-    this.animationFrameId = requestAnimationFrame(this.animate);
-  }
+		const width = this.getWidth(blocks);
+		this.canvas.width = width * this.board_cell_size;
+		this.canvas.height = width * this.board_cell_size;
 
-  public start() {
-    if (!this.animationFrameId) {
-      this.animate();
-    }
-  }
+		const board: Board = Array(width)
+			.fill(0)
+			.map(() => new Array(width).fill(0).map(() => []));
+		drawGrid(this.ctx, board, this.board_cell_size, 0);
 
-  public stop() {
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
-  }
+		blocks.forEach((block) => {
+			drawBlock(this.ctx, block, this.board_cell_size);
+		});
+		return this.canvas.toDataURL("image/png");
+	}
 
-  public destroy() {
-    this.stop();
-    this.canvas.remove();
-  }
-} 
+	private clear() {
+		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+	}
+
+	private getWidth(blocks: Block[]): number {
+		let width = 0;
+		blocks.forEach((block) => {
+			const [x] = block.getPosition();
+			const shape = block.getShape();
+			const blockWidth = x + shape[0].length;
+			if (blockWidth > width) {
+				width = blockWidth;
+			}
+		});
+		return width;
+	}
+}

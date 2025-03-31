@@ -16,7 +16,7 @@ export function drawGrid(ctx: CanvasRenderingContext2D, board: Board, board_cell
 	const rows = board.length;
 	const columns = board[0].length;
 
-	ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+	ctx.strokeStyle = "#fff";
 	for (let x = 0; x <= columns; x++) {
 		ctx.beginPath();
 		ctx.moveTo(x * board_cell_size, skip_row * board_cell_size);

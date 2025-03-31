@@ -1,7 +1,8 @@
 import type { Block } from "@/game/blocks/block";
 import { type BevelledSquare, type Board, CellValue, GameStatus, MoveDirection, type NormalSquare, SquareType } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
-import { CanvasRenderer } from "@/game/renderer/canvas/canvas_renderer";
+import { CanvasRenderer } from "@/game/renderer/canvas/renderer";
+import { NextRenderer } from "@/game/renderer/canvas/next_renderer";
 import { boardEraseBlock, calculateSquareScore, findMaxValidBevelledSquare, findMaxValidSquare, getBevelledSquareMaxSquare, getRandomShape, getSquareColorsAndBlocks, isBoardFirstNLineEmpty } from "@/utils/utils";
 import { ACTIVE_BOARD_ROWS, GAME_INTERVAL_TIME, GAME_MOVE_BOARD_MULTIPLIER, STAND_BY_COUNT } from "@/game/config";
 import { Shape1 } from "@/game/blocks/shape-1";
@@ -33,17 +34,20 @@ export class Game {
 	private block_queue: Block[] = [];
 	private readonly boards: Board = [];
 	private renderer: Renderer;
+	private next_renderer: NextRenderer;
 	private state: GameStatus = GameStatus.NotStart;
 	private dead_blocks: Block[] = [];
 	private options: GameOptions;
 
 	constructor(options: GameOptions) {
-		this.renderer = new CanvasRenderer(options.game_container, options.next_container, {
+		this.renderer = new CanvasRenderer(options.game_container, {
 			board_cell_size: options.board_cell_size,
 			columns: options.columns,
 			rows: options.rows,
 			active_board_rows: ACTIVE_BOARD_ROWS
 		});
+
+		this.next_renderer = new NextRenderer(options.next_container, options.board_cell_size * 0.8);
 		this.boards = Array(options.rows + ACTIVE_BOARD_ROWS)
 			.fill(0)
 			.map(() => new Array(options.columns).fill(0).map(() => []));
@@ -296,7 +300,7 @@ export class Game {
 	}
 
 	private drawNextBlock() {
-		this.renderer.renderNext([this.block_queue[0], this.block_queue[1]]);
+		this.next_renderer.render([this.block_queue[0], this.block_queue[1]]);
 	}
 
 	private updateBoardsFromBlock(block: Block) {

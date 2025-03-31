@@ -1,28 +1,39 @@
 <template>
-	<div class="sample-container">
-		<div ref="container" class="sample"></div>
-	</div>
+	<img v-for="(sample, index) in sample_images" :key="index" :src="sample.images" class="sample" />
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
-import { SampleRenderer } from '@/game/renderer/sample_renderer';
+import { onMounted, ref } from "vue";
+import { SampleRenderer } from "@/game/renderer/canvas/sample_renderer";
+import type { Block } from "@/game/blocks/block";
+import { Shape1 } from "@/game/blocks/shape-1";
 
-const container = ref<HTMLElement | null>(null);
-let renderer: SampleRenderer | null = null;
+let renderer: SampleRenderer;
+
+interface Sample {
+	blocks: Block[];
+	score: number;
+}
+
+interface SampleImages {
+	images: string;
+	score: number;
+}
+
+const shape = new Shape1();
+shape.setPosition([0, 0]);
+const samples: Sample[] = [{ blocks: [], score: 2 }];
+const sample_images = ref<SampleImages[]>([]);
 
 onMounted(() => {
-	if (container.value) {
-		renderer = new SampleRenderer(container.value);
-		renderer.start();
-	}
-});
-
-onUnmounted(() => {
-	if (renderer) {
-		renderer.destroy();
-		renderer = null;
-	}
+	renderer = new SampleRenderer(30);
+	sample_images.value = samples.map((sample) => {
+		return {
+			images: renderer.drawSample(sample.blocks),
+			score: sample.score
+		};
+	});
+	console.log(renderer);
 });
 </script>
 
@@ -42,4 +53,4 @@ onUnmounted(() => {
 	border-radius: 8px;
 	overflow: hidden;
 }
-</style> 
+</style>

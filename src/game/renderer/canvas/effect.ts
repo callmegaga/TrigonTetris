@@ -1,7 +1,7 @@
 import { FRAGMENT_SIZE } from "@/game/config";
 import { CellValue, type Rectangle, type NormalSquare } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
-import { drawBlock } from "@/game/renderer/canvas/canvas_utils";
+import { drawBlock } from "@/game/renderer/canvas/utils";
 
 enum AnimationState {
 	glow,

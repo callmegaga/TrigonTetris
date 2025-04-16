@@ -9,7 +9,6 @@
 		<div class="game" id="game"></div>
 		<div class="next-and-sample">
 			<div id="next"></div>
-			<game-sample class="game-sample" />
 			<game-sample-canvas class="game-sample" />
 		</div>
 	</main>
@@ -22,7 +21,6 @@
 import TheWelcome from "@/components/TheWelcome.vue";
 import { Game, ScoreType } from "@/game/game";
 import { onMounted, onUnmounted, ref } from "vue";
-import GameSample from "@/components/GameSample.vue";
 import GameSampleCanvas from "@/components/GameSampleCanvas.vue";
 import GameScore from "@/components/GameScore.vue";
 import { GAME_BOARD_CELL_SIZE, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";

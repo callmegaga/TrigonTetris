@@ -101,10 +101,20 @@ export abstract class Block {
 	}
 
 	rotateIfNotCollide(boards: Board): boolean {
+		const old_shape = this.copyShape();
+		this.rotate();
+
+		if (this.isCollide(boards)) {
+			this.shape = old_shape;
+			return false;
+		}
+		return true
+	}
+
+	rotate() {
 		console.log("rotate");
 		const width = this.width;
 		const height = this.height;
-		const old_shape = this.copyShape();
 		const new_shape: Shape = buildShape(height, width);
 
 		for (let row = 0; row < height; row++) {
@@ -115,27 +125,25 @@ export abstract class Block {
 
 		this.shape = new_shape;
 
-		if (this.isCollide(boards)) {
-			this.shape = old_shape;
-			return false;
-		}
-		return true
 	}
 
 	flipIfNotCollide(boards: Board): boolean {
 		const old_shape = this.copyShape();
-
-		this.shape.forEach((row, y) => {
-			this.shape[y] = row.reverse().map((cell) => {
-				return FlipTable[cell];
-			});
-		});
+		this.flip();
 
 		if (this.isCollide(boards)) {
 			this.shape = old_shape;
 			return false;
 		}
 		return true;
+	}
+
+	flip() {
+		this.shape.forEach((row, y) => {
+			this.shape[y] = row.reverse().map((cell) => {
+				return FlipTable[cell];
+			});
+		});
 	}
 
 	setPosition(position: Position): void {

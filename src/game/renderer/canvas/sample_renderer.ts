@@ -19,6 +19,7 @@ export class SampleRenderer {
 		this.clear();
 
 		const width = this.getWidth(blocks);
+
 		this.canvas.width = width * this.board_cell_size;
 		this.canvas.height = width * this.board_cell_size;
 

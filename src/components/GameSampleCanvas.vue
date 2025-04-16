@@ -51,7 +51,8 @@ onMounted(() => {
 	gap: 10px;
 
 	.sample {
-		width: 80px;
+		width: 30%;
+		max-width: 80px;
 
 		.img {
 			width: 100%;

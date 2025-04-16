@@ -4,7 +4,7 @@
 			<game-score :score="score" :max-score="max_score" />
 			<!--			<game-pad class="gamepad" />-->
 			<!--			<button @click="game.stop()">STOP</button>-->
-			<game-keyboard class="game-controller"/>
+			<game-keyboard class="game-controller" />
 		</div>
 		<div class="game" id="game"></div>
 		<div class="next-and-sample">
@@ -23,7 +23,7 @@ import { Game, ScoreType } from "@/game/game";
 import { onMounted, onUnmounted, ref } from "vue";
 import GameSampleCanvas from "@/components/GameSampleCanvas.vue";
 import GameScore from "@/components/GameScore.vue";
-import { GAME_BOARD_CELL_SIZE, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";
+import { ACTIVE_BOARD_ROWS, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";
 import { getElementScreenPosition, getHistoryMaxScore, getSquareCenterPixelPosition, setHistoryMaxScore } from "@/utils/utils";
 import GameOver from "@/components/GameOver.vue";
 import ScoreTooltip from "@/components/ScoreTooltip.vue";
@@ -46,6 +46,8 @@ function startGame() {
 	game.start();
 }
 
+let cell_size = getCellSize(window.innerWidth, window.innerHeight, GAME_BOARD_COL, GAME_BOARD_ROW + ACTIVE_BOARD_ROWS);
+
 window.document.addEventListener("click", () => {});
 
 function onScore(gain: number, square: NormalSquare | BevelledSquare, type: ScoreType) {
@@ -54,8 +56,10 @@ function onScore(gain: number, square: NormalSquare | BevelledSquare, type: Scor
 	}
 	console.log(square);
 	console.log("score", gain);
-	const square_center_position = getSquareCenterPixelPosition(square, GAME_BOARD_CELL_SIZE);
+	const square_center_position = getSquareCenterPixelPosition(square, cell_size);
 	const element_position = getElementScreenPosition(document.querySelector("#game canvas") as HTMLElement);
+	console.log(element_position);
+	console.log(square_center_position);
 
 	new_score_left.value = square_center_position[0] + element_position[0];
 	new_score_top.value = square_center_position[1] + element_position[1];
@@ -95,7 +99,7 @@ onMounted(() => {
 		game_container: document.querySelector("#game") as HTMLElement,
 		columns: GAME_BOARD_COL,
 		rows: GAME_BOARD_ROW,
-		board_cell_size: GAME_BOARD_CELL_SIZE,
+		board_cell_size: cell_size,
 		onScore: onScore,
 		onFail: onFail,
 		next_container: document.querySelector("#next") as HTMLElement,
@@ -110,9 +114,17 @@ onMounted(() => {
 		},
 		onFlip: () => {
 			audioManager.play(SoundEffect.FLIP);
-		},
+		}
 	});
 });
+
+function getCellSize(dom_width: number, dom_height: number, columns: number, rows: number) {
+	const cell_width = Math.floor(dom_width / columns);
+	const cell_height = Math.floor((dom_height - 10) / rows);
+	const cell_size = Math.min(cell_width, cell_height);
+	console.log(cell_size);
+	return cell_size;
+}
 
 onUnmounted(() => {
 	game.end();

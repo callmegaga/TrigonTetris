@@ -18,6 +18,7 @@ export class CanvasRenderer extends Renderer {
 
 		game_canvas.width = options.board_cell_size * options.columns;
 		game_canvas.height = options.board_cell_size * (options.rows + this.active_board_rows);
+		console.log(game_canvas.height);
 
 		this.game_container.appendChild(game_canvas);
 

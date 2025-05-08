@@ -171,7 +171,6 @@ export function findMaxValidSquare(boards: Board, is_perfect: boolean) {
 
 export function findMaxValidBevelledSquare(boards: Board, is_perfect: boolean) {
 	const all_bevelled_square = findAllBevelledSquares(boards, is_perfect).filter((bevelled_square) => isBevelledSquareValid(boards, bevelled_square));
-
 	let max_squares: BevelledSquare | undefined = undefined;
 	let max_square_size = 0;
 
@@ -353,29 +352,37 @@ export function getBevelledSquareColorsAndBlocks(boards: Board, bevelled_square:
 		//	check left top border
 		let board_cell = boards[y + i][x - i];
 		board_cell.forEach((cell) => {
-			blocks.add(cell.block);
-			colors.add(cell.block.getColor());
+			if (cell.value === CellValue.TriangleRightBottom) {
+				blocks.add(cell.block);
+				colors.add(cell.block.getColor());
+			}
 		});
 
 		//	check right top border
 		board_cell = boards[y + i][x + i + 1];
 		board_cell.forEach((cell) => {
-			blocks.add(cell.block);
-			colors.add(cell.block.getColor());
+			if (cell.value === CellValue.TriangleLeftBottom) {
+				blocks.add(cell.block);
+				colors.add(cell.block.getColor());
+			}
 		});
 
 		//	check left bottom border
 		board_cell = boards[y + 2 * size - 1 - i][x - i];
 		board_cell.forEach((cell) => {
-			blocks.add(cell.block);
-			colors.add(cell.block.getColor());
+			if (cell.value === CellValue.TriangleRightTop) {
+				blocks.add(cell.block);
+				colors.add(cell.block.getColor());
+			}
 		});
 
 		//	check right bottom border
 		board_cell = boards[y + 2 * size - 1 - i][x + i + 1];
 		board_cell.forEach((cell) => {
-			blocks.add(cell.block);
-			colors.add(cell.block.getColor());
+			if (cell.value === CellValue.TriangleLeftTop) {
+				blocks.add(cell.block);
+				colors.add(cell.block.getColor());
+			}
 		});
 
 		//	check inside

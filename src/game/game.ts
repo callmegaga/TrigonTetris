@@ -340,8 +340,8 @@ export class Game {
 					}
 					break;
 				case "ArrowDown":
-					if (this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Down)) {
-						this.options.onMove();
+					if (this.active_block?.jump(this.boards)) {
+						this.options.onJump();
 					}
 					break;
 				case "ArrowLeft":
@@ -357,11 +357,6 @@ export class Game {
 				case " ":
 					if (this.active_block?.flipIfNotCollide(this.boards)) {
 						this.options.onFlip();
-					}
-					break;
-				case "Enter":
-					if (this.active_block?.jump(this.boards)) {
-						this.options.onJump();
 					}
 					break;
 			}

@@ -14,7 +14,7 @@
 					</div>
 					<div class="key-container down-key">
 						<div class="key">↓</div>
-						<div class="key-description">下</div>
+						<div class="key-description">下跳</div>
 					</div>
 					<div class="key-container right-key">
 						<div class="key">→</div>
@@ -28,10 +28,6 @@
 				<div class="key-container wide-key">
 					<div class="key space-key">Space</div>
 					<div class="key-description">对翻</div>
-				</div>
-				<div class="key-container wide-key">
-					<div class="key enter-key">Enter</div>
-					<div class="key-description">下跳</div>
 				</div>
 			</div>
 		</div>
@@ -120,8 +116,7 @@
 	height: auto;
 }
 
-.space-key,
-.enter-key {
+.space-key {
 	font-size: 14px;
 }
 </style>

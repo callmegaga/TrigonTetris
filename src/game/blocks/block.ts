@@ -112,7 +112,6 @@ export abstract class Block {
 	}
 
 	rotate() {
-		console.log("rotate");
 		const width = this.width;
 		const height = this.height;
 		const new_shape: Shape = buildShape(height, width);

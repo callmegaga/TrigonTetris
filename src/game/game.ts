@@ -52,15 +52,11 @@ export class Game {
 			.fill(0)
 			.map(() => new Array(options.columns).fill(0).map(() => []));
 		this.options = options;
-		// for (let i = 0; i < STAND_BY_COUNT + 1; i++) {
-		// 	this.block_queue.push(new (getRandomShape())());
-		// }
-		this.block_queue.push(new Shape5());
-		// this.block_queue.push(new Shape1());
-		// this.block_queue.push(new Shape1());
-		this.block_queue.push(new Shape1());
-		this.block_queue.push(new Shape2());
-		this.block_queue.push(new Shape2());
+		for (let i = 0; i < STAND_BY_COUNT + 1; i++) {
+			this.block_queue.push(new (getRandomShape())());
+		}
+		this.renderer.render(this.boards, this.active_block);
+		this.next_renderer.render([this.block_queue[0], this.block_queue[1]]);
 	}
 
 	start() {

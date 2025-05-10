@@ -1,15 +1,13 @@
 <template>
 	<main>
 		<div class="controller-and-score">
-			<game-score :score="score" :max-score="max_score" />
-			<!--			<game-pad class="gamepad" />-->
-			<!--			<button @click="game.stop()">STOP</button>-->
-			<game-keyboard class="game-controller" />
+			<game-score :score="score" :max-score="max_score" id="score" />
+			<game-keyboard class="game-controller" id="keyboard" />
 		</div>
 		<div class="game" id="game"></div>
 		<div class="next-and-sample">
 			<div id="next"></div>
-			<game-sample-canvas class="game-sample" />
+			<game-sample-canvas class="game-sample" id="sample" />
 		</div>
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
@@ -30,6 +28,8 @@ import ScoreTooltip from "@/components/ScoreTooltip.vue";
 import type { BevelledSquare, NormalSquare } from "@/game/types";
 import GameKeyboard from "@/components/GameKeyboard.vue";
 import { audioManager, SoundEffect } from "@/utils/audio_manager";
+import introJs from "intro.js";
+import "intro.js/introjs.css";
 
 const is_show_welcome = ref(true);
 const is_game_over = ref(false);
@@ -41,12 +41,69 @@ const new_score_left = ref(100);
 
 let game: Game;
 
-function startGame() {
-	is_show_welcome.value = false;
-	game.start();
+function introStart() {
+	return new Promise<void>((resolve) => {
+		if (localStorage.getItem("is_show_intro")) {
+			resolve();
+			return;
+		}
+		introJs()
+			.setOptions({
+				nextLabel: "下一步",
+				prevLabel: "上一步",
+				doneLabel: "完成"
+			})
+			.addSteps([
+				{
+					element: document.querySelector("#keyboard") as HTMLElement,
+					intro: "使用键盘来控制游戏",
+					position: "right"
+				},
+				{
+					element: document.querySelector("#sample") as HTMLElement,
+					intro: "这是得分的示例，你还可以自己创造更多的拼凑",
+					position: "left"
+				},
+				{
+					element: document.querySelector("#game") as HTMLElement,
+					intro: "拼凑成正方形或斜正方形，将消除拼凑图形上下左右的元素，超过游戏区域将进入\"续命\"",
+					position: "floating"
+				},
+				{
+					element: document.querySelector("#next") as HTMLElement,
+					intro: "这是后续将出现的元素",
+					position: "left"
+				},
+				{
+					element: document.querySelector("#score") as HTMLElement,
+					intro: "这里记录当前游戏的分数和历史最高分数",
+					position: "right"
+				},
+				{
+					title: "玩得越多，游戏越简单",
+					intro: "得分越多，学会拼凑得图形越多，游戏也会越简单，可以从最简单的图形开始，快来试试吧",
+				}
+			])
+			.oncomplete(() => {
+				localStorage.setItem("is_show_intro", "true");
+				resolve();
+			})
+			.onexit(() => {
+				localStorage.setItem("is_show_intro", "true");
+				resolve();
+			})
+			.start();
+	});
 }
 
-let cell_size = getCellSize(window.innerWidth, window.innerHeight, GAME_BOARD_COL, GAME_BOARD_ROW + ACTIVE_BOARD_ROWS);
+function startGame() {
+	is_show_welcome.value = false;
+	introStart().then(() => {
+		game.start();
+	});
+}
+
+const cell_size = getCellSize(window.innerWidth, window.innerHeight, GAME_BOARD_COL, GAME_BOARD_ROW + ACTIVE_BOARD_ROWS);
 
 window.document.addEventListener("click", () => {});
 

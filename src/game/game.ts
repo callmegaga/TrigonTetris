@@ -119,36 +119,35 @@ export class Game {
 			this.block_queue.push(new (getRandomShape())());
 			this.drawNextBlock();
 		} else {
-			this.active_block?.move(MoveDirection.Down);
-		}
-
-		if (this.active_block.isCollide(this.boards)) {
-			console.log("collide the boards");
-
-			this.active_block.moveUp();
-			const position = this.active_block.getPosition();
-			console.log("the active block position", position);
-
-			this.updateBoardsFromActiveBlock();
-			this.dead_blocks.push(this.active_block);
-			console.log("dead_blocks: ", this.dead_blocks);
-			this.active_block = null;
-
-			if (position[1] <= ACTIVE_BOARD_ROWS - 1) {
-				this.state = GameStatus.ExtendLife;
-				this.loop_timer = window.setTimeout(() => this.loop(), 0);
-				return;
+			if (this.active_block?.canMove(this.boards, MoveDirection.Down)) {
+				this.active_block?.move(MoveDirection.Down);
 			} else {
-				const max_bevelled_square = findMaxValidBevelledSquare(this.boards, true);
-				if (max_bevelled_square) {
-					this.onPerfectSquareFind(max_bevelled_square);
-					return;
-				}
+				console.log("collide the boards");
 
-				const max_square = findMaxValidSquare(this.boards, true);
-				if (max_square) {
-					this.onPerfectSquareFind(max_square);
+				const position = this.active_block.getPosition();
+				console.log("the active block position", position);
+
+				this.updateBoardsFromActiveBlock();
+				this.dead_blocks.push(this.active_block);
+				console.log("dead_blocks: ", this.dead_blocks);
+				this.active_block = null;
+
+				if (position[1] <= ACTIVE_BOARD_ROWS - 1) {
+					this.state = GameStatus.ExtendLife;
+					this.loop_timer = window.setTimeout(() => this.loop(), 0);
 					return;
+				} else {
+					const max_bevelled_square = findMaxValidBevelledSquare(this.boards, true);
+					if (max_bevelled_square) {
+						this.onPerfectSquareFind(max_bevelled_square);
+						return;
+					}
+
+					const max_square = findMaxValidSquare(this.boards, true);
+					if (max_square) {
+						this.onPerfectSquareFind(max_square);
+						return;
+					}
 				}
 			}
 		}

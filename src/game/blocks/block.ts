@@ -1,4 +1,4 @@
-import { type Board, CellValue, type Color, FlipTable, MoveDirection, type Position, RotateTable, type Shape, type NormalSquare } from "@/game/types";
+import { type Board, CellValue, type Color, FlipTable, MoveDirection, type NormalSquare, type Position, RotateTable, type Shape } from "@/game/types";
 import { buildShape, isCollideShapeAndBoardCell, isEmptyBoardCell } from "@/utils/utils";
 
 export abstract class Block {
@@ -82,22 +82,67 @@ export abstract class Block {
 		}
 	}
 
-	moveIfNotCollide(boards: Board, direction: MoveDirection): boolean {
-		this.move(direction);
-		if (this.isCollide(boards)) {
-			switch (direction) {
-				case MoveDirection.Left:
-					this.current_position[0]++;
-					return false;
-				case MoveDirection.Right:
-					this.current_position[0]--;
-					return false;
-				case MoveDirection.Down:
-					this.current_position[1]--;
-					return false;
-			}
+	canMove(boards: Board, direction: MoveDirection): boolean {
+		const board_width = boards[0].length;
+		const board_height = boards.length;
+
+		switch (direction) {
+			case MoveDirection.Left:
+				if (this.current_position[0] <= 0) return false;
+				for (let x = 0; x < this.width; x++) {
+					for (let y = 0; y < this.height; y++) {
+						if (this.shape[y][x] === CellValue.Empty) continue;
+						const board_cell = boards[y + this.current_position[1]][this.current_position[0] + x - 1];
+						if (isEmptyBoardCell(board_cell)) continue;
+						if (board_cell.length > 1) return false;
+
+						if (this.shape[y][x] === CellValue.TriangleRightTop && board_cell[0].value === CellValue.TriangleLeftBottom) continue;
+						if (this.shape[y][x] === CellValue.TriangleRightBottom && board_cell[0].value === CellValue.TriangleLeftTop) continue;
+						return false;
+					}
+				}
+				return true;
+			case MoveDirection.Right:
+				const shape_right = this.current_position[0] + this.width;
+				if (shape_right >= board_width) return false;
+				for (let x = this.width - 1; x >= 0; x--) {
+					for (let y = 0; y < this.height; y++) {
+						if (this.shape[y][x] === CellValue.Empty) continue;
+						const board_cell = boards[y + this.current_position[1]][this.current_position[0] + x + 1];
+						if (isEmptyBoardCell(board_cell)) continue;
+						if (board_cell.length > 1) return false;
+
+						if (this.shape[y][x] === CellValue.TriangleLeftTop && board_cell[0].value === CellValue.TriangleRightBottom) continue;
+						if (this.shape[y][x] === CellValue.TriangleLeftBottom && board_cell[0].value === CellValue.TriangleRightTop) continue;
+						return false;
+					}
+				}
+				return true;
+			case MoveDirection.Down:
+				const shape_bottom = this.current_position[1] + this.height;
+				if (shape_bottom >= board_height) return false;
+				for (let y = this.height - 1; y >= 0; y--) {
+					for (let x = 0; x < this.width; x++) {
+						if (this.shape[y][x] === CellValue.Empty) continue;
+						const board_cell = boards[this.current_position[1] + y + 1][x + this.current_position[0]];
+						if (isEmptyBoardCell(board_cell)) continue;
+						if (board_cell.length > 1) return false;
+
+						if (this.shape[y][x] === CellValue.TriangleLeftTop && board_cell[0].value === CellValue.TriangleRightBottom) continue;
+						if (this.shape[y][x] === CellValue.TriangleRightTop && board_cell[0].value === CellValue.TriangleLeftBottom) continue;
+						return false;
+					}
+				}
+				return true;
 		}
-		return true;
+	}
+
+	moveIfNotCollide(boards: Board, direction: MoveDirection): boolean {
+		if (this.canMove(boards, direction)) {
+			this.move(direction)
+			return true;
+		}
+		return false;
 	}
 
 	rotateIfNotCollide(boards: Board): boolean {
@@ -108,7 +153,7 @@ export abstract class Block {
 			this.shape = old_shape;
 			return false;
 		}
-		return true
+		return true;
 	}
 
 	rotate() {
@@ -123,7 +168,6 @@ export abstract class Block {
 		}
 
 		this.shape = new_shape;
-
 	}
 
 	flipIfNotCollide(boards: Board): boolean {
@@ -163,7 +207,7 @@ export abstract class Block {
 			}
 		}
 		this.current_position[1] = y;
-		return false
+		return false;
 	}
 
 	isInSquare(square: NormalSquare): boolean {

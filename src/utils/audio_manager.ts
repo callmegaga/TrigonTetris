@@ -2,7 +2,7 @@ import { ref } from 'vue';
 
 export enum SoundEffect {
   CHEER = 'cheer',
-  SHOOO = 'shoooo',
+  SHOOO = 'shooo',
   JUMP = 'jump',
   ROTATE = 'rotate',
   MOVE = 'move',

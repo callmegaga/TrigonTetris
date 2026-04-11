@@ -49,7 +49,7 @@ class AudioManager {
     this.isLoading.value = true;
 
     Object.entries(audioConfigs).forEach(([effect, config]) => {
-      const audio = new Audio(`./audio/${effect}.${effect === 'cheer' || effect === 'shoooo' ? 'mp3' : 'flac'}`);
+      const audio = new Audio(`./audio/${effect}.${effect === 'cheer' || effect === 'shooo' ? 'mp3' : 'flac'}`);
       audio.volume = config.volume || 1.0;
       audio.loop = config.loop || false;
 

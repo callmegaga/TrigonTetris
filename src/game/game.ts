@@ -5,9 +5,6 @@ import { CanvasRenderer } from "@/game/renderer/canvas/renderer";
 import { NextRenderer } from "@/game/renderer/canvas/next_renderer";
 import { boardEraseBlock, calculateSquareScore, findMaxValidBevelledSquare, findMaxValidSquare, getBevelledSquareMaxSquare, getRandomShape, getSquareColorsAndBlocks, isBoardFirstNLineEmpty } from "@/utils/utils";
 import { ACTIVE_BOARD_ROWS, GAME_INTERVAL_TIME, GAME_MOVE_BOARD_MULTIPLIER, STAND_BY_COUNT } from "@/game/config";
-import { Shape1 } from "@/game/blocks/shape-1";
-import { Shape5 } from "@/game/blocks/shape-5";
-import { Shape2 } from "@/game/blocks/shape-2";
 
 export enum ScoreType {
 	Perfect,

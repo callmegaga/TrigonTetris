@@ -11,7 +11,7 @@ import type { Block } from "@/game/blocks/block";
 const ShapeTable: { new (): Block }[] = [Shape1, Shape2, Shape3, Shape4, Shape5, Shape6, Shape7];
 
 export function getRandomShape() {
-	// 概率5-4-4-1-3-5-5
+	// 概率5-4-4-1-3-3-5
 	const random = Math.random();
 	const sum = 5 + 4 + 4 + 1 + 3 + 3 + 5;
 	if (random <= 5 / sum) return ShapeTable[0];
@@ -147,21 +147,17 @@ export function findMaxValidSquare(boards: Board, is_perfect: boolean) {
 
 	for (let i = 0; i < height; i++) {
 		for (let j = 0; j < width; j++) {
-			if (isSquareValid(boards, { type: SquareType.normal, size: square_table[i][j], bottom_right: [i, j] })) {
-				if (
-					is_perfect &&
-					!isSquarePerfect(boards, {
-						type: SquareType.normal,
-						size: square_table[i][j],
-						bottom_right: [i, j]
-					})
-				) {
+			for (let size = square_table[i][j]; size > max_square_size; size--) {
+				const square: NormalSquare = { type: SquareType.normal, size, bottom_right: [i, j] };
+				if (!isSquareValid(boards, square)) {
 					continue;
 				}
-				if (square_table[i][j] > max_square_size) {
-					max_square_size = square_table[i][j];
-					max_squares = { type: SquareType.normal, size: max_square_size, bottom_right: [i, j] };
+				if (is_perfect && !isSquarePerfect(boards, square)) {
+					continue;
 				}
+				max_square_size = size;
+				max_squares = square;
+				break;
 			}
 		}
 	}

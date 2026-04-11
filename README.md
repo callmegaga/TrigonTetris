@@ -1,45 +1,45 @@
-# vue-project
+# TrigonTetris
 
-This template should help get you started developing with Vue 3 in Vite.
+一个基于 Vue 3 + Vite 的几何拼块消除游戏。玩家控制由 `Square`、`BevelledSquare` 相关碎片组成的活动板块下落、拼接、消除，并在溢出时进入 `extend life` 续命判定。
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
+## 开发入口
 
 ```sh
 pnpm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## 常用命令
 
 ```sh
 pnpm build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
+pnpm lint
 pnpm test:unit
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+说明：
 
-```sh
-pnpm lint
-```
+- 当前仓库已经配置了 `Vitest`，但还没有完善的自动化测试用例。
+- `test/renderer` 目前是手工可视化 harness，不属于 `Vitest` 自动测试。
+
+## 关键文档
+
+- [AGENT.md](/d:/Works/TrigonTetris/AGENT.md)
+- [Architecture](/d:/Works/TrigonTetris/docs/architecture.md)
+- [Harness](/d:/Works/TrigonTetris/docs/harness.md)
+- [SDD Workflow](/d:/Works/TrigonTetris/docs/sdd-workflow.md)
+- [Specs README](/d:/Works/TrigonTetris/specs/README.md)
+- [Core Gameplay Spec](/d:/Works/TrigonTetris/specs/001-core-gameplay/spec.md)
+
+## 当前工程结构
+
+- `src/game`: 核心规则、状态机、渲染器、方块定义
+- `src/components`: Vue 界面层
+- `src/utils`: 几何判定、得分、历史分数、音频等工具函数
+- `test/renderer`: 手工视觉验证 harness
+- `docs`: 架构、harness、SDD 流程文档
+- `specs`: 需求规格与模板
+
+## 后续开发约定
+
+涉及游戏规则、状态机、得分、消除、续命逻辑的改动，先更新 `specs/`，再改代码，再补对应 harness 或自动化测试。

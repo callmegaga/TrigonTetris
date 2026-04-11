@@ -1,4 +1,6 @@
 <template>
+	<Analytics />
+	<SpeedInsights />
 	<main>
 		<div class="controller-and-score">
 			<game-score :score="score" :max-score="max_score" id="score" />
@@ -16,6 +18,8 @@
 </template>
 
 <script setup lang="ts">
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import TheWelcome from "@/components/TheWelcome.vue";
 import { Game, ScoreType } from "@/game/game";
 import { onMounted, onUnmounted, ref } from "vue";

@@ -240,10 +240,10 @@ export function checkBevelledSquaresValid(boards: Board, x: number, y: number, s
 		if (i > 0) {
 			const count = i * 2;
 			for (let j = 1; j <= count; j++) {
-				if (!checkTileHavaValue(boards[y + i][x - i + j], [CellValue.Full])) {
+				if (!checkTileIsFull(boards[y + i][x - i + j])) {
 					return false;
 				}
-				if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i + j], [CellValue.Full])) {
+				if (!checkTileIsFull(boards[y + 2 * size - 1 - i][x - i + j])) {
 					return false;
 				}
 			}
@@ -282,10 +282,10 @@ export function checkBevelledSquaresPerfect(boards: Board, x: number, y: number,
 		if (i > 0) {
 			const count = i * 2;
 			for (let j = 1; j <= count; j++) {
-				if (!checkTileHavaValue(boards[y + i][x - i + j], [CellValue.Full])) {
+				if (!checkTileIsFull(boards[y + i][x - i + j])) {
 					return false;
 				}
-				if (!checkTileHavaValue(boards[y + 2 * size - 1 - i][x - i + j], [CellValue.Full])) {
+				if (!checkTileIsFull(boards[y + 2 * size - 1 - i][x - i + j])) {
 					return false;
 				}
 			}
@@ -302,6 +302,10 @@ export function checkTileHavaValue(tile: BoardCell, value: CellValue[]) {
 		}
 	});
 	return result;
+}
+
+export function checkTileIsFull(tile: BoardCell) {
+	return getBoardCellValue(tile) === CellValue.Full;
 }
 
 export function getSquareColorsAndBlocks(boards: Board, square: NormalSquare | BevelledSquare) {

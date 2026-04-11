@@ -159,9 +159,12 @@ export class Game {
 		console.log("is_board_changed: ", is_board_changed);
 		this.draw();
 		if (!is_board_changed) {
+			// After spread-light cleanup and board settling, this phase only chains normal
+			// squares. Perfect bevelled squares are not re-scanned from MoveBoard.
 			const max_square = findMaxValidSquare(this.boards, true);
 			if (max_square) {
 				this.onPerfectSquareFind(max_square);
+				return;
 			} else {
 				if (this.canExitExtendLife()) {
 					this.state = GameStatus.Active;

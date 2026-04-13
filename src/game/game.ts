@@ -121,9 +121,6 @@ export class Game {
 		if (this.loop_timer) {
 			window.clearTimeout(this.loop_timer);
 		}
-		console.log("boards: ", this.boards);
-		console.log("active_block: ", this.active_block);
-		console.log("dead blocks: ", this.dead_blocks);
 	}
 
 	pause() {
@@ -170,7 +167,6 @@ export class Game {
 
 	private loop() {
 		if (this.is_paused) return;
-		console.log("game loop: ", this.state);
 		switch (this.state) {
 			case GameStatus.NotStart:
 				break;
@@ -190,8 +186,6 @@ export class Game {
 
 	private loopWhenActive() {
 		if (!this.active_block) {
-			console.log("new block");
-
 			this.active_block = this.block_queue.shift() as Block;
 			this.block_queue.push(new (getRandomShape())());
 			this.drawNextBlock();
@@ -199,14 +193,10 @@ export class Game {
 			if (this.active_block?.canMove(this.boards, MoveDirection.Down)) {
 				this.active_block?.move(MoveDirection.Down);
 			} else {
-				console.log("collide the boards");
-
 				const position = this.active_block.getPosition();
-				console.log("the active block position", position);
 
 				this.updateBoardsFromActiveBlock();
 				this.dead_blocks.push(this.active_block);
-				console.log("dead_blocks: ", this.dead_blocks);
 				this.active_block = null;
 
 				if (position[1] <= ACTIVE_BOARD_ROWS - 1) {
@@ -236,11 +226,10 @@ export class Game {
 	private loopWhenMoveBoard() {
 		const is_board_changed = this.moveDeadBlocksFall();
 
-		console.log("is_board_changed: ", is_board_changed);
 		this.draw();
 		if (!is_board_changed) {
-			// After spread-light cleanup and board settling, this phase only chains normal
-			// squares. Perfect bevelled squares are not re-scanned from MoveBoard.
+			// 扩散清除和棋盘稳定之后，这个阶段只继续检查普通正方形，
+			// 不会在 MoveBoard 阶段再次扫描 Perfect BevelledSquare。
 			const max_square = findMaxValidSquare(this.boards, true);
 			if (max_square) {
 				this.onPerfectSquareFind(max_square);
@@ -274,7 +263,6 @@ export class Game {
 	}
 
 	private moveDeadBlocksFall() {
-		console.log("boards: ", this.boards);
 		let is_board_changed = false;
 		const dead_block_move_map = new Map<Block, boolean>();
 
@@ -282,7 +270,6 @@ export class Game {
 			dead_block_move_map.set(block, false);
 		});
 		let need_move_block_count = dead_block_move_map.size;
-		console.log("dead_block:", this.dead_blocks);
 
 		for (let y = this.boards.length - 2; y >= 0; y--) {
 			for (let x = 0; x < this.boards[y].length; x++) {
@@ -319,9 +306,7 @@ export class Game {
 	}
 
 	private onCoverSquareFind(square: NormalSquare | BevelledSquare) {
-		console.log("find cover square: ", square);
 		const score = calculateSquareScore(this.boards, square, false);
-		console.log("score: ", score);
 		this.options.onScore(score, square, ScoreType.Cover);
 
 		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(this.boards, square);
@@ -331,7 +316,6 @@ export class Game {
 		this.renderer.renderBlocks(need_clear_blocks, "red");
 		this.renderer.renderSquare(this.boards, square, false).then(() => {
 			this.renderer.renderBlockEffect(this.boards, need_clear_blocks).then(() => {
-				console.log("finish animation end");
 				this.state = GameStatus.MoveBoard;
 				this.scheduleLoop(0);
 			});
@@ -339,9 +323,7 @@ export class Game {
 	}
 
 	private onPerfectSquareFind(square: NormalSquare | BevelledSquare) {
-		console.log("find perfect square: ", square);
 		const score = calculateSquareScore(this.boards, square, true);
-		console.log("score: ", score);
 		this.options.onScore(score, square, ScoreType.Perfect);
 
 		const { blocks: need_clear_blocks } = getSquareColorsAndBlocks(this.boards, square);
@@ -350,7 +332,6 @@ export class Game {
 		this.dead_blocks = this.dead_blocks.filter((block) => !need_clear_blocks.has(block));
 
 		this.renderer.renderBlockEffect(this.boards, need_clear_blocks).then(() => {
-			console.log("finish animation end");
 			this.renderer.renderSpreadLight(this.boards, square).then(() => {
 				const other_clear_blocks = this.findBlocksInSpreadLight(square);
 

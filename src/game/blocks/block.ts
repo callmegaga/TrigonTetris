@@ -139,7 +139,7 @@ export abstract class Block {
 
 	moveIfNotCollide(boards: Board, direction: MoveDirection): boolean {
 		if (this.canMove(boards, direction)) {
-			this.move(direction)
+			this.move(direction);
 			return true;
 		}
 		return false;
@@ -194,7 +194,6 @@ export abstract class Block {
 	}
 
 	jump(boards: Board): boolean {
-		console.log("jump");
 		const y = this.current_position[1];
 		const board_height = boards.length;
 		for (let new_y = board_height - 1; new_y > y; new_y--) {

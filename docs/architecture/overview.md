@@ -1,5 +1,11 @@
 # Architecture
 
+这是基于Vue3和vercel api开发的类似俄罗斯方块的游戏，主要玩法是通过拼成斜正方形和正方形来得分。部署在vercel上，反馈接口和存储使用了vercel的api和blob存储功能。
+
+- api vercel的api
+- src 源代码
+
+
 ## Overview
 
 项目当前分为 4 个主要层次：
@@ -9,9 +15,13 @@
 - Geometry / Rule 层：负责方块碰撞、正方形判定、斜正方形判定、得分计算
 - Renderer 层：负责画布渲染、方块消除特效、光芒扩散
 
+当前稳定的核心玩法、状态机和几何规则基线，见 [gameplay.md](gameplay.md)。
+
+反馈功能的实现逻辑，见 [feedback.md](feedback.md)。
+
 ## Runtime Flow
 
-主入口在 [src/App.vue](/d:/Works/TrigonTetris/src/App.vue)，核心运行类在 [src/game/game.ts](/d:/Works/TrigonTetris/src/game/game.ts)。
+主入口在 [src/App.vue](src/App.vue)，核心运行类在 [src/game/game.ts](src/game/game.ts)。
 
 核心状态：
 
@@ -38,7 +48,7 @@
 
 ## Core Data Model
 
-定义位于 [src/game/types.ts](/d:/Works/TrigonTetris/src/game/types.ts)。
+定义位于 [src/game/types.ts](src/game/types.ts)。
 
 - `CellValue`
   表示空格、四种方向的半格三角形、以及满格
@@ -65,7 +75,7 @@
 
 ## Rule Layer
 
-规则函数主要位于 [src/utils/utils.ts](/d:/Works/TrigonTetris/src/utils/utils.ts)。
+规则函数主要位于 [src/utils/utils.ts](src/utils/utils.ts)。
 
 关键职责：
 
@@ -75,19 +85,3 @@
 - `Perfect` 与 `Cover` 判定
 - 得分计算
 - 辅助坐标与光芒范围处理
-
-## Current Harness Layout
-
-- [test/renderer](/d:/Works/TrigonTetris/test/renderer) 是手工视觉 harness
-- 当前还缺少自动化规则测试
-- `Vitest` 已配置，但尚未形成稳定测试资产
-
-## Recommended Next Test Targets
-
-应优先把规则层做成可断言的 deterministic harness：
-
-- 互补三角是否合成为满格
-- `BevelledSquare` 内部满格判定
-- `ExtendLife` 搜索顺序
-- 光芒清除范围
-- 消除后 `MoveBoard` 的状态机流转

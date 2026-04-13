@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
 	description: string;
 	submitting: boolean;
 	message: string;

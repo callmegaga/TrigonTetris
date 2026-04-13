@@ -427,7 +427,6 @@ export function getBevelledSquareMaxSquare(bevelled_square: BevelledSquare): Nor
 
 export function getSquareCenterPixelPosition(square: NormalSquare | BevelledSquare, board_cell_size: number): [number, number] {
 	const result: [number, number] = [0, 0];
-	console.log("calculate center square: ", square);
 
 	if (square.type === SquareType.normal) {
 		const {
@@ -444,7 +443,6 @@ export function getSquareCenterPixelPosition(square: NormalSquare | BevelledSqua
 		result[0] = (x + 1) * board_cell_size;
 		result[1] = (y + size) * board_cell_size;
 	}
-	console.log("center position: ", result);
 	return result;
 }
 

@@ -10,15 +10,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { SampleRenderer } from "@/game/renderer/canvas/sample_renderer";
-import type { Block } from "@/game/blocks/block";
-import {getSampleBlocks} from "@/utils/sample";
+import { getSampleBlocks } from "@/utils/sample";
 
 let renderer: SampleRenderer;
-
-interface Sample {
-	blocks: Block[];
-	score: number;
-}
 
 interface SampleImages {
 	images: string;
@@ -37,7 +31,6 @@ onMounted(() => {
 			score: sample.score
 		};
 	});
-	console.log(renderer);
 });
 </script>
 

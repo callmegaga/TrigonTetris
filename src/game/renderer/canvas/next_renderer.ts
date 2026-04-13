@@ -30,10 +30,9 @@ export class NextRenderer {
 		drawGrid(this.ctx, next_board, this.board_cell_size, 0);
 		blocks.forEach((block, index) => {
 			const [x, y] = block.getPosition();
-			console.log(x, y);
 			block.setPosition([1 + (1 + MAX_SHAPE_SIZE[0]) * index, 1]);
 			drawBlock(this.ctx, block, this.board_cell_size);
-			block.setPosition([x, 0]);
+			block.setPosition([x, y]);
 		});
 	}
 

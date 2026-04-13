@@ -100,7 +100,7 @@ function introStart() {
 				},
 				{
 					title: "玩得越多，游戏越简单",
-					intro: "得分越多，学会拼凑得图形越多，游戏也会越简单，可以从最简单的图形开始，快来试试吧",
+					intro: "得分越多，学会拼凑的图形越多，游戏也会越简单，可以从最简单的图形开始，快来试试吧"
 				}
 			])
 			.oncomplete(() => {
@@ -124,18 +124,12 @@ function startGame() {
 
 const cell_size = getCellSize(window.innerWidth, window.innerHeight, GAME_BOARD_COL, GAME_BOARD_ROW + ACTIVE_BOARD_ROWS);
 
-window.document.addEventListener("click", () => {});
-
 function onScore(gain: number, square: NormalSquare | BevelledSquare, type: ScoreType) {
 	if (gain === 0) {
 		return;
 	}
-	console.log(square);
-	console.log("score", gain);
 	const square_center_position = getSquareCenterPixelPosition(square, cell_size);
 	const element_position = getElementScreenPosition(document.querySelector("#game canvas") as HTMLElement);
-	console.log(element_position);
-	console.log(square_center_position);
 
 	new_score_left.value = square_center_position[0] + element_position[0];
 	new_score_top.value = square_center_position[1] + element_position[1];
@@ -163,7 +157,6 @@ function onScore(gain: number, square: NormalSquare | BevelledSquare, type: Scor
 }
 
 function onFail() {
-	console.log("fail");
 	is_game_over.value = true;
 	game?.end();
 }
@@ -272,9 +265,7 @@ async function captureGameCanvas() {
 function getCellSize(dom_width: number, dom_height: number, columns: number, rows: number) {
 	const cell_width = Math.floor(dom_width / columns);
 	const cell_height = Math.floor((dom_height - 10) / rows);
-	const cell_size = Math.min(cell_width, cell_height);
-	console.log(cell_size);
-	return cell_size;
+	return Math.min(cell_width, cell_height);
 }
 
 onUnmounted(() => {

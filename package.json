@@ -5,17 +5,20 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite --host",
+		"vercel:dev": "vercel dev",
 		"build": "run-p type-check \"build-only {@}\" --",
 		"preview": "vite preview",
+		"deploy:preview": "vercel",
+		"deploy:prod": "vercel --prod",
 		"test:unit": "vitest",
 		"build-only": "vite build",
 		"type-check": "vue-tsc --build --force",
 		"lint": "eslint . --fix",
-		"format": "prettier --write src/",
-		"deploy": "pnpm build && gh-pages -d dist"
+		"format": "prettier --write src/"
 	},
 	"dependencies": {
 		"@vercel/analytics": "^2.0.1",
+		"@vercel/blob": "^2.3.3",
 		"@vercel/speed-insights": "^2.0.0",
 		"vue": "^3.5.32"
 	},
@@ -33,7 +36,6 @@
 		"@vue/tsconfig": "^0.9.1",
 		"eslint": "^10.2.0",
 		"eslint-plugin-vue": "^10.8.0",
-		"gh-pages": "^6.3.0",
 		"intro.js": "^8.3.2",
 		"jsdom": "^29.0.1",
 		"npm-run-all2": "^8.0.4",

@@ -7,6 +7,7 @@
 ```sh
 pnpm install
 pnpm dev
+vercel dev
 ```
 
 ## 常用命令
@@ -21,6 +22,34 @@ pnpm test:unit
 
 - 当前仓库已经配置了 `Vitest`，但还没有完善的自动化测试用例。
 - `test/renderer` 目前是手工可视化 harness，不属于 `Vitest` 自动测试。
+
+## 部署
+
+当前发布目标为 Vercel，不再使用 `gh-pages`。
+
+首次部署前需要：
+
+```sh
+vercel link
+vercel env add BUG_FEEDBACK_ADMIN_KEY
+vercel integration add blob
+```
+
+日常命令：
+
+```sh
+vercel
+vercel --prod
+vercel logs --since 1h
+```
+
+说明：
+
+- 仓库已包含 `.vercel/project.json`，当前目录已经 link 到 Vercel 项目 `trigon-tetris`
+- 前端静态资源由 Vite 构建到 `dist`
+- `api/` 目录下的函数会由 Vercel Functions 托管
+- `admin.html` 与 `restore.html` 会随主站一起部署，并通过 `cleanUrls` 以 `/admin`、`/restore` 访问
+- BUG 反馈存储依赖 Vercel Blob，对应环境变量需在 Vercel 项目中配置完成
 
 ## 关键文档
 

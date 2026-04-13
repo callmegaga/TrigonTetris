@@ -1,5 +1,6 @@
 <template>
 	<main>
+		<button v-if="!is_show_welcome" type="button" class="bug-feedback-button" @click="openFeedbackModal">BUG反馈</button>
 		<div class="controller-and-score">
 			<game-score :score="score" :max-score="max_score" id="score" />
 			<game-keyboard class="game-controller" id="keyboard" />
@@ -13,6 +14,18 @@
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
 	<game-over v-if="is_game_over" />
 	<score-tooltip :score="new_score" :left="new_score_left" :top="new_score_top" />
+	<bug-feedback-modal
+		v-if="is_feedback_modal_open"
+		:description="feedback_description"
+		:submitting="is_feedback_submitting"
+		:message="feedback_message"
+		:is-error="is_feedback_error"
+		:can-submit="feedback_description.trim().length <= 100"
+		:remaining="100 - feedback_description.length"
+		@close="closeFeedbackModal"
+		@submit="submitFeedback"
+		@update:description="feedback_description = $event"
+	/>
 </template>
 
 <script setup lang="ts">
@@ -30,6 +43,7 @@ import GameKeyboard from "@/components/GameKeyboard.vue";
 import { audioManager, SoundEffect } from "@/utils/audio_manager";
 import introJs from "intro.js";
 import "intro.js/introjs.css";
+import BugFeedbackModal from "@/components/BugFeedbackModal.vue";
 
 const is_show_welcome = ref(true);
 const is_game_over = ref(false);
@@ -38,8 +52,13 @@ const new_score = ref(0);
 const max_score = ref(0);
 const new_score_top = ref(100);
 const new_score_left = ref(100);
+const is_feedback_modal_open = ref(false);
+const is_feedback_submitting = ref(false);
+const is_feedback_error = ref(false);
+const feedback_description = ref("");
+const feedback_message = ref("");
 
-let game: Game;
+let game: Game | null = null;
 
 function introStart() {
 	return new Promise<void>((resolve) => {
@@ -99,7 +118,7 @@ function introStart() {
 function startGame() {
 	is_show_welcome.value = false;
 	introStart().then(() => {
-		game.start();
+		game?.start();
 	});
 }
 
@@ -146,7 +165,7 @@ function onScore(gain: number, square: NormalSquare | BevelledSquare, type: Scor
 function onFail() {
 	console.log("fail");
 	is_game_over.value = true;
-	game.end();
+	game?.end();
 }
 
 onMounted(() => {
@@ -175,6 +194,81 @@ onMounted(() => {
 	});
 });
 
+async function openFeedbackModal() {
+	if (!game) return;
+
+	game.pause();
+	feedback_description.value = "";
+	feedback_message.value = "";
+	is_feedback_error.value = false;
+	is_feedback_submitting.value = false;
+	is_feedback_modal_open.value = true;
+}
+
+function closeFeedbackModal() {
+	if (is_feedback_submitting.value) return;
+	is_feedback_modal_open.value = false;
+	feedback_description.value = "";
+	feedback_message.value = "";
+	is_feedback_error.value = false;
+	game?.resume();
+}
+
+async function submitFeedback() {
+	if (!game) return;
+
+	const description = feedback_description.value.trim();
+	if (!description || description.length > 100) {
+		is_feedback_error.value = true;
+		feedback_message.value = "描述不能为空，且不能超过 100 字。";
+		return;
+	}
+
+	is_feedback_submitting.value = true;
+	is_feedback_error.value = false;
+	feedback_message.value = "";
+
+	try {
+		const snapshot = game.getSnapshot(score.value, max_score.value);
+		const screenshotBlob = await captureGameCanvas();
+		const formData = new FormData();
+		formData.set("description", description);
+		formData.set("snapshot", JSON.stringify(snapshot));
+		formData.set("pathname", window.location.pathname);
+		if (screenshotBlob) {
+			formData.set("screenshot", screenshotBlob, `feedback-${Date.now()}.png`);
+		}
+
+		const response = await fetch("/api/feedback", {
+			method: "POST",
+			body: formData
+		});
+		if (!response.ok) {
+			throw new Error(await response.text());
+		}
+
+		feedback_message.value = "反馈已提交，感谢帮助定位问题。";
+		setTimeout(() => {
+			is_feedback_submitting.value = false;
+			closeFeedbackModal();
+		}, 700);
+	} catch (error) {
+		console.error(error);
+		is_feedback_error.value = true;
+		feedback_message.value = error instanceof Error ? error.message : "提交失败，请稍后再试。";
+		is_feedback_submitting.value = false;
+	}
+}
+
+async function captureGameCanvas() {
+	const canvas = document.querySelector("#game canvas") as HTMLCanvasElement | null;
+	if (!canvas) return null;
+
+	return new Promise<Blob | null>((resolve) => {
+		canvas.toBlob((blob) => resolve(blob), "image/png");
+	});
+}
+
 function getCellSize(dom_width: number, dom_height: number, columns: number, rows: number) {
 	const cell_width = Math.floor(dom_width / columns);
 	const cell_height = Math.floor((dom_height - 10) / rows);
@@ -184,7 +278,7 @@ function getCellSize(dom_width: number, dom_height: number, columns: number, row
 }
 
 onUnmounted(() => {
-	game.end();
+	game?.end();
 });
 </script>
 
@@ -197,6 +291,7 @@ main {
 	background-color: #1e293b;
 	text-align: center;
 	justify-content: center;
+	position: relative;
 
 	.game {
 		display: flex;
@@ -245,6 +340,21 @@ main {
 	.game-sample {
 		width: 100%;
 	}
+}
+
+.bug-feedback-button {
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	z-index: 20;
+	border: 0;
+	border-radius: 999px;
+	padding: 10px 16px;
+	background: linear-gradient(135deg, #ea580c 0%, #fb7185 100%);
+	color: white;
+	font-weight: 700;
+	cursor: pointer;
+	box-shadow: 0 12px 30px rgba(234, 88, 12, 0.28);
 }
 
 .welcome {

@@ -5,6 +5,7 @@ import { CanvasRenderer } from "@/game/renderer/canvas/renderer";
 import { NextRenderer } from "@/game/renderer/canvas/next_renderer";
 import { boardEraseBlock, calculateSquareScore, findMaxValidBevelledSquare, findMaxValidSquare, getBevelledSquareMaxSquare, getRandomShape, getSquareColorsAndBlocks, isBoardFirstNLineEmpty } from "@/utils/utils";
 import { ACTIVE_BOARD_ROWS, GAME_INTERVAL_TIME, GAME_MOVE_BOARD_MULTIPLIER, STAND_BY_COUNT } from "@/game/config";
+import { clonePosition, cloneShape, gameStatusToKey, type GameSnapshot, type SnapshotBlock as SnapshotBlockData, type SnapshotCell } from "@/feedback/types";
 
 export enum ScoreType {
 	Perfect,
@@ -35,6 +36,39 @@ export class Game {
 	private state: GameStatus = GameStatus.NotStart;
 	private dead_blocks: Block[] = [];
 	private options: GameOptions;
+	private is_paused = false;
+	private events_bound = false;
+	private readonly keyboard_handler = (e: KeyboardEvent) => {
+		if (this.state !== GameStatus.Active || this.is_paused) return;
+		switch (e.key) {
+			case "ArrowUp":
+				if (this.active_block?.rotateIfNotCollide(this.boards)) {
+					this.options.onRotate();
+				}
+				break;
+			case "ArrowDown":
+				if (this.active_block?.jump(this.boards)) {
+					this.options.onJump();
+				}
+				break;
+			case "ArrowLeft":
+				if (this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Left)) {
+					this.options.onMove();
+				}
+				break;
+			case "ArrowRight":
+				if (this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Right)) {
+					this.options.onMove();
+				}
+				break;
+			case " ":
+				if (this.active_block?.flipIfNotCollide(this.boards)) {
+					this.options.onFlip();
+				}
+				break;
+		}
+		this.draw();
+	};
 
 	constructor(options: GameOptions) {
 		this.renderer = new CanvasRenderer(options.game_container, {
@@ -57,12 +91,16 @@ export class Game {
 	}
 
 	start() {
+		this.is_paused = false;
 		this.bindEvents();
 		this.state = GameStatus.Active;
-		this.loop_timer = window.setTimeout(() => this.loop(), 0);
+		this.scheduleLoop(0);
 	}
 
 	restart() {
+		if (this.loop_timer) {
+			window.clearTimeout(this.loop_timer);
+		}
 		this.boards.forEach((row) => {
 			row.forEach((cell) => {
 				cell.length = 0;
@@ -74,22 +112,64 @@ export class Game {
 			this.block_queue.push(new (getRandomShape())());
 		}
 		this.state = GameStatus.Active;
-		this.loop_timer = window.setTimeout(() => this.loop(), 0);
+		this.is_paused = false;
+		this.bindEvents();
+		this.scheduleLoop(0);
 	}
 
 	stop() {
-		clearTimeout(this.loop_timer);
+		if (this.loop_timer) {
+			window.clearTimeout(this.loop_timer);
+		}
 		console.log("boards: ", this.boards);
 		console.log("active_block: ", this.active_block);
 		console.log("dead blocks: ", this.dead_blocks);
 	}
 
+	pause() {
+		if (this.is_paused) return;
+		this.is_paused = true;
+		if (this.loop_timer) {
+			window.clearTimeout(this.loop_timer);
+			this.loop_timer = undefined;
+		}
+		this.unbindEvents();
+	}
+
+	resume() {
+		if (!this.is_paused) return;
+		this.is_paused = false;
+		if (this.state === GameStatus.Active || this.state === GameStatus.MoveBoard || this.state === GameStatus.ExtendLife) {
+			this.bindEvents();
+			this.scheduleLoop(0);
+		}
+	}
+
+	getSnapshot(score: number, maxScore: number): GameSnapshot {
+		return {
+			version: 1,
+			score,
+			maxScore,
+			gameStatus: gameStatusToKey(this.state),
+			board: this.serializeBoard(),
+			activeBlock: this.serializeBlock(this.active_block),
+			nextBlocks: this.block_queue.slice(0, STAND_BY_COUNT).map((block) => this.serializeBlock(block) as SnapshotBlockData),
+			submittedAt: new Date().toISOString(),
+			viewport: {
+				width: window.innerWidth,
+				height: window.innerHeight
+			}
+		};
+	}
+
 	end() {
 		this.unbindEvents();
+		this.is_paused = false;
 		if (this.loop_timer) window.clearTimeout(this.loop_timer);
 	}
 
 	private loop() {
+		if (this.is_paused) return;
 		console.log("game loop: ", this.state);
 		switch (this.state) {
 			case GameStatus.NotStart:
@@ -131,7 +211,7 @@ export class Game {
 
 				if (position[1] <= ACTIVE_BOARD_ROWS - 1) {
 					this.state = GameStatus.ExtendLife;
-					this.loop_timer = window.setTimeout(() => this.loop(), 0);
+					this.scheduleLoop(0);
 					return;
 				} else {
 					const max_bevelled_square = findMaxValidBevelledSquare(this.boards, true);
@@ -150,7 +230,7 @@ export class Game {
 		}
 
 		this.draw();
-		this.loop_timer = window.setTimeout(() => this.loop(), GAME_INTERVAL_TIME);
+		this.scheduleLoop(GAME_INTERVAL_TIME);
 	}
 
 	private loopWhenMoveBoard() {
@@ -173,7 +253,7 @@ export class Game {
 				}
 			}
 		}
-		this.loop_timer = window.setTimeout(() => this.loop(), GAME_INTERVAL_TIME / GAME_MOVE_BOARD_MULTIPLIER);
+		this.scheduleLoop(GAME_INTERVAL_TIME / GAME_MOVE_BOARD_MULTIPLIER);
 	}
 
 	private loopWhenExtendLife() {
@@ -253,7 +333,7 @@ export class Game {
 			this.renderer.renderBlockEffect(this.boards, need_clear_blocks).then(() => {
 				console.log("finish animation end");
 				this.state = GameStatus.MoveBoard;
-				this.loop_timer = window.setTimeout(() => this.loop(), 0);
+				this.scheduleLoop(0);
 			});
 		});
 	}
@@ -280,7 +360,7 @@ export class Game {
 
 				this.renderer.renderBlockEffect(this.boards, other_clear_blocks).then(() => {
 					this.state = GameStatus.MoveBoard;
-					this.loop_timer = window.setTimeout(() => this.loop(), 0);
+					this.scheduleLoop(0);
 				});
 			});
 		});
@@ -319,44 +399,20 @@ export class Game {
 	}
 
 	private bindEvents() {
+		if (this.events_bound) return;
 		this.bindKeyboardEvents();
 		this.bindGamepadEvents();
+		this.events_bound = true;
 	}
 
-	private unbindEvents() {}
+	private unbindEvents() {
+		if (!this.events_bound) return;
+		document.removeEventListener("keydown", this.keyboard_handler);
+		this.events_bound = false;
+	}
 
 	private bindKeyboardEvents() {
-		document.addEventListener("keydown", (e) => {
-			if (this.state !== GameStatus.Active) return;
-			switch (e.key) {
-				case "ArrowUp":
-					if (this.active_block?.rotateIfNotCollide(this.boards)) {
-						this.options.onRotate();
-					}
-					break;
-				case "ArrowDown":
-					if (this.active_block?.jump(this.boards)) {
-						this.options.onJump();
-					}
-					break;
-				case "ArrowLeft":
-					if (this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Left)) {
-						this.options.onMove();
-					}
-					break;
-				case "ArrowRight":
-					if (this.active_block?.moveIfNotCollide(this.boards, MoveDirection.Right)) {
-						this.options.onMove();
-					}
-					break;
-				case " ":
-					if (this.active_block?.flipIfNotCollide(this.boards)) {
-						this.options.onFlip();
-					}
-					break;
-			}
-			this.draw();
-		});
+		document.addEventListener("keydown", this.keyboard_handler);
 	}
 
 	private bindGamepadEvents() {}
@@ -404,5 +460,30 @@ export class Game {
 			}
 		}
 		return result;
+	}
+
+	private scheduleLoop(delay: number) {
+		if (this.is_paused) return;
+		this.loop_timer = window.setTimeout(() => this.loop(), delay);
+	}
+
+	private serializeBoard(): SnapshotCell[][] {
+		return this.boards.map((row) =>
+			row.map((cell) =>
+				cell.map(({ value, block }) => ({
+					value,
+					color: block.getColor()
+				}))
+			)
+		);
+	}
+
+	private serializeBlock(block: Block | null): SnapshotBlockData | null {
+		if (!block) return null;
+		return {
+			shape: cloneShape(block.getShape()),
+			position: clonePosition(block.getPosition()),
+			color: block.getColor()
+		};
 	}
 }

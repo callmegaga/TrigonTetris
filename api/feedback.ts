@@ -1,5 +1,5 @@
 import type { GameSnapshot } from "../src/feedback/types";
-import { createFeedbackReport } from "./_lib/feedback-store";
+import { createFeedbackReport } from "./_lib/feedback-store.js";
 
 export async function POST(request: Request) {
 	try {

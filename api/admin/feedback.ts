@@ -1,5 +1,5 @@
 import type { FeedbackStatus } from "../../src/feedback/types";
-import { deleteFeedbackReport, getFeedbackReport, updateFeedbackStatus } from "../_lib/feedback-store";
+import { deleteFeedbackReport, getFeedbackReport, updateFeedbackStatus } from "../_lib/feedback-store.js";
 
 export async function GET(request: Request) {
 	const authError = ensureAdmin(request);

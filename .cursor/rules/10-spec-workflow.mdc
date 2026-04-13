@@ -1,0 +1,14 @@
+---
+description: Apply stricter workflow rules when editing specs or process docs
+globs:
+  - "specs/**/*.md"
+  - "docs/process/**/*.md"
+alwaysApply: false
+---
+
+When editing spec or process documents in this repository:
+
+- Keep terminology aligned with `AGENT.md` and `docs/process/README.md`
+- For multi-agent work, require `owner`, `write scope`, and `integrator` fields where applicable
+- Ensure acceptance language stays verifiable and maps to tests, harness, or explicit evidence
+- If a process change affects implementation order, confirmation gates, or tool usage, keep `AGENT.md`, process docs, and spec templates consistent

@@ -88,6 +88,8 @@
 - `Perfect BevelledSquare` 必须几何上恰好构成斜正方形
 - 边框必须包含指定方向的三角形
 - 边框格允许同时存在两个三角形，只要包含指定方向即可
+- 边框格存在两个三角形时，只覆盖构成该边框方向的 1 个 block，不覆盖同格中另一个非边框方向的三角 block
+- 边框格由 `Full` 构成时，覆盖该 `Full` 所属 block
 - 内部格必须几何上是满格
 - 内部满格允许由两个互补三角形拼成
 
@@ -95,10 +97,11 @@
 
 - 当落地结果越过可操作区域时，进入 `ExtendLife`
 - 搜索顺序固定为：
-  1. `BevelledSquare cover`
-  2. `Square cover`
-  3. 若都不存在则 `Fail`
+    1. `BevelledSquare cover`
+    2. `Square cover`
+    3. 若都不存在则 `Fail`
 - `Cover` 命中时清除参与该 cover 的 block
+- `BevelledSquare cover` 的边框 block 覆盖规则与 `Perfect BevelledSquare` 一致：双三角只覆盖构成边框方向的 1 个 block，`Full` 覆盖该 `Full` block
 - 当前版本 `Cover` 不作为常规得分来源
 
 ## 清除与扩散基线
@@ -143,7 +146,6 @@
 ## 已知待确认点
 
 - `MoveBoard` 稳定后是否应重新扫描 `Perfect BevelledSquare` 连锁，需要持续与实现保持对齐
-- `BevelledSquare` 边框格存在两个来自不同 block 的三角时，计分和清除是否都应覆盖两个 block，后续需要更细化需求规格
 
 ## 代码映射
 

@@ -351,39 +351,19 @@ export function getBevelledSquareColorsAndBlocks(boards: Board, bevelled_square:
 	for (let i = 0; i < size; i++) {
 		//	check left top border
 		let board_cell = boards[y + i][x - i];
-		board_cell.forEach((cell) => {
-			if (cell.value === CellValue.TriangleRightBottom) {
-				blocks.add(cell.block);
-				colors.add(cell.block.getColor());
-			}
-		});
+		collectBlocksFromBevelledBorderCell(board_cell, CellValue.TriangleRightBottom, blocks, colors);
 
 		//	check right top border
 		board_cell = boards[y + i][x + i + 1];
-		board_cell.forEach((cell) => {
-			if (cell.value === CellValue.TriangleLeftBottom) {
-				blocks.add(cell.block);
-				colors.add(cell.block.getColor());
-			}
-		});
+		collectBlocksFromBevelledBorderCell(board_cell, CellValue.TriangleLeftBottom, blocks, colors);
 
 		//	check left bottom border
 		board_cell = boards[y + 2 * size - 1 - i][x - i];
-		board_cell.forEach((cell) => {
-			if (cell.value === CellValue.TriangleRightTop) {
-				blocks.add(cell.block);
-				colors.add(cell.block.getColor());
-			}
-		});
+		collectBlocksFromBevelledBorderCell(board_cell, CellValue.TriangleRightTop, blocks, colors);
 
 		//	check right bottom border
 		board_cell = boards[y + 2 * size - 1 - i][x + i + 1];
-		board_cell.forEach((cell) => {
-			if (cell.value === CellValue.TriangleLeftTop) {
-				blocks.add(cell.block);
-				colors.add(cell.block.getColor());
-			}
-		});
+		collectBlocksFromBevelledBorderCell(board_cell, CellValue.TriangleLeftTop, blocks, colors);
 
 		//	check inside
 		if (i > 0) {
@@ -408,6 +388,14 @@ export function getBevelledSquareColorsAndBlocks(boards: Board, bevelled_square:
 		colors,
 		blocks
 	};
+}
+
+function collectBlocksFromBevelledBorderCell(board_cell: BoardCell, border_value: CellValue, blocks: Set<Block>, colors: Set<Color>) {
+	board_cell.forEach((cell) => {
+		if (cell.value !== border_value && cell.value !== CellValue.Full) return;
+		blocks.add(cell.block);
+		colors.add(cell.block.getColor());
+	});
 }
 
 export function getHistoryMaxScore() {

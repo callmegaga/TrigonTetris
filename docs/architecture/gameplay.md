@@ -26,7 +26,7 @@
 - `Perfect Square`: 几何上恰好构成的轴对齐正方形
 - `Perfect BevelledSquare`: 几何上恰好构成的斜正方形
 - `Cover`: 在 `ExtendLife` 阶段使用的较宽松判定
-- `Spread Light`: Perfect 消除后向上下左右扩散的清除光芒
+- `Spread Light`: Perfect 消除后向左右扩散的清除光芒
 
 ## 核心玩法循环
 
@@ -98,6 +98,13 @@
 - 边框格由 `Full` 构成时，覆盖该 `Full` 所属 block
 - 内部格必须几何上是满格
 - 内部满格允许由两个互补三角形拼成
+
+## 得分基线
+
+- 命中 `Perfect Square` 或 `Perfect BevelledSquare` 时，得分为 `面积 * 板块个数 * 10^(颜色数 - 2)`
+- `Perfect Square` 的面积为 `size * size`
+- `Perfect BevelledSquare` 的面积为覆盖它的外接轴对齐正方形面积，即 `4 * size * size`
+- `Cover` 不得分
 
 ## ExtendLife 基线
 

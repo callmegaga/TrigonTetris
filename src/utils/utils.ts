@@ -1,27 +1,5 @@
 import { type BevelledSquare, type Board, type BoardCell, CellValue, type Color, type NormalSquare, SquareType } from "@/game/types";
-import { Shape1 } from "@/game/blocks/shape-1";
-import { Shape2 } from "@/game/blocks/shape-2";
-import { Shape3 } from "@/game/blocks/shape-3";
-import { Shape4 } from "@/game/blocks/shape-4";
-import { Shape5 } from "@/game/blocks/shape-5";
-import { Shape6 } from "@/game/blocks/shape-6";
-import { Shape7 } from "@/game/blocks/shape-7";
 import type { Block } from "@/game/blocks/block";
-
-const ShapeTable: { new (): Block }[] = [Shape1, Shape2, Shape3, Shape4, Shape5, Shape6, Shape7];
-
-export function getRandomShape() {
-	// 概率5-4-4-1-3-3-5
-	const random = Math.random();
-	const sum = 5 + 4 + 4 + 1 + 3 + 3 + 5;
-	if (random <= 5 / sum) return ShapeTable[0];
-	if (random <= (5 + 4) / sum) return ShapeTable[1];
-	if (random <= (5 + 4 + 4) / sum) return ShapeTable[2];
-	if (random <= (5 + 4 + 4 + 1) / sum) return ShapeTable[3];
-	if (random <= (5 + 4 + 4 + 1 + 3) / sum) return ShapeTable[4];
-	if (random <= (5 + 4 + 4 + 1 + 3 + 3) / sum) return ShapeTable[5];
-	return ShapeTable[6];
-}
 
 export function buildShape(width: number, height: number) {
 	const shape = new Array(height);
@@ -75,21 +53,13 @@ export function isEmptyBoardCell(board_cell: BoardCell) {
 }
 
 export function calculateSquareScore(boards: Board, square: NormalSquare | BevelledSquare, is_perfect: boolean) {
-	if (is_perfect) {
-		if (square.type === SquareType.normal) {
-			const size = square.size;
-			const { colors, blocks } = getSquareColorsAndBlocks(boards, square);
-
-			return size * size * blocks.size * Math.pow(5, colors.size);
-		} else {
-			const size = square.size;
-			const { colors, blocks } = getBevelledSquareColorsAndBlocks(boards, square);
-
-			return Math.pow(2 * size * size, 2) * blocks.size * Math.pow(5, colors.size);
-		}
-	} else {
+	if (!is_perfect) {
 		return 0;
 	}
+	const { colors, blocks } = getSquareColorsAndBlocks(boards, square);
+	const area = getScoreArea(square);
+
+	return area * blocks.size * Math.pow(10, colors.size - 2);
 }
 
 export function isSquareValid(boards: Board, square: NormalSquare) {
@@ -191,6 +161,13 @@ function getSquareArea(square: NormalSquare | BevelledSquare) {
 		return square.size * square.size;
 	}
 	return 2 * square.size * square.size;
+}
+
+function getScoreArea(square: NormalSquare | BevelledSquare) {
+	if (square.type === SquareType.normal) {
+		return square.size * square.size;
+	}
+	return 4 * square.size * square.size;
 }
 
 function getSquareBottom(square: NormalSquare | BevelledSquare) {

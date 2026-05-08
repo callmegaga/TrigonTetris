@@ -3,7 +3,8 @@ import { type BevelledSquare, type Board, CellValue, GameStatus, MoveDirection, 
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas/renderer";
 import { NextRenderer } from "@/game/renderer/canvas/next_renderer";
-import { boardEraseBlock, calculateSquareScore, findBlocksInSpreadLight, findMaxValidBevelledSquare, findMaxValidSquare, getRandomShape, getSquareColorsAndBlocks, isBoardFirstNLineEmpty } from "@/utils/utils";
+import { boardEraseBlock, calculateSquareScore, findBlocksInSpreadLight, findMaxValidBevelledSquare, findMaxValidSquare, getSquareColorsAndBlocks, isBoardFirstNLineEmpty } from "@/utils/utils";
+import { getRandomShape } from "@/game/blocks/random-shape";
 import { ACTIVE_BOARD_ROWS, GAME_INTERVAL_TIME, GAME_MOVE_BOARD_MULTIPLIER, STAND_BY_COUNT } from "@/game/config";
 import { clonePosition, cloneShape, gameStatusToKey, type GameSnapshot, type SnapshotBlock as SnapshotBlockData, type SnapshotCell } from "@/feedback/types";
 

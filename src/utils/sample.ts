@@ -7,7 +7,7 @@ import { Shape5 } from "@/game/blocks/shape-5";
 import { Shape6 } from "@/game/blocks/shape-6";
 import { Shape7 } from "@/game/blocks/shape-7";
 
-function sample450() {
+function sample18() {
 	const sample: Block[] = [];
 	let shape = new Shape5();
 	shape.rotate();
@@ -22,11 +22,11 @@ function sample450() {
 	sample.push(shape);
 	return {
 		blocks: sample,
-		score: 450
+		score: 18
 	};
 }
 
-function sample1600() {
+function sample64() {
 	const sample: Block[] = [];
 	let shape = new Shape5();
 	shape.setPosition([0, 0]);
@@ -47,11 +47,11 @@ function sample1600() {
 	sample.push(shape);
 	return {
 		blocks: sample,
-		score: 1600
+		score: 64
 	};
 }
 
-function sample4800() {
+function sample48() {
 	const sample: Block[] = [];
 	let shape = new Shape2();
 	shape.rotate();
@@ -73,11 +73,11 @@ function sample4800() {
 
 	return {
 		blocks: sample,
-		score: 4800
+		score: 48
 	};
 }
 
-function sample10000_1() {
+function sample800_1() {
 	const sample: Block[] = [];
 	let shape = new Shape1();
 	shape.setPosition([0, 0]);
@@ -108,11 +108,11 @@ function sample10000_1() {
 
 	return {
 		blocks: sample,
-		score: 10000
+		score: 800
 	};
 }
 
-function sample10000_2() {
+function sample800_2() {
 	const sample: Block[] = [];
 	let shape = new Shape1();
 	shape.setPosition([0, 0]);
@@ -141,11 +141,11 @@ function sample10000_2() {
 
 	return {
 		blocks: sample,
-		score: 10000
+		score: 800
 	};
 }
 
-function sample21875() {
+function sample1750() {
 	const sample: Block[] = [];
 	let shape = new Shape7();
 	shape.rotate();
@@ -186,11 +186,11 @@ function sample21875() {
 
 	return {
 		blocks: sample,
-		score: 21875
+		score: 1750
 	};
 }
 
-function sample22500() {
+function sample3600() {
 	const sample: Block[] = [];
 	let shape = new Shape6();
 	shape.rotate();
@@ -215,11 +215,11 @@ function sample22500() {
 
 	return {
 		blocks: sample,
-		score: 22500
+		score: 3600
 	};
 }
 
-function sample24000() {
+function sample480() {
 	const sample: Block[] = [];
 	let shape = new Shape6();
 	shape.rotate();
@@ -238,11 +238,11 @@ function sample24000() {
 	sample.push(shape);
 	return {
 		blocks: sample,
-		score: 24000
+		score: 480
 	};
 }
 
-function sample125000() {
+function sample20000() {
 	const sample: Block[] = [];
 	let shape = new Shape7();
 	shape.rotate();
@@ -291,11 +291,11 @@ function sample125000() {
 	sample.push(shape);
 	return {
 		blocks: sample,
-		score: 125000
+		score: 20000
 	};
 }
 
-function sample243000() {
+function sample2160() {
 	const sample: Block[] = [];
 	let shape = new Shape7();
 	shape.setPosition([1, 0]);
@@ -328,11 +328,11 @@ function sample243000() {
 	sample.push(shape);
 	return {
 		blocks: sample,
-		score: 243000
+		score: 2160
 	};
 }
 
-function sample703125() {
+function sample225000() {
 	const sample: Block[] = [];
 	let shape = new Shape7();
 	shape.rotate();
@@ -380,12 +380,12 @@ function sample703125() {
 	shape.setPosition([4, 4]);
 	sample.push(shape);
 	return {
-		blocks:sample,
-		score: 703125
+		blocks: sample,
+		score: 225000
 	};
 }
 
-function sample3125000() {
+function sample2000000() {
 	const sample: Block[] = [];
 	let shape = new Shape5();
 	shape.setPosition([0, 0]);
@@ -425,11 +425,11 @@ function sample3125000() {
 	sample.push(shape);
 	return {
 		blocks: sample,
-		score: 3125000
+		score: 2000000
 	};
 }
 
-function sample176000000() {
+function sample704000() {
 	const sample: Block[] = [];
 	let shape = new Shape7();
 	shape.flip();
@@ -495,10 +495,10 @@ function sample176000000() {
 	sample.push(shape);
 	return {
 		blocks: sample,
-		score: 176000000
+		score: 704000
 	};
 }
 
 export function getSampleBlocks() {
-	return [sample450(), sample1600(), sample4800(), sample10000_1(), sample10000_2(), sample21875(), sample22500(), sample24000(), sample125000(), sample243000(), sample703125(), sample3125000(), sample176000000()];
+	return [sample18(), sample64(), sample48(), sample800_1(), sample800_2(), sample1750(), sample3600(), sample480(), sample20000(), sample2160(), sample225000(), sample2000000(), sample704000()];
 }

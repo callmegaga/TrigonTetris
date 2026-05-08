@@ -77,6 +77,12 @@
 - `Perfect BevelledSquare`: 几何上恰好成立的斜正方形
 - `Cover`: `ExtendLife` 阶段使用的较宽松判定
 
+## 图形候选选择基线
+
+- 同类型图形同时存在多个候选时，优先选择面积最大的候选
+- 同类型且同面积时，优先选择底边更靠下的候选
+- 上述规则同时适用于 `Perfect` 和 `Cover`
+
 ## Perfect Square 基线
 
 - `Perfect Square` 必须几何上构成完整轴对齐正方形

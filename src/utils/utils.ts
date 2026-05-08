@@ -142,12 +142,11 @@ export function findMaxValidSquare(boards: Board, is_perfect: boolean) {
 	const width = boards[0].length;
 
 	const square_table = findAllSquares(boards);
-	let max_square_size = 0;
 	let max_squares: NormalSquare | undefined = undefined;
 
 	for (let i = 0; i < height; i++) {
 		for (let j = 0; j < width; j++) {
-			for (let size = square_table[i][j]; size > max_square_size; size--) {
+			for (let size = square_table[i][j]; size > 0; size--) {
 				const square: NormalSquare = { type: SquareType.normal, size, bottom_right: [i, j] };
 				if (!isSquareValid(boards, square)) {
 					continue;
@@ -155,8 +154,9 @@ export function findMaxValidSquare(boards: Board, is_perfect: boolean) {
 				if (is_perfect && !isSquarePerfect(boards, square)) {
 					continue;
 				}
-				max_square_size = size;
-				max_squares = square;
+				if (!max_squares || compareSquarePriority(square, max_squares) > 0) {
+					max_squares = square;
+				}
 				break;
 			}
 		}
@@ -168,15 +168,36 @@ export function findMaxValidSquare(boards: Board, is_perfect: boolean) {
 export function findMaxValidBevelledSquare(boards: Board, is_perfect: boolean) {
 	const all_bevelled_square = findAllBevelledSquares(boards, is_perfect).filter((bevelled_square) => isBevelledSquareValid(boards, bevelled_square));
 	let max_squares: BevelledSquare | undefined = undefined;
-	let max_square_size = 0;
 
 	all_bevelled_square.forEach((bevelled_square) => {
-		if (bevelled_square.size > max_square_size) {
+		if (!max_squares || compareSquarePriority(bevelled_square, max_squares) > 0) {
 			max_squares = bevelled_square;
-			max_square_size = bevelled_square.size;
 		}
 	});
 	return max_squares;
+}
+
+function compareSquarePriority(left: NormalSquare | BevelledSquare, right: NormalSquare | BevelledSquare) {
+	const left_area = getSquareArea(left);
+	const right_area = getSquareArea(right);
+	if (left_area !== right_area) {
+		return left_area - right_area;
+	}
+	return getSquareBottom(left) - getSquareBottom(right);
+}
+
+function getSquareArea(square: NormalSquare | BevelledSquare) {
+	if (square.type === SquareType.normal) {
+		return square.size * square.size;
+	}
+	return 2 * square.size * square.size;
+}
+
+function getSquareBottom(square: NormalSquare | BevelledSquare) {
+	if (square.type === SquareType.normal) {
+		return square.bottom_right[0];
+	}
+	return square.top_left[0] + 2 * square.size - 1;
 }
 
 export function findAllBevelledSquares(boards: Board, is_perfect: boolean) {

@@ -1,9 +1,9 @@
 import type { Block } from "@/game/blocks/block";
-import { type BevelledSquare, type Board, CellValue, GameStatus, MoveDirection, type NormalSquare, SquareType } from "@/game/types";
+import { type BevelledSquare, type Board, CellValue, GameStatus, MoveDirection, type NormalSquare } from "@/game/types";
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas/renderer";
 import { NextRenderer } from "@/game/renderer/canvas/next_renderer";
-import { boardEraseBlock, calculateSquareScore, findMaxValidBevelledSquare, findMaxValidSquare, getBevelledSquareMaxSquare, getRandomShape, getSquareColorsAndBlocks, isBoardFirstNLineEmpty } from "@/utils/utils";
+import { boardEraseBlock, calculateSquareScore, findBlocksInSpreadLight, findMaxValidBevelledSquare, findMaxValidSquare, getRandomShape, getSquareColorsAndBlocks, isBoardFirstNLineEmpty } from "@/utils/utils";
 import { ACTIVE_BOARD_ROWS, GAME_INTERVAL_TIME, GAME_MOVE_BOARD_MULTIPLIER, STAND_BY_COUNT } from "@/game/config";
 import { clonePosition, cloneShape, gameStatusToKey, type GameSnapshot, type SnapshotBlock as SnapshotBlockData, type SnapshotCell } from "@/feedback/types";
 
@@ -333,7 +333,7 @@ export class Game {
 
 		this.renderer.renderBlockEffect(this.boards, need_clear_blocks).then(() => {
 			this.renderer.renderSpreadLight(this.boards, square).then(() => {
-				const other_clear_blocks = this.findBlocksInSpreadLight(square);
+				const other_clear_blocks = findBlocksInSpreadLight(this.boards, square);
 
 				this.clearBoardFromBlocks(other_clear_blocks);
 
@@ -411,36 +411,6 @@ export class Game {
 				});
 			});
 		});
-	}
-
-	private findBlocksInSpreadLight(square: NormalSquare | BevelledSquare) {
-		if (square.type === SquareType.bevelled) {
-			square = getBevelledSquareMaxSquare(square);
-		}
-		const {
-			size,
-			bottom_right: [bottom, right]
-		} = square;
-		const result: Set<Block> = new Set();
-
-		for (let y = 0; y < this.boards.length; y++) {
-			for (let x = right - size + 1; x <= right; x++) {
-				const cell = this.boards[y][x];
-				cell.forEach((block_cell) => {
-					result.add(block_cell.block);
-				});
-			}
-		}
-
-		for (let x = 0; x < this.boards[0].length; x++) {
-			for (let y = bottom - size + 1; y <= bottom; y++) {
-				const cell = this.boards[y][x];
-				cell.forEach((block_cell) => {
-					result.add(block_cell.block);
-				});
-			}
-		}
-		return result;
 	}
 
 	private scheduleLoop(delay: number) {

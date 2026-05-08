@@ -113,8 +113,9 @@
 ## 清除与扩散基线
 
 - 命中 `Perfect Square` 或 `Perfect BevelledSquare` 时，先清除组成图形的 block
-- 然后从该图形向上下左右发出与图形同宽的扩散光芒
-- 被光芒覆盖到的 block 会被整体清除
+- 然后从该图形向左右发出与图形同高的横向扩散光芒
+- 被横向光芒覆盖到的 block 会被整体清除
+- `Perfect BevelledSquare` 的横向光芒按其外接轴对齐正方形的高度计算
 - 清除完成后进入 `MoveBoard`
 
 ## MoveBoard 基线
@@ -141,7 +142,7 @@
 
 - Given: 一个合法 `Perfect` 图形已经被识别
 - When: 执行消除
-- Then: 先清除组成图形的 block，再按上下左右同宽光芒清除覆盖到的 block
+- Then: 先清除组成图形的 block，再按左右横向光芒清除覆盖到的 block
 
 ### Scenario 4: MoveBoard stability
 

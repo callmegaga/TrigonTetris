@@ -434,6 +434,27 @@ export function getBevelledSquareMaxSquare(bevelled_square: BevelledSquare): Nor
 	return { type: SquareType.normal, size: 2 * size, bottom_right: [y + 2 * size - 1, x + size] };
 }
 
+export function findBlocksInSpreadLight(boards: Board, square: NormalSquare | BevelledSquare) {
+	if (square.type === SquareType.bevelled) {
+		square = getBevelledSquareMaxSquare(square);
+	}
+	const {
+		size,
+		bottom_right: [bottom]
+	} = square;
+	const result: Set<Block> = new Set();
+
+	for (let x = 0; x < boards[0].length; x++) {
+		for (let y = bottom - size + 1; y <= bottom; y++) {
+			const cell = boards[y][x];
+			cell.forEach((block_cell) => {
+				result.add(block_cell.block);
+			});
+		}
+	}
+	return result;
+}
+
 export function getSquareCenterPixelPosition(square: NormalSquare | BevelledSquare, board_cell_size: number): [number, number] {
 	const result: [number, number] = [0, 0];
 

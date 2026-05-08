@@ -150,10 +150,8 @@ export class BlockEraseAnimation {
 export class SpreadLightAnimation {
 	private readonly ctx: CanvasRenderingContext2D;
 	private readonly step: number;
-	private up_light_rectangle: Rectangle;
 	private left_light_rectangle: Rectangle;
 	private right_light_rectangle: Rectangle;
-	private down_light_rectangle: Rectangle;
 
 	constructor(ctx: CanvasRenderingContext2D, square: NormalSquare, step: number, board_cell_size: number) {
 		this.ctx = ctx;
@@ -167,35 +165,26 @@ export class SpreadLightAnimation {
 		const left = (right_board - size + 1) * board_cell_size;
 		const top = (bottom_board - size + 1) * board_cell_size;
 		const right = (right_board + 1) * board_cell_size;
-		const bottom = (bottom_board + 1) * board_cell_size;
-		const width = size * board_cell_size;
 		const height = size * board_cell_size;
 
-		this.up_light_rectangle = [left, top - 1, width, 1];
 		this.left_light_rectangle = [left - 1, top, 1, height];
 		this.right_light_rectangle = [right, top, 1, height];
-		this.down_light_rectangle = [left, bottom, width, 1];
 	}
 
 	update() {
-		this.up_light_rectangle[1] -= this.step;
-		this.up_light_rectangle[3] += this.step;
 		this.left_light_rectangle[0] -= this.step;
 		this.left_light_rectangle[2] += this.step;
 		this.right_light_rectangle[2] += this.step;
-		this.down_light_rectangle[3] += this.step;
 	}
 
 	draw() {
 		this.ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
 
-		this.ctx.fillRect(...this.up_light_rectangle);
 		this.ctx.fillRect(...this.left_light_rectangle);
 		this.ctx.fillRect(...this.right_light_rectangle);
-		this.ctx.fillRect(...this.down_light_rectangle);
 	}
 
 	get isAnimationComplete() {
-		return this.up_light_rectangle[1] <= 0 && this.left_light_rectangle[0] <= 0 && this.right_light_rectangle[0] + this.right_light_rectangle[2] >= this.ctx.canvas.width && this.down_light_rectangle[3] + this.down_light_rectangle[1] >= this.ctx.canvas.height;
+		return this.left_light_rectangle[0] <= 0 && this.right_light_rectangle[0] + this.right_light_rectangle[2] >= this.ctx.canvas.width;
 	}
 }

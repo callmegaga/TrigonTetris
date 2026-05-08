@@ -22,13 +22,13 @@
 ## 当前项目约束
 
 - 包管理工具：`pnpm`
-- CI 平台：`GitLab`，使用 `.gitlab-ci.yml`
+- CI 平台：当前仓库未发现 `.gitlab-ci.yml` 或 `.github/workflows`，如需 CI 需另行配置
 - 默认验证命令：
   - `pnpm lint`
   - `pnpm type-check`
-  - `pnpm test`
+  - `pnpm test:unit`
   - `pnpm build`
-  - `pnpm exec playwright test`
+  - `pnpm test:e2e`
 
 ## 禁止事项
 

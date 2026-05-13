@@ -32,6 +32,10 @@ function calculateSampleScore(blocks: Block[]) {
 }
 
 describe("sample scores", () => {
+	it("uses the screenshot sample score list", () => {
+		expect(getSampleBlocks().map((sample) => sample.score)).toEqual([640, 64, 800, 48, 480, 200000, 2000000, 2160, 3600]);
+	});
+
 	it("matches the current perfect score formula", () => {
 		const mismatches = getSampleBlocks()
 			.map((sample, index) => ({

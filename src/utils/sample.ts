@@ -6,499 +6,83 @@ import { Shape4 } from "@/game/blocks/shape-4";
 import { Shape5 } from "@/game/blocks/shape-5";
 import { Shape6 } from "@/game/blocks/shape-6";
 import { Shape7 } from "@/game/blocks/shape-7";
+import type { Position } from "@/game/types";
 
-function sample18() {
-	const sample: Block[] = [];
-	let shape = new Shape5();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
+type ShapeConstructor = new () => Block;
 
-	shape = new Shape2();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
+function createBlock(Shape: ShapeConstructor, position: Position, transforms = "") {
+	const shape = new Shape();
+	for (const transform of transforms) {
+		if (transform === "r") shape.rotate();
+		if (transform === "f") shape.flip();
+	}
+	shape.setPosition(position);
+	return shape;
+}
+
+function sample640() {
 	return {
-		blocks: sample,
-		score: 18
+		blocks: [createBlock(Shape1, [0, 0], "r"), createBlock(Shape1, [0, 0], "rr"), createBlock(Shape5, [2, 0], "rrr"), createBlock(Shape7, [0, 2])],
+		score: 640
 	};
 }
 
 function sample64() {
-	const sample: Block[] = [];
-	let shape = new Shape5();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
-
-	shape = new Shape5();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([1, 1]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([0, 3]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([3, 0]);
-	sample.push(shape);
 	return {
-		blocks: sample,
+		blocks: [createBlock(Shape5, [0, 0], "r"), createBlock(Shape7, [1, 0], "rr"), createBlock(Shape7, [2, 0], "rf"), createBlock(Shape5, [0, 2], "f")],
 		score: 64
 	};
 }
 
-function sample48() {
-	const sample: Block[] = [];
-	let shape = new Shape2();
-	shape.rotate();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([0, 2]);
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.rotate();
-	shape.setPosition([2, 0]);
-	sample.push(shape);
-
+function sample800() {
 	return {
-		blocks: sample,
+		blocks: [createBlock(Shape1, [0, 0], "rr"), createBlock(Shape1, [2, 0], "rrr"), createBlock(Shape2, [0, 0]), createBlock(Shape2, [2, 2]), createBlock(Shape3, [0, 2])],
+		score: 800
+	};
+}
+
+function sample48() {
+	return {
+		blocks: [createBlock(Shape2, [0, 0], "rrr"), createBlock(Shape2, [0, 2], "rr"), createBlock(Shape1, [2, 0], "r")],
 		score: 48
 	};
 }
 
-function sample800_1() {
-	const sample: Block[] = [];
-	let shape = new Shape1();
-	shape.setPosition([0, 0]);
-	shape.rotate();
-	shape.rotate();
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.rotate();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([2, 0]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.flip();
-	shape.setPosition([1, 2]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([0, 3]);
-	sample.push(shape);
-
-	return {
-		blocks: sample,
-		score: 800
-	};
-}
-
-function sample800_2() {
-	const sample: Block[] = [];
-	let shape = new Shape1();
-	shape.setPosition([0, 0]);
-	shape.rotate();
-	shape.rotate();
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.rotate();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([2, 0]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.setPosition([2, 2]);
-	sample.push(shape);
-
-	shape = new Shape3();
-	shape.setPosition([0, 2]);
-	sample.push(shape);
-
-	return {
-		blocks: sample,
-		score: 800
-	};
-}
-
-function sample1750() {
-	const sample: Block[] = [];
-	let shape = new Shape7();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.setPosition([1, 0]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([3, 0]);
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([1, 2]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.flip();
-	shape.setPosition([3, 2]);
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.setPosition([0, 3]);
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.rotate();
-	shape.setPosition([0, 1]);
-	sample.push(shape);
-
-	return {
-		blocks: sample,
-		score: 1750
-	};
-}
-
-function sample3600() {
-	const sample: Block[] = [];
-	let shape = new Shape6();
-	shape.rotate();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.rotate();
-	shape.flip();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([0, 2]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.flip();
-	shape.setPosition([1, 1]);
-	sample.push(shape);
-
-	return {
-		blocks: sample,
-		score: 3600
-	};
-}
-
 function sample480() {
-	const sample: Block[] = [];
-	let shape = new Shape6();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([1, 2]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.setPosition([2, 0]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.flip();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
 	return {
-		blocks: sample,
+		blocks: [createBlock(Shape6, [1, 2], "rr"), createBlock(Shape2, [2, 0]), createBlock(Shape7, [0, 0], "rf")],
 		score: 480
 	};
 }
 
-function sample20000() {
-	const sample: Block[] = [];
-	let shape = new Shape7();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.setPosition([1, 0]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([3, 0]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.setPosition([0, 1]);
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([1, 2]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.flip();
-	shape.setPosition([3, 2]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.rotate();
-	shape.flip();
-	shape.setPosition([0, 4]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.flip();
-	shape.rotate();
-	shape.setPosition([1, 3]);
-	sample.push(shape);
+function sample200000() {
 	return {
-		blocks: sample,
-		score: 20000
-	};
-}
-
-function sample2160() {
-	const sample: Block[] = [];
-	let shape = new Shape7();
-	shape.setPosition([1, 0]);
-	sample.push(shape);
-
-	shape = new Shape6();
-	shape.rotate();
-	shape.setPosition([4, 1]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([0, 2]);
-	sample.push(shape);
-
-	shape = new Shape3();
-	shape.setPosition([2, 2]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([4, 3]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.setPosition([2, 4]);
-	shape.rotate();
-	shape.rotate();
-	sample.push(shape);
-	return {
-		blocks: sample,
-		score: 2160
-	};
-}
-
-function sample225000() {
-	const sample: Block[] = [];
-	let shape = new Shape7();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.setPosition([1, 0]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([3, 0]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.setPosition([0, 1]);
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([1, 2]);
-	sample.push(shape);
-
-	shape = new Shape6();
-	shape.rotate();
-	shape.flip();
-	shape.setPosition([3, 2]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([0, 4]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.flip();
-	shape.setPosition([1, 3]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([4, 4]);
-	sample.push(shape);
-	return {
-		blocks: sample,
-		score: 225000
+		blocks: [createBlock(Shape1, [0, 0], "r"), createBlock(Shape1, [0, 0], "rr"), createBlock(Shape6, [3, 0], "rrr"), createBlock(Shape4, [4, 0]), createBlock(Shape1, [1, 1]), createBlock(Shape7, [0, 3], "f"), createBlock(Shape1, [1, 3], "rr"), createBlock(Shape2, [3, 3], "rrr")],
+		score: 200000
 	};
 }
 
 function sample2000000() {
-	const sample: Block[] = [];
-	let shape = new Shape5();
-	shape.setPosition([0, 0]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([3, 0]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([4, 0]);
-	sample.push(shape);
-
-	shape = new Shape6();
-	shape.rotate();
-	shape.setPosition([1, 1]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.rotate();
-	shape.setPosition([3, 1]);
-	sample.push(shape);
-
-	shape = new Shape1();
-	shape.rotate();
-	shape.flip();
-	shape.setPosition([3, 1]);
-	sample.push(shape);
-
-	shape = new Shape3();
-	shape.setPosition([0, 3]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.flip();
-	shape.setPosition([2, 3]);
-	sample.push(shape);
 	return {
-		blocks: sample,
+		blocks: [createBlock(Shape7, [0, 0], "rr"), createBlock(Shape1, [1, 0]), createBlock(Shape2, [3, 0], "rr"), createBlock(Shape5, [0, 1], "rrrf"), createBlock(Shape1, [1, 2], "rr"), createBlock(Shape6, [3, 2], "rf"), createBlock(Shape7, [1, 3], "f"), createBlock(Shape4, [4, 4])],
 		score: 2000000
 	};
 }
 
-function sample704000() {
-	const sample: Block[] = [];
-	let shape = new Shape7();
-	shape.flip();
-	shape.setPosition([3, 0]);
-	sample.push(shape);
-
-	shape = new Shape6();
-	shape.rotate();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([2, 1]);
-	sample.push(shape);
-
-	shape = new Shape5();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([2, 2]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([5, 2]);
-	sample.push(shape);
-
-	shape = new Shape4();
-	shape.setPosition([5, 3]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.setPosition([6, 2]);
-	sample.push(shape);
-
-	shape = new Shape2();
-	shape.flip();
-	shape.setPosition([0, 2]);
-	sample.push(shape);
-
-	shape = new Shape6();
-	shape.rotate();
-	shape.rotate();
-	shape.flip();
-	shape.setPosition([0, 4]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([5, 4]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.rotate();
-	shape.rotate();
-	shape.flip();
-	shape.setPosition([4, 5]);
-	sample.push(shape);
-
-	shape = new Shape7();
-	shape.rotate();
-	shape.rotate();
-	shape.rotate();
-	shape.setPosition([2, 5]);
-	sample.push(shape);
+function sample2160() {
 	return {
-		blocks: sample,
-		score: 704000
+		blocks: [createBlock(Shape7, [1, 0]), createBlock(Shape6, [4, 1], "r"), createBlock(Shape7, [0, 2], "rrr"), createBlock(Shape3, [2, 2]), createBlock(Shape4, [4, 3]), createBlock(Shape7, [2, 4], "rr")],
+		score: 2160
+	};
+}
+
+function sample3600() {
+	return {
+		blocks: [createBlock(Shape6, [0, 0], "r"), createBlock(Shape7, [0, 0], "rrf"), createBlock(Shape4, [0, 2]), createBlock(Shape2, [1, 1], "f")],
+		score: 3600
 	};
 }
 
 export function getSampleBlocks() {
-	return [sample18(), sample64(), sample48(), sample800_1(), sample800_2(), sample1750(), sample3600(), sample480(), sample20000(), sample2160(), sample225000(), sample2000000(), sample704000()];
+	return [sample640(), sample64(), sample800(), sample48(), sample480(), sample200000(), sample2000000(), sample2160(), sample3600()];
 }

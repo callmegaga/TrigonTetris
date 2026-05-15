@@ -22,14 +22,14 @@ function createBlock(Shape: ShapeConstructor, position: Position, transforms = "
 
 function sample640() {
 	return {
-		blocks: [createBlock(Shape1, [0, 0], "r"), createBlock(Shape1, [0, 0], "rr"), createBlock(Shape5, [2, 0], "rrr"), createBlock(Shape7, [0, 2])],
+		blocks: [createBlock(Shape1, [2, 0], "rf"), createBlock(Shape1, [0, 0], "rr"), createBlock(Shape5, [0, 2]), createBlock(Shape7, [0, 0], "r")],
 		score: 640
 	};
 }
 
 function sample64() {
 	return {
-		blocks: [createBlock(Shape5, [0, 0], "r"), createBlock(Shape7, [1, 0], "rr"), createBlock(Shape7, [2, 0], "rf"), createBlock(Shape5, [0, 2], "f")],
+		blocks: [createBlock(Shape5, [0, 2]), createBlock(Shape5, [0, 0], "rr"), createBlock(Shape7, [0, 0], "r"), createBlock(Shape7, [2, 1], "rrr")],
 		score: 64
 	};
 }
@@ -57,14 +57,14 @@ function sample480() {
 
 function sample200000() {
 	return {
-		blocks: [createBlock(Shape1, [0, 0], "r"), createBlock(Shape1, [0, 0], "rr"), createBlock(Shape6, [3, 0], "rrr"), createBlock(Shape4, [4, 0]), createBlock(Shape1, [1, 1]), createBlock(Shape7, [0, 3], "f"), createBlock(Shape1, [1, 3], "rr"), createBlock(Shape2, [3, 3], "rrr")],
+		blocks: [createBlock(Shape1, [0, 1], "r"), createBlock(Shape1, [0, 3]), createBlock(Shape6, [3, 2], "rf"), createBlock(Shape4, [4, 4]), createBlock(Shape1, [1, 2], "rr"), createBlock(Shape7, [0, 0], "rr"), createBlock(Shape1, [1, 0]), createBlock(Shape2, [3, 0], "rr")],
 		score: 200000
 	};
 }
 
 function sample2000000() {
 	return {
-		blocks: [createBlock(Shape7, [0, 0], "rr"), createBlock(Shape1, [1, 0]), createBlock(Shape2, [3, 0], "rr"), createBlock(Shape5, [0, 1], "rrrf"), createBlock(Shape1, [1, 2], "rr"), createBlock(Shape6, [3, 2], "rf"), createBlock(Shape7, [1, 3], "f"), createBlock(Shape4, [4, 4])],
+		blocks: [createBlock(Shape7, [0, 0], "rr"), createBlock(Shape1, [1, 0]), createBlock(Shape2, [3, 0], "rr"), createBlock(Shape1, [1, 2], "rr"), createBlock(Shape6, [3, 2], "rf"), createBlock(Shape4, [4, 4]), createBlock(Shape5, [0, 3]), createBlock(Shape7, [0, 1], "r")],
 		score: 2000000
 	};
 }
@@ -83,6 +83,31 @@ function sample3600() {
 	};
 }
 
+function sample27() {
+	return {
+		blocks: [createBlock(Shape2, [1, 1], "f"), createBlock(Shape7, [0, 0], "r"), createBlock(Shape7, [0, 0], "rrf")],
+		score: 27
+	};
+}
+
+function sample6400000() {
+	return {
+		blocks: [
+			createBlock(Shape3, [4, 4]),
+			createBlock(Shape4, [4, 2]),
+			createBlock(Shape2, [6, 4], "r"),
+			createBlock(Shape2, [4, 6], "r"),
+			createBlock(Shape5, [4, 2]),
+			createBlock(Shape6, [4, 0], "r"),
+			createBlock(Shape7, [2, 0], "rf"),
+			createBlock(Shape1, [2, 4], "rf"),
+			createBlock(Shape1, [0, 4], "rr"),
+			createBlock(Shape5, [0, 2], "f")
+		],
+		score: 6400000
+	};
+}
+
 export function getSampleBlocks() {
-	return [sample640(), sample64(), sample800(), sample48(), sample480(), sample200000(), sample2000000(), sample2160(), sample3600()];
+	return [sample640(), sample64(), sample800(), sample48(), sample480(), sample200000(), sample2000000(), sample2160(), sample3600(), sample27(), sample6400000()];
 }

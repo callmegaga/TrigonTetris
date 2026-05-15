@@ -10,3 +10,4 @@ export const GAME_INTERVAL_TIME = 1000;
 export const GAME_MOVE_BOARD_MULTIPLIER = 8;
 export const BOARD_LIGHT_COLOR = "#2d3a4f";
 export const BOARD_DARK_COLOR = "#263244";
+export const BOARD_VERTICAL_GUIDE_COLOR = "rgba(148, 163, 184, 0.12)";

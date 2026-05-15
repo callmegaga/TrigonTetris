@@ -1,6 +1,6 @@
 import { type Board, type Position, CellValue, type NormalSquare, type BevelledSquare } from "@/game/types";
 import type { Block } from "@/game/blocks/block";
-import { BOARD_DARK_COLOR, BOARD_LIGHT_COLOR } from "@/game/config";
+import { BOARD_DARK_COLOR, BOARD_LIGHT_COLOR, BOARD_VERTICAL_GUIDE_COLOR } from "@/game/config";
 
 export function drawBoard(ctx: CanvasRenderingContext2D, board: Board, board_cell_size: number) {
 	board.forEach((row, y) => {
@@ -204,6 +204,20 @@ export function createBackground(width: number, height: number, board_cell_size:
 			ctx.fillRect(x, y, board_cell_size, board_cell_size); // 绘制方格
 		}
 	}
+
+	ctx.save();
+	ctx.strokeStyle = BOARD_VERTICAL_GUIDE_COLOR;
+	ctx.lineWidth = 1;
+
+	for (let x = board_cell_size; x < width; x += board_cell_size) {
+		const guide_x = Math.floor(x) + 0.5;
+		ctx.beginPath();
+		ctx.moveTo(guide_x, 0);
+		ctx.lineTo(guide_x, height);
+		ctx.stroke();
+	}
+
+	ctx.restore();
 
 	return canvas;
 }

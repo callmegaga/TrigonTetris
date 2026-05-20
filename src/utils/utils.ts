@@ -147,6 +147,49 @@ export function findMaxValidBevelledSquare(boards: Board, is_perfect: boolean) {
 	return max_squares;
 }
 
+export function findBestPerfectSquare(boards: Board) {
+	let best_square: NormalSquare | BevelledSquare | undefined = undefined;
+
+	function updateBestSquare(square: NormalSquare | BevelledSquare) {
+		if (!best_square || comparePerfectSquarePriority(boards, square, best_square) > 0) {
+			best_square = square;
+		}
+	}
+
+	const square_table = findAllSquares(boards);
+	for (let i = 0; i < boards.length; i++) {
+		for (let j = 0; j < boards[i].length; j++) {
+			for (let size = square_table[i][j]; size > 0; size--) {
+				const square: NormalSquare = { type: SquareType.normal, size, bottom_right: [i, j] };
+				if (!isSquareValid(boards, square)) {
+					continue;
+				}
+				if (!isSquarePerfect(boards, square)) {
+					continue;
+				}
+				updateBestSquare(square);
+			}
+		}
+	}
+
+	findAllBevelledSquares(boards, true)
+		.filter((bevelled_square) => isBevelledSquareValid(boards, bevelled_square))
+		.forEach((bevelled_square) => {
+			updateBestSquare(bevelled_square);
+		});
+
+	return best_square;
+}
+
+function comparePerfectSquarePriority(boards: Board, left: NormalSquare | BevelledSquare, right: NormalSquare | BevelledSquare) {
+	const left_score = calculateSquareScore(boards, left, true);
+	const right_score = calculateSquareScore(boards, right, true);
+	if (left_score !== right_score) {
+		return left_score - right_score;
+	}
+	return compareSquarePriority(left, right);
+}
+
 function compareSquarePriority(left: NormalSquare | BevelledSquare, right: NormalSquare | BevelledSquare) {
 	const left_area = getSquareArea(left);
 	const right_area = getSquareArea(right);

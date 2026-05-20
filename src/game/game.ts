@@ -3,7 +3,7 @@ import { type BevelledSquare, type Board, CellValue, GameStatus, MoveDirection, 
 import { Renderer } from "@/game/renderer/renderer";
 import { CanvasRenderer } from "@/game/renderer/canvas/renderer";
 import { NextRenderer } from "@/game/renderer/canvas/next_renderer";
-import { boardEraseBlock, calculateSquareScore, findBlocksInSpreadLight, findMaxValidBevelledSquare, findMaxValidSquare, getSquareColorsAndBlocks, isBoardFirstNLineEmpty } from "@/utils/utils";
+import { boardEraseBlock, calculateSquareScore, findBestPerfectSquare, findBlocksInSpreadLight, findMaxValidBevelledSquare, findMaxValidSquare, getSquareColorsAndBlocks, isBoardFirstNLineEmpty } from "@/utils/utils";
 import { getRandomShape } from "@/game/blocks/random-shape";
 import { ACTIVE_BOARD_ROWS, GAME_INTERVAL_TIME, GAME_MOVE_BOARD_MULTIPLIER, STAND_BY_COUNT } from "@/game/config";
 import { clonePosition, cloneShape, gameStatusToKey, type GameSnapshot, type SnapshotBlock as SnapshotBlockData, type SnapshotCell } from "@/feedback/types";
@@ -205,15 +205,9 @@ export class Game {
 					this.scheduleLoop(0);
 					return;
 				} else {
-					const max_bevelled_square = findMaxValidBevelledSquare(this.boards, true);
-					if (max_bevelled_square) {
-						this.onPerfectSquareFind(max_bevelled_square);
-						return;
-					}
-
-					const max_square = findMaxValidSquare(this.boards, true);
-					if (max_square) {
-						this.onPerfectSquareFind(max_square);
+					const best_perfect_square = findBestPerfectSquare(this.boards);
+					if (best_perfect_square) {
+						this.onPerfectSquareFind(best_perfect_square);
 						return;
 					}
 				}

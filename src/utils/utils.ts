@@ -147,7 +147,7 @@ export function findMaxValidBevelledSquare(boards: Board, is_perfect: boolean) {
 	return max_squares;
 }
 
-export function findBestPerfectSquare(boards: Board) {
+export function findBestPerfectSquare(boards: Board): NormalSquare | BevelledSquare | undefined {
 	let best_square: NormalSquare | BevelledSquare | undefined = undefined;
 
 	function updateBestSquare(square: NormalSquare | BevelledSquare) {

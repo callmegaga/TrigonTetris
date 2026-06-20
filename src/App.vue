@@ -14,7 +14,7 @@
 			<div class="game" id="game"></div>
 		</section>
 		<aside class="sample-panel">
-			<game-sample-canvas class="game-sample" id="sample" />
+			<game-sample-canvas class="game-sample" id="sample" :cell-size="cell_size" />
 		</aside>
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
@@ -357,10 +357,11 @@ main {
 
 	.sample-panel {
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		justify-content: flex-start;
 		overflow: auto;
 		padding-left: clamp(0px, 1vw, 12px);
+		padding-block: 12px;
 		box-sizing: border-box;
 	}
 
@@ -375,7 +376,7 @@ main {
 	}
 
 	.game-sample {
-		width: 100%;
+		min-width: 100%;
 	}
 }
 

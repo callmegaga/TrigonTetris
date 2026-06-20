@@ -14,6 +14,15 @@ import { getSampleBlocks } from "@/utils/sample";
 
 let renderer: SampleRenderer;
 
+const props = withDefaults(
+	defineProps<{
+		cellSize?: number;
+	}>(),
+	{
+		cellSize: 30
+	}
+);
+
 interface SampleImages {
 	images: string;
 	score: number;
@@ -24,7 +33,7 @@ const all_samples = getSampleBlocks();
 const sample_images = ref<SampleImages[]>([]);
 
 onMounted(() => {
-	renderer = new SampleRenderer(30);
+	renderer = new SampleRenderer(props.cellSize);
 	sample_images.value = all_samples.map((sample) => {
 		return {
 			images: renderer.drawSample(sample.blocks),
@@ -36,31 +45,43 @@ onMounted(() => {
 
 <style scoped>
 .sample-wrapper {
-	display: grid;
+	display: flex;
+	flex-wrap: wrap;
 	width: 100%;
-	grid-template-columns: repeat(auto-fill, minmax(84px, 88px));
 	justify-content: center;
-	align-content: center;
-	align-items: start;
-	gap: 12px;
+	align-content: flex-start;
+	align-items: flex-start;
+	gap: 16px;
 
 	.sample {
-		min-width: 0;
+		flex: 0 0 auto;
+		position: relative;
+		width: max-content;
 
 		.img {
-			width: 100%;
-			max-width: 88px;
+			width: auto;
+			max-width: none;
 			height: auto;
 			display: block;
 			margin: 0 auto;
 		}
 
 		.score {
-			margin: 4px 0 0;
-			color: #dddddd;
-			font-size: clamp(12px, 0.9vw, 14px);
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			margin: 0;
+			padding: 3px 7px;
+			border-radius: 999px;
+			background: rgba(15, 23, 42, 0.72);
+			color: #ffffff;
+			font-size: clamp(11px, 0.9vw, 14px);
+			font-weight: 700;
 			line-height: 1.2;
+			white-space: nowrap;
 			overflow-wrap: anywhere;
+			pointer-events: none;
 		}
 	}
 }

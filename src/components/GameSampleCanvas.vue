@@ -1,5 +1,6 @@
 <template>
-	<div class="sample-wrapper">
+	<sample-intro-animation v-if="is_playing_intro" :key="playIntroToken" :cell-size="cellSize" @complete="onIntroComplete" />
+	<div v-else-if="!hideSamples" class="sample-wrapper">
 		<div class="sample" v-for="(sample, index) in sample_images" :key="index">
 			<img class="img" :src="sample.images" :alt="sample.score.toString()" />
 			<p class="score">{{ `${sample.score}分` }}</p>
@@ -8,20 +9,29 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
+import SampleIntroAnimation from "@/components/SampleIntroAnimation.vue";
 import { SampleRenderer } from "@/game/renderer/canvas/sample_renderer";
 import { getSampleBlocks } from "@/utils/sample";
 
 let renderer: SampleRenderer;
+let active_intro_token = 0;
 
 const props = withDefaults(
 	defineProps<{
 		cellSize?: number;
+		playIntroToken?: number;
+		hideSamples?: boolean;
 	}>(),
 	{
-		cellSize: 30
+		cellSize: 30,
+		playIntroToken: 0,
+		hideSamples: false
 	}
 );
+const emit = defineEmits<{
+	sampleIntroComplete: [];
+}>();
 
 interface SampleImages {
 	images: string;
@@ -31,6 +41,7 @@ interface SampleImages {
 const all_samples = getSampleBlocks();
 
 const sample_images = ref<SampleImages[]>([]);
+const is_playing_intro = ref(false);
 
 onMounted(() => {
 	renderer = new SampleRenderer(props.cellSize);
@@ -41,6 +52,26 @@ onMounted(() => {
 		};
 	});
 });
+
+watch(
+	() => props.playIntroToken,
+	(token, previous_token) => {
+		if (token === 0 || token === previous_token) return;
+		playIntro(token);
+	}
+);
+
+function playIntro(token: number) {
+	active_intro_token = token;
+	is_playing_intro.value = true;
+}
+
+async function onIntroComplete() {
+	if (active_intro_token !== props.playIntroToken) return;
+	is_playing_intro.value = false;
+	await nextTick();
+	emit("sampleIntroComplete");
+}
 </script>
 
 <style scoped>

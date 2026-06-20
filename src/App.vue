@@ -14,10 +14,10 @@
 			<div class="game" id="game"></div>
 		</section>
 		<aside class="sample-panel">
-			<game-sample-canvas class="game-sample" id="sample" :cell-size="cell_size" />
+			<game-sample-canvas class="game-sample" id="sample" :cell-size="cell_size" :play-intro-token="sample_intro_token" :hide-samples="is_welcome_leaving" @sample-intro-complete="startGameLoop" />
 		</aside>
 	</main>
-	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
+	<the-welcome v-if="is_show_welcome" class="welcome" :is-leaving="is_welcome_leaving" :translate-x="welcome_transition.translateX" :translate-y="welcome_transition.translateY" :scale="welcome_transition.scale" @start="startWelcomeTransition" @transition-complete="startSampleIntro" />
 	<game-over v-if="is_game_over" />
 	<score-tooltip :score="new_score" :left="new_score_left" :top="new_score_top" />
 	<bug-feedback-modal v-if="is_feedback_modal_open" :description="feedback_description" :submitting="is_feedback_submitting" :message="feedback_message" :is-error="is_feedback_error" :can-submit="feedback_description.trim().length <= 100" :remaining="100 - feedback_description.length" @close="closeFeedbackModal" @submit="submitFeedback" @update:description="feedback_description = $event" />
@@ -52,6 +52,13 @@ const is_feedback_submitting = ref(false);
 const is_feedback_error = ref(false);
 const feedback_description = ref("");
 const feedback_message = ref("");
+const sample_intro_token = ref(0);
+const is_welcome_leaving = ref(false);
+const welcome_transition = ref({
+	translateX: 0,
+	translateY: 0,
+	scale: 0.28
+});
 
 let game: Game | null = null;
 
@@ -110,11 +117,21 @@ function introStart() {
 	});
 }
 
-function startGame() {
+function startWelcomeTransition() {
+	welcome_transition.value = getWelcomeTransition();
+	is_welcome_leaving.value = true;
+}
+
+function startSampleIntro() {
 	is_show_welcome.value = false;
+	is_welcome_leaving.value = false;
 	introStart().then(() => {
-		game?.start();
+		sample_intro_token.value++;
 	});
+}
+
+function startGameLoop() {
+	game?.start();
 }
 
 const board_rows = GAME_BOARD_ROW + ACTIVE_BOARD_ROWS;
@@ -278,6 +295,34 @@ function getCellSize(dom_width: number, dom_height: number, columns: number, row
 	const cell_height = Math.floor(available_height / rows);
 
 	return Math.max(min_cell_size, Math.min(cell_width, cell_height));
+}
+
+function getWelcomeTransition() {
+	const welcome_element = document.querySelector(".welcome") as HTMLElement | null;
+	const sample_element = document.querySelector("#sample") as HTMLElement | null;
+	if (!welcome_element || !sample_element) {
+		return {
+			translateX: 0,
+			translateY: 0,
+			scale: 0.18
+		};
+	}
+
+	const welcome_rect = welcome_element.getBoundingClientRect();
+	const sample_rect = sample_element.getBoundingClientRect();
+	const target_width = Math.min(sample_rect.width, cell_size * 8);
+	const target_height = cell_size * 6;
+	const scale = Math.max(0.08, Math.min(target_width / welcome_rect.width, target_height / welcome_rect.height));
+	const welcome_center_x = welcome_rect.left + welcome_rect.width / 2;
+	const welcome_center_y = welcome_rect.top + welcome_rect.height / 2;
+	const sample_center_x = sample_rect.left + sample_rect.width / 2;
+	const sample_intro_center_y = sample_rect.top + target_height / 2 + 8;
+
+	return {
+		translateX: sample_center_x - welcome_center_x,
+		translateY: sample_intro_center_y - welcome_center_y,
+		scale
+	};
 }
 
 onUnmounted(() => {

@@ -7,6 +7,13 @@
 - 当前状态：approved
 - 最后更新：2026-06-20
 
+## 2026-06-20 补充约束
+
+- sample intro 的 block 飞行阶段，每个移动 block 必须保持起飞时的原始几何形状、宽高和占格 footprint。
+- block 在飞行过程中只允许平移，不允许旋转、对翻、bbox 变化、缩放、拉伸、压扁或形变。
+- 目标旋转/对翻状态只能在 block 到达落点并成为已落位 split block 后出现。
+- sample intro 播放完成后写入独立的本地标记 `is_show_sample_intro`；后续进入游戏如果已经存在该标记，不再播放 sample intro，直接显示 samples 并启动游戏。
+
 ## 问题定义
 
 游戏开始前的视频展示了 block 变化和“鱼吃东西”的规则意象，但进入正式游戏后右侧 samples 直接显示静态示例，缺少从视频演示到真实游戏规则的过渡。本功能要求在正式开局前先在 samples 区播放一次简化 block 动画，等完整 samples 恢复显示后再开始游戏。
@@ -22,18 +29,19 @@
 ### 主流程
 
 1. 用户点击欢迎页进入游戏。
-2. 现有 intro.js 引导流程按原逻辑执行。
-3. `App.vue` 计算欢迎视频区域到 `#sample` 区域的目标位移和缩放。
-4. 欢迎页视频先通过缩小、透明度变化和位移动画过渡到 samples 区位置。
-5. 视频过渡期间，右侧 samples 列表暂不显示，避免在过渡过程中提前露出静态 samples。
-6. 视频过渡完成后，`TheWelcome` 发出完成事件，`App.vue` 隐藏欢迎页。
-7. 现有 intro.js 引导流程按原逻辑执行。
-8. `App.vue` 更新 samples intro 播放 token，但暂不调用 `game.start()`。
-9. `GameSampleCanvas` 收到新 token 后隐藏 samples 列表，显示独立的 `SampleIntroAnimation` 组件。
-10. 动画用棋盘相同 `cellSize` 绘制格子和 block，分阶段表现目标、追逐、覆盖、成形、消除。
-11. `SampleIntroAnimation` 播放完成后发出完成事件，`GameSampleCanvas` 自动隐藏动画组件并恢复完整 samples 列表。
-12. `GameSampleCanvas` 等待 samples DOM 更新完成后通知 `App.vue`。
-13. `App.vue` 收到完成事件后正式调用 `game.start()`。
+2. `App.vue` 计算欢迎视频区域到 `#sample` 区域的目标位移和缩放。
+3. 欢迎页视频先通过缩小、透明度变化和位移动画过渡到 samples 区位置。
+4. 视频过渡期间，右侧 samples 列表暂不显示，避免在过渡过程中提前露出静态 samples。
+5. 视频过渡完成后，`TheWelcome` 发出完成事件，`App.vue` 隐藏欢迎页。
+6. 现有 intro.js 引导流程按原逻辑执行。
+7. `App.vue` 更新 samples intro 播放 token，但暂不调用 `game.start()`。
+8. `GameSampleCanvas` 收到新 token 后隐藏 samples 列表，显示独立的 `SampleIntroAnimation` 组件。
+9. 动画用棋盘相同 `cellSize` 绘制格子和 block，先在动画区域中下方展示 `main_square`，上方左侧和右侧分别预留 `split_square_1`、`split_square_2` 的落位区域但不显示 blocks。
+10. `split_square_1` 需要的 block 从 `main_square` 原位置飞出，飞行中只做平移，保持起飞时的形状、宽高和占格 footprint；落位后才切换为 `split_square_1` 对应的旋转/对翻状态。
+11. `split_square_1` 拼完成后，`main_square` 中剩余 block 继续飞出，飞行中只做平移，保持起飞时的形状、宽高和占格 footprint；落位后才切换为 `split_square_2` 对应的旋转/对翻状态。
+12. `split_square_2` 拼完成后，`SampleIntroAnimation` 发出完成事件，`GameSampleCanvas` 自动隐藏动画组件并恢复完整 samples 列表。
+13. `GameSampleCanvas` 等待 samples DOM 更新完成后通知 `App.vue`。
+14. `App.vue` 收到完成事件后正式调用 `game.start()`。
 
 ### 异常流程
 
@@ -41,6 +49,7 @@
 2. 如果播放期间收到新的 `playIntroToken`，当前动画应取消并从头播放新动画。
 3. 如果找不到 `#sample` 或欢迎视频 DOM，过渡动画应使用居中缩小淡出兜底，避免卡住进入游戏。
 4. 组件卸载时应取消 `requestAnimationFrame` 和计时器，避免卸载后继续更新 DOM。
+5. 如果 `is_show_sample_intro` 已存在，`App.vue` 不触发新的 `playIntroToken`，`GameSampleCanvas` 直接显示 samples，游戏直接开始。
 
 ### 空状态/加载态/错误态
 
@@ -85,7 +94,7 @@
 
 ## 验收标准
 
-- [ ] 点击欢迎页并完成/跳过引导后，正式开局前会触发 samples 区动画。
+- [ ] 点击欢迎页并完成或跳过引导后，正式开局前会触发 samples 区动画。
 - [ ] sample intro 播放期间游戏不开始下落。
 - [ ] sample intro 结束且完整 samples 列表显示后，游戏才正式开始。
 - [ ] 点击欢迎页后，欢迎视频先缩小、淡出并位移到 samples 区域。
@@ -93,6 +102,13 @@
 - [ ] 视频过渡期间不提前露出完整 samples 列表。
 - [ ] 动画播放期间不显示完整 samples 列表。
 - [ ] 动画使用与棋盘一致的 `cellSize` 绘制。
+- [ ] 动画先在中下方显示完整 `main_square`，上方不显示 `split_square_1` 和 `split_square_2` blocks。
+- [ ] `split_square_1` 位于上方左侧，`split_square_2` 位于上方右侧。
+- [ ] `split_square_1` 的 block 从 `main_square` 飞出，飞行过程中只做平移且保持起飞时形状和占格 footprint，落位后才切换为目标旋转/对翻状态。
+- [ ] `split_square_1` 完成后，剩余 block 继续飞出，飞行过程中只做平移且保持起飞时形状和占格 footprint，落位后才切换为目标旋转/对翻状态。
+- [ ] sample intro block 飞行过程中没有缩放、拉伸、压扁、变形、对翻或旋转。
+- [ ] sample intro 首次完整播放完成后写入 `is_show_sample_intro` 本地标记。
+- [ ] 已经看过 sample intro 后再次进入游戏，不显示 sample intro canvas，直接显示完整 samples 并启动游戏。
 - [ ] 动画结束后自动显示完整 samples 列表。
 - [ ] 重复触发播放 token 时不会留下多个动画循环。
 - [ ] lint、type-check、build 通过。

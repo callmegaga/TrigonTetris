@@ -10,7 +10,7 @@ import type { Position } from "@/game/types";
 
 type ShapeConstructor = new () => Block;
 
-function createBlock(Shape: ShapeConstructor, position: Position, transforms = "") {
+export function createBlock(Shape: ShapeConstructor, position: Position, transforms = "") {
 	const shape = new Shape();
 	for (const transform of transforms) {
 		if (transform === "r") shape.rotate();

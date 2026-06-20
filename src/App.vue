@@ -14,7 +14,7 @@
 			<div class="game" id="game"></div>
 		</section>
 		<aside class="sample-panel">
-			<game-sample-canvas class="game-sample" id="sample" :cell-size="cell_size" :play-intro-token="sample_intro_token" :hide-samples="is_welcome_leaving" @sample-intro-complete="startGameLoop" />
+			<game-sample-canvas class="game-sample" id="sample" :cell-size="cell_size" :play-intro-token="sample_intro_token" :hide-samples="is_welcome_leaving" @sample-intro-complete="onSampleIntroComplete" />
 		</aside>
 	</main>
 	<the-welcome v-if="is_show_welcome" class="welcome" :is-leaving="is_welcome_leaving" :translate-x="welcome_transition.translateX" :translate-y="welcome_transition.translateY" :scale="welcome_transition.scale" @start="startWelcomeTransition" @transition-complete="startSampleIntro" />
@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import TheWelcome from "@/components/TheWelcome.vue";
 import { Game, ScoreType } from "@/game/game";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import GameSampleCanvas from "@/components/GameSampleCanvas.vue";
 import GameScore from "@/components/GameScore.vue";
 import { ACTIVE_BOARD_ROWS, GAME_BOARD_COL, GAME_BOARD_ROW, MAX_SHAPE_SIZE, STAND_BY_COUNT } from "@/game/config";
@@ -61,6 +61,7 @@ const welcome_transition = ref({
 });
 
 let game: Game | null = null;
+const SAMPLE_INTRO_STORAGE_KEY = "is_show_sample_intro";
 
 function introStart() {
 	return new Promise<void>((resolve) => {
@@ -126,12 +127,23 @@ function startSampleIntro() {
 	is_show_welcome.value = false;
 	is_welcome_leaving.value = false;
 	introStart().then(() => {
+		if (localStorage.getItem(SAMPLE_INTRO_STORAGE_KEY)) {
+			nextTick(() => {
+				startGameLoop();
+			});
+			return;
+		}
 		sample_intro_token.value++;
 	});
 }
 
 function startGameLoop() {
 	game?.start();
+}
+
+function onSampleIntroComplete() {
+	localStorage.setItem(SAMPLE_INTRO_STORAGE_KEY, "true");
+	startGameLoop();
 }
 
 const board_rows = GAME_BOARD_ROW + ACTIVE_BOARD_ROWS;

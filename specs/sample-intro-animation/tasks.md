@@ -29,7 +29,7 @@
 - 任务 ID：SAMPLE-INTRO-ANIMATION-2
 - 名称：实现动画绘制器
 - Owner：Codex
-- 说明：新增 sample intro canvas renderer，复用现有 grid/block 绘制工具，按时间轴绘制简化鱼吃东西规则动画。
+- 说明：新增 sample intro canvas renderer，复用现有 grid/block 绘制工具，按时间轴绘制 `main_square` 拆分并拼成 `split_square_1`、`split_square_2` 的过程。
 - 写入范围：`src/game/renderer/canvas/sample_intro_renderer.ts`
 - 读取依赖：`src/game/renderer/canvas/utils.ts`、`src/game/types.ts`
 - 输入：任务 1 spec
@@ -59,7 +59,7 @@
 - 任务 ID：SAMPLE-INTRO-ANIMATION-4
 - 名称：接入欢迎视频过渡与正式开局触发点
 - Owner：Codex
-- 说明：点击欢迎页后先播放视频缩小、淡出、位移到 samples 区的过渡；过渡完成后隐藏欢迎页并触发 sample intro；sample intro 完成并恢复 samples 后再调用 `game.start()`。
+- 说明：点击欢迎页后先播放视频缩小、淡出、位移到 samples 区的过渡；过渡完成后隐藏欢迎页；首次进入时触发 sample intro 并在完成后恢复 samples、写入已看标记再调用 `game.start()`，已经看过 sample intro 时直接显示 samples 并开始游戏。
 - 写入范围：`src/App.vue`、`src/components/TheWelcome.vue`、`src/components/GameSampleCanvas.vue`
 - 读取依赖：任务 3
 - 输入：GameSampleCanvas prop
@@ -67,7 +67,7 @@
 - 依赖：任务 3
 - 验证命令：`node_modules\\.bin\\eslint.CMD src\\App.vue src\\components\\TheWelcome.vue`
 - 交接产物：代码修改
-- 完成标准：点击欢迎页先播放视频过渡，过渡完成后触发 sample intro，sample intro 结束并恢复 samples 后正式开局。
+- 完成标准：点击欢迎页先播放视频过渡；首次进入时过渡完成后触发 sample intro，sample intro 结束并恢复 samples 后正式开局；已看过 sample intro 后再次进入时跳过 sample intro 并直接开局。
 
 ### 任务 5
 

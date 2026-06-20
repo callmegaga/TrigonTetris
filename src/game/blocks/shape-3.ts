@@ -8,6 +8,6 @@ export class Shape3 extends Block {
 			[CellValue.Full, CellValue.Full]
 		];
 
-		super(shape, "#a6a6a6");
+		super(shape, "#5d2e8c");
 	}
 }

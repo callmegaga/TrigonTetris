@@ -1,40 +1,35 @@
 <template>
-	<main>
+	<main :style="layout_style">
 		<button v-if="!is_show_welcome" type="button" class="bug-feedback-button" @click="openFeedbackModal">BUG反馈</button>
-		<div class="controller-and-score">
-			<game-score :score="score" :max-score="max_score" id="score" />
-			<game-keyboard class="game-controller" id="keyboard" />
-		</div>
-		<div class="game" id="game"></div>
-		<div class="next-and-sample">
-			<div id="next"></div>
+		<aside class="left-panel">
+			<div class="left-panel-content">
+				<game-score :score="score" :max-score="max_score" id="score" />
+				<div class="next-panel">
+					<div id="next"></div>
+				</div>
+				<game-keyboard class="game-controller" id="keyboard" />
+			</div>
+		</aside>
+		<section class="board-panel">
+			<div class="game" id="game"></div>
+		</section>
+		<aside class="sample-panel">
 			<game-sample-canvas class="game-sample" id="sample" />
-		</div>
+		</aside>
 	</main>
 	<the-welcome v-if="is_show_welcome" @click="startGame" class="welcome" />
 	<game-over v-if="is_game_over" />
 	<score-tooltip :score="new_score" :left="new_score_left" :top="new_score_top" />
-	<bug-feedback-modal
-		v-if="is_feedback_modal_open"
-		:description="feedback_description"
-		:submitting="is_feedback_submitting"
-		:message="feedback_message"
-		:is-error="is_feedback_error"
-		:can-submit="feedback_description.trim().length <= 100"
-		:remaining="100 - feedback_description.length"
-		@close="closeFeedbackModal"
-		@submit="submitFeedback"
-		@update:description="feedback_description = $event"
-	/>
+	<bug-feedback-modal v-if="is_feedback_modal_open" :description="feedback_description" :submitting="is_feedback_submitting" :message="feedback_message" :is-error="is_feedback_error" :can-submit="feedback_description.trim().length <= 100" :remaining="100 - feedback_description.length" @close="closeFeedbackModal" @submit="submitFeedback" @update:description="feedback_description = $event" />
 </template>
 
 <script setup lang="ts">
 import TheWelcome from "@/components/TheWelcome.vue";
 import { Game, ScoreType } from "@/game/game";
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import GameSampleCanvas from "@/components/GameSampleCanvas.vue";
 import GameScore from "@/components/GameScore.vue";
-import { ACTIVE_BOARD_ROWS, GAME_BOARD_COL, GAME_BOARD_ROW } from "@/game/config";
+import { ACTIVE_BOARD_ROWS, GAME_BOARD_COL, GAME_BOARD_ROW, MAX_SHAPE_SIZE, STAND_BY_COUNT } from "@/game/config";
 import { getElementScreenPosition, getHistoryMaxScore, getSquareCenterPixelPosition, setHistoryMaxScore } from "@/utils/utils";
 import GameOver from "@/components/GameOver.vue";
 import ScoreTooltip from "@/components/ScoreTooltip.vue";
@@ -85,7 +80,7 @@ function introStart() {
 				},
 				{
 					element: document.querySelector("#game") as HTMLElement,
-					intro: "拼凑成正方形或斜正方形，将消除拼凑图形上下左右的元素，超过游戏区域将进入\"续命\"",
+					intro: '拼凑成正方形或斜正方形，将消除拼凑图形上下左右的元素，超过游戏区域将进入"续命"',
 					position: "floating"
 				},
 				{
@@ -122,7 +117,17 @@ function startGame() {
 	});
 }
 
-const cell_size = getCellSize(window.innerWidth, window.innerHeight, GAME_BOARD_COL, GAME_BOARD_ROW + ACTIVE_BOARD_ROWS);
+const board_rows = GAME_BOARD_ROW + ACTIVE_BOARD_ROWS;
+const next_columns = MAX_SHAPE_SIZE[0] * STAND_BY_COUNT + 3;
+const cell_size = getCellSize(window.innerWidth, window.innerHeight, GAME_BOARD_COL, board_rows);
+const board_width = cell_size * GAME_BOARD_COL;
+const board_height = cell_size * board_rows;
+const next_panel_width = cell_size * next_columns + 20;
+const layout_style = computed(() => ({
+	"--board-width": `${board_width}px`,
+	"--board-height": `${board_height}px`,
+	"--next-panel-width": `${next_panel_width}px`
+}));
 
 function onScore(gain: number, square: NormalSquare | BevelledSquare, type: ScoreType) {
 	if (gain === 0) {
@@ -263,9 +268,16 @@ async function captureGameCanvas() {
 }
 
 function getCellSize(dom_width: number, dom_height: number, columns: number, rows: number) {
-	const cell_width = Math.floor(dom_width / columns);
-	const cell_height = Math.floor((dom_height - 10) / rows);
-	return Math.min(cell_width, cell_height);
+	const page_padding = 32;
+	const column_gap = 24;
+	const min_side_panel_width = 180;
+	const min_cell_size = 16;
+	const available_height = dom_height - page_padding * 2;
+	const available_board_width = dom_width - page_padding * 2 - column_gap * 2 - min_side_panel_width * 2;
+	const cell_width = Math.floor(available_board_width / columns);
+	const cell_height = Math.floor(available_height / rows);
+
+	return Math.max(min_cell_size, Math.min(cell_width, cell_height));
 }
 
 onUnmounted(() => {
@@ -275,61 +287,105 @@ onUnmounted(() => {
 
 <style scoped>
 main {
-	display: flex;
+	--page-padding: 16px;
+	--layout-gap: 24px;
+	display: grid;
+	grid-template-columns: minmax(180px, 1fr) var(--board-width) minmax(180px, 1fr);
+	gap: var(--layout-gap);
 	height: 100%;
 	width: 100%;
 	overflow: hidden;
 	background-color: #1e293b;
 	text-align: center;
-	justify-content: center;
+	padding: var(--page-padding);
+	box-sizing: border-box;
 	position: relative;
+
+	.left-panel,
+	.sample-panel,
+	.board-panel {
+		min-width: 0;
+		min-height: 0;
+	}
+
+	.left-panel {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		overflow: hidden;
+	}
+
+	.left-panel-content {
+		width: min(100%, max(320px, var(--next-panel-width)));
+		max-height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: clamp(12px, 2vh, 24px);
+		overflow: auto;
+		padding-right: clamp(0px, 1vw, 12px);
+		box-sizing: border-box;
+	}
+
+	.board-panel {
+		width: var(--board-width);
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
 	.game {
 		display: flex;
+		width: var(--board-width);
+		height: var(--board-height);
 		text-align: center;
 		justify-content: center;
 		align-items: center;
 	}
 
-	.controller-and-score {
-		width: 200px;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-evenly;
-		padding-right: 32px;
-		align-items: self-end;
-
-		.game-controller {
-			width: 100%;
-			position: relative;
-		}
+	.game-controller {
+		width: 100%;
+		position: relative;
 	}
 
-	.next-and-sample {
-		text-align: center;
-		width: 25%;
-		padding-left: 32px;
+	.next-panel {
 		display: flex;
-		flex-direction: column;
-		justify-content: space-evenly;
-		align-items: self-start;
+		justify-content: center;
+		min-width: 0;
+	}
+
+	.sample-panel {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		overflow: auto;
+		padding-left: clamp(0px, 1vw, 12px);
+		box-sizing: border-box;
 	}
 
 	#next {
 		display: inline-block;
-		border: 5px dashed #ddd;
-		padding: 10px;
-	}
-
-	.samples-container {
-		display: flex;
-		flex-direction: column;
-		gap: 20px;
-		width: 100%;
+		max-width: 100%;
+		overflow: hidden;
+		border: 2px dashed rgba(226, 232, 240, 0.45);
+		border-radius: 8px;
+		padding: 8px;
+		box-sizing: border-box;
 	}
 
 	.game-sample {
 		width: 100%;
+	}
+}
+
+@media (max-height: 760px) {
+	main {
+		--layout-gap: 16px;
+	}
+
+	main .left-panel-content {
+		gap: 10px;
 	}
 }
 

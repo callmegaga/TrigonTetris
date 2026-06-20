@@ -36,26 +36,31 @@ onMounted(() => {
 
 <style scoped>
 .sample-wrapper {
-	display: flex;
+	display: grid;
 	width: 100%;
+	grid-template-columns: repeat(auto-fill, minmax(84px, 88px));
 	justify-content: center;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 10px;
+	align-content: center;
+	align-items: start;
+	gap: 12px;
 
 	.sample {
-		width: 30%;
-		max-width: 80px;
+		min-width: 0;
 
 		.img {
 			width: 100%;
+			max-width: 88px;
 			height: auto;
+			display: block;
+			margin: 0 auto;
 		}
 
 		.score {
-			margin: 0;
+			margin: 4px 0 0;
 			color: #dddddd;
-			font-size: 14px;
+			font-size: clamp(12px, 0.9vw, 14px);
+			line-height: 1.2;
+			overflow-wrap: anywhere;
 		}
 	}
 }

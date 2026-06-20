@@ -38,17 +38,17 @@
 .keyboard-layout {
 	width: 100%;
 	margin: 0 auto;
-	padding: 16px;
+	padding: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 12px;
+	box-sizing: border-box;
 }
 
 .arrow-keys {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin-bottom: 16px;
 }
 
 .arrow-grid {
@@ -73,14 +73,14 @@
 	align-items: center;
 	justify-content: center;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-	height: 40px;
-	width: 40px;
-	font-size: 16px;
+	height: clamp(32px, 4.6vh, 40px);
+	width: clamp(32px, 4.6vh, 40px);
+	font-size: clamp(13px, 1.2vw, 16px);
 }
 
 .key-description {
 	color: white;
-	font-size: 12px;
+	font-size: clamp(10px, 0.9vw, 12px);
 	margin-top: 4px;
 	text-align: center;
 }

@@ -56,5 +56,17 @@ function isValidSnapshot(snapshot: Partial<GameSnapshot> | null | undefined): sn
 	if (typeof snapshot.gameStatus !== "string") return false;
 	if (typeof snapshot.submittedAt !== "string") return false;
 	if (!snapshot.viewport || typeof snapshot.viewport.width !== "number" || typeof snapshot.viewport.height !== "number") return false;
+	if (snapshot.environment && !isValidEnvironment(snapshot.environment)) return false;
+	return true;
+}
+
+function isValidEnvironment(environment: GameSnapshot["environment"]) {
+	if (!environment) return false;
+	if (typeof environment.userAgent !== "string") return false;
+	if (typeof environment.devicePixelRatio !== "number") return false;
+	if (!environment.window || typeof environment.window.innerWidth !== "number" || typeof environment.window.innerHeight !== "number") return false;
+	if (!environment.screen || typeof environment.screen.width !== "number" || typeof environment.screen.height !== "number") return false;
+	if (!environment.document || typeof environment.document.clientWidth !== "number" || typeof environment.document.clientHeight !== "number") return false;
+	if (!environment.layout || typeof environment.layout.cellSize !== "number" || typeof environment.layout.boardPixelWidth !== "number" || typeof environment.layout.boardPixelHeight !== "number") return false;
 	return true;
 }

@@ -39,6 +39,7 @@ import { audioManager, SoundEffect } from "@/utils/audio_manager";
 import introJs from "intro.js";
 import "intro.js/introjs.css";
 import BugFeedbackModal from "@/components/BugFeedbackModal.vue";
+import type { ClientEnvironment, SnapshotRect } from "@/feedback/types";
 
 const is_show_welcome = ref(true);
 const is_game_over = ref(false);
@@ -256,7 +257,7 @@ async function submitFeedback() {
 	feedback_message.value = "";
 
 	try {
-		const snapshot = game.getSnapshot(score.value, max_score.value);
+		const snapshot = game.getSnapshot(score.value, max_score.value, collectClientEnvironment());
 		const screenshotBlob = await captureGameCanvas();
 		const formData = new FormData();
 		formData.set("description", description);
@@ -294,6 +295,99 @@ async function captureGameCanvas() {
 	return new Promise<Blob | null>((resolve) => {
 		canvas.toBlob((blob) => resolve(blob), "image/png");
 	});
+}
+
+function collectClientEnvironment(): ClientEnvironment {
+	const document_element = document.documentElement;
+	const orientation = screen.orientation;
+
+	return {
+		userAgent: navigator.userAgent,
+		language: navigator.language,
+		languages: Array.from(navigator.languages ?? []),
+		platform: navigator.platform,
+		vendor: navigator.vendor,
+		cookieEnabled: navigator.cookieEnabled,
+		onLine: navigator.onLine,
+		devicePixelRatio: window.devicePixelRatio,
+		window: {
+			innerWidth: window.innerWidth,
+			innerHeight: window.innerHeight,
+			outerWidth: window.outerWidth,
+			outerHeight: window.outerHeight,
+			scrollX: window.scrollX,
+			scrollY: window.scrollY
+		},
+		screen: {
+			width: screen.width,
+			height: screen.height,
+			availWidth: screen.availWidth,
+			availHeight: screen.availHeight,
+			colorDepth: screen.colorDepth,
+			pixelDepth: screen.pixelDepth,
+			orientationType: orientation?.type ?? "",
+			orientationAngle: orientation?.angle ?? 0
+		},
+		visualViewport: window.visualViewport
+			? {
+					width: window.visualViewport.width,
+					height: window.visualViewport.height,
+					scale: window.visualViewport.scale,
+					offsetLeft: window.visualViewport.offsetLeft,
+					offsetTop: window.visualViewport.offsetTop,
+					pageLeft: window.visualViewport.pageLeft,
+					pageTop: window.visualViewport.pageTop
+				}
+			: null,
+		document: {
+			clientWidth: document_element.clientWidth,
+			clientHeight: document_element.clientHeight,
+			scrollWidth: document_element.scrollWidth,
+			scrollHeight: document_element.scrollHeight
+		},
+		layout: {
+			cellSize: cell_size,
+			boardColumns: GAME_BOARD_COL,
+			boardRows: board_rows,
+			boardPixelWidth: board_width,
+			boardPixelHeight: board_height,
+			body: getRequiredElementRect(document.body),
+			main: getElementRect(document.querySelector("main")),
+			boardPanel: getElementRect(document.querySelector(".board-panel")),
+			game: getElementRect(document.querySelector("#game")),
+			gameCanvas: getElementRect(document.querySelector("#game canvas")),
+			leftPanel: getElementRect(document.querySelector(".left-panel")),
+			samplePanel: getElementRect(document.querySelector(".sample-panel")),
+			sample: getElementRect(document.querySelector("#sample")),
+			next: getElementRect(document.querySelector("#next")),
+			samplesVisible: document.querySelectorAll(".sample-wrapper .sample").length,
+			sampleIntroVisible: Boolean(document.querySelector("[data-testid='sample-intro']"))
+		}
+	};
+}
+
+function getElementRect(element: Element | null): SnapshotRect | null {
+	if (!element) return null;
+	return getRequiredElementRect(element);
+}
+
+function getRequiredElementRect(element: Element): SnapshotRect {
+	const rect = element.getBoundingClientRect();
+
+	return {
+		x: roundMetric(rect.x),
+		y: roundMetric(rect.y),
+		width: roundMetric(rect.width),
+		height: roundMetric(rect.height),
+		top: roundMetric(rect.top),
+		right: roundMetric(rect.right),
+		bottom: roundMetric(rect.bottom),
+		left: roundMetric(rect.left)
+	};
+}
+
+function roundMetric(value: number) {
+	return Math.round(value * 100) / 100;
 }
 
 function getCellSize(dom_width: number, dom_height: number, columns: number, rows: number) {

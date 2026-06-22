@@ -23,12 +23,7 @@
 				</div>
 
 				<ul class="report-list">
-					<li
-						v-for="report in reports"
-						:key="report.id"
-						:class="['report-item', { active: report.id === selectedReport?.id }]"
-						@click="selectReport(report.id)"
-					>
+					<li v-for="report in reports" :key="report.id" :class="['report-item', { active: report.id === selectedReport?.id }]" @click="selectReport(report.id)">
 						<div class="report-item-header">
 							<strong>{{ report.id }}</strong>
 							<span class="status-chip" :data-status="report.status">{{ report.status }}</span>
@@ -81,6 +76,60 @@
 								</div>
 							</div>
 
+							<div class="detail-block environment-card">
+								<div class="detail-label">环境信息</div>
+								<div class="environment-grid">
+									<div class="environment-item wide">
+										<span>浏览器 UA</span>
+										<p>{{ selectedEnvironment?.userAgent || selectedReport.meta.userAgent || "未知" }}</p>
+									</div>
+									<div class="environment-item">
+										<span>窗口 inner</span>
+										<p>{{ formatSize(selectedEnvironment?.window.innerWidth ?? selectedReport.snapshot.viewport.width, selectedEnvironment?.window.innerHeight ?? selectedReport.snapshot.viewport.height) }}</p>
+									</div>
+									<div class="environment-item">
+										<span>窗口 outer</span>
+										<p>{{ formatSize(selectedEnvironment?.window.outerWidth, selectedEnvironment?.window.outerHeight) }}</p>
+									</div>
+									<div class="environment-item">
+										<span>屏幕</span>
+										<p>{{ formatSize(selectedEnvironment?.screen.width, selectedEnvironment?.screen.height) }}</p>
+									</div>
+									<div class="environment-item">
+										<span>可用屏幕</span>
+										<p>{{ formatSize(selectedEnvironment?.screen.availWidth, selectedEnvironment?.screen.availHeight) }}</p>
+									</div>
+									<div class="environment-item">
+										<span>DPR</span>
+										<p>{{ formatNumber(selectedEnvironment?.devicePixelRatio) }}</p>
+									</div>
+									<div class="environment-item">
+										<span>语言/平台</span>
+										<p>{{ formatLanguagePlatform(selectedEnvironment) }}</p>
+									</div>
+									<div class="environment-item">
+										<span>Visual viewport</span>
+										<p>{{ formatVisualViewport(selectedEnvironment) }}</p>
+									</div>
+									<div class="environment-item">
+										<span>文档尺寸</span>
+										<p>{{ formatDocumentSize(selectedEnvironment) }}</p>
+									</div>
+									<div class="environment-item">
+										<span>棋盘</span>
+										<p>{{ formatBoardLayout(selectedEnvironment) }}</p>
+									</div>
+									<div class="environment-item">
+										<span>samples 状态</span>
+										<p>{{ formatSamplesState(selectedEnvironment) }}</p>
+									</div>
+									<div class="environment-item wide">
+										<span>主要区域</span>
+										<p>{{ formatMainLayout(selectedEnvironment) }}</p>
+									</div>
+								</div>
+							</div>
+
 							<div class="detail-block snapshot-card">
 								<div class="snapshot-card-header">
 									<div>
@@ -121,8 +170,8 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import type { FeedbackReport, FeedbackStatus } from "@/feedback/types";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import type { ClientEnvironment, FeedbackReport, FeedbackStatus, SnapshotRect } from "@/feedback/types";
 
 const STORAGE_KEY = "bug-feedback-admin-key";
 const RESTORE_KEY = "bug-feedback-restore-snapshot";
@@ -137,6 +186,7 @@ const selectedReport = ref<FeedbackReport | null>(null);
 const editableStatus = ref<FeedbackStatus>("new");
 const screenshotObjectUrl = ref("");
 const isSnapshotExpanded = ref(false);
+const selectedEnvironment = computed(() => selectedReport.value?.snapshot.environment ?? null);
 
 watch(selectedReport, (value) => {
 	editableStatus.value = value?.status ?? "new";
@@ -246,6 +296,59 @@ function openRestoreView() {
 
 function formatDate(value: string) {
 	return new Date(value).toLocaleString();
+}
+
+function formatSize(width: number | undefined, height: number | undefined) {
+	if (!isFiniteNumber(width) || !isFiniteNumber(height)) return "未知";
+	return `${formatNumber(width)} × ${formatNumber(height)}`;
+}
+
+function formatNumber(value: number | undefined) {
+	if (!isFiniteNumber(value)) return "未知";
+	return Number.isInteger(value) ? value.toString() : value.toFixed(2);
+}
+
+function formatLanguagePlatform(environment: ClientEnvironment | null) {
+	if (!environment) return "未知";
+	const languages = environment.languages.length ? environment.languages.join(", ") : environment.language;
+	return `${languages || "未知"} / ${environment.platform || "未知"}`;
+}
+
+function formatVisualViewport(environment: ClientEnvironment | null) {
+	if (!environment?.visualViewport) return "不支持";
+	const viewport = environment.visualViewport;
+	return `${formatSize(viewport.width, viewport.height)} / scale ${formatNumber(viewport.scale)}`;
+}
+
+function formatDocumentSize(environment: ClientEnvironment | null) {
+	if (!environment) return "未知";
+	return `client ${formatSize(environment.document.clientWidth, environment.document.clientHeight)} / scroll ${formatSize(environment.document.scrollWidth, environment.document.scrollHeight)}`;
+}
+
+function formatBoardLayout(environment: ClientEnvironment | null) {
+	if (!environment) return "未知";
+	const layout = environment.layout;
+	return `${layout.boardColumns} × ${layout.boardRows} cells / cell ${formatNumber(layout.cellSize)} / ${formatSize(layout.boardPixelWidth, layout.boardPixelHeight)}`;
+}
+
+function formatSamplesState(environment: ClientEnvironment | null) {
+	if (!environment) return "未知";
+	return `${environment.layout.samplesVisible} 个 samples / intro ${environment.layout.sampleIntroVisible ? "显示" : "隐藏"}`;
+}
+
+function formatMainLayout(environment: ClientEnvironment | null) {
+	if (!environment) return "未知";
+	const layout = environment.layout;
+	return [`main ${formatRect(layout.main)}`, `board ${formatRect(layout.boardPanel)}`, `sample ${formatRect(layout.samplePanel)}`].join(" / ");
+}
+
+function formatRect(rect: SnapshotRect | null | undefined) {
+	if (!rect) return "未知";
+	return `${formatSize(rect.width, rect.height)} @ ${formatNumber(rect.left)},${formatNumber(rect.top)}`;
+}
+
+function isFiniteNumber(value: number | undefined): value is number {
+	return typeof value === "number" && Number.isFinite(value);
 }
 
 async function loadScreenshot() {
@@ -525,6 +628,43 @@ onBeforeUnmount(() => {
 	font-size: 13px;
 }
 
+.environment-card {
+	min-width: 0;
+}
+
+.environment-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+	margin-top: 12px;
+}
+
+.environment-item {
+	min-width: 0;
+	border: 1px solid rgba(148, 163, 184, 0.16);
+	border-radius: 10px;
+	padding: 10px;
+	background: rgba(15, 23, 42, 0.36);
+}
+
+.environment-item.wide {
+	grid-column: 1 / -1;
+}
+
+.environment-item span {
+	display: block;
+	color: #9fb0c7;
+	font-size: 12px;
+	line-height: 1.2;
+}
+
+.environment-item p {
+	margin: 6px 0 0;
+	font-size: 12px;
+	line-height: 1.45;
+	overflow-wrap: anywhere;
+}
+
 .detail-actions {
 	display: flex;
 	justify-content: flex-end;
@@ -623,6 +763,10 @@ onBeforeUnmount(() => {
 	}
 
 	.detail-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.environment-grid {
 		grid-template-columns: 1fr;
 	}
 

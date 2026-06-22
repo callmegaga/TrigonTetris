@@ -17,6 +17,79 @@ export type SnapshotBlock = {
 
 export type GameStatusKey = "NotStart" | "Active" | "MoveBoard" | "ExtendLife" | "Fail";
 
+export type SnapshotRect = {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	top: number;
+	right: number;
+	bottom: number;
+	left: number;
+};
+
+export type ClientEnvironment = {
+	userAgent: string;
+	language: string;
+	languages: string[];
+	platform: string;
+	vendor: string;
+	cookieEnabled: boolean;
+	onLine: boolean;
+	devicePixelRatio: number;
+	window: {
+		innerWidth: number;
+		innerHeight: number;
+		outerWidth: number;
+		outerHeight: number;
+		scrollX: number;
+		scrollY: number;
+	};
+	screen: {
+		width: number;
+		height: number;
+		availWidth: number;
+		availHeight: number;
+		colorDepth: number;
+		pixelDepth: number;
+		orientationType: string;
+		orientationAngle: number;
+	};
+	visualViewport: {
+		width: number;
+		height: number;
+		scale: number;
+		offsetLeft: number;
+		offsetTop: number;
+		pageLeft: number;
+		pageTop: number;
+	} | null;
+	document: {
+		clientWidth: number;
+		clientHeight: number;
+		scrollWidth: number;
+		scrollHeight: number;
+	};
+	layout: {
+		cellSize: number;
+		boardColumns: number;
+		boardRows: number;
+		boardPixelWidth: number;
+		boardPixelHeight: number;
+		body: SnapshotRect;
+		main: SnapshotRect | null;
+		boardPanel: SnapshotRect | null;
+		game: SnapshotRect | null;
+		gameCanvas: SnapshotRect | null;
+		leftPanel: SnapshotRect | null;
+		samplePanel: SnapshotRect | null;
+		sample: SnapshotRect | null;
+		next: SnapshotRect | null;
+		samplesVisible: number;
+		sampleIntroVisible: boolean;
+	};
+};
+
 export type GameSnapshot = {
 	version: 1;
 	score: number;
@@ -30,6 +103,7 @@ export type GameSnapshot = {
 		width: number;
 		height: number;
 	};
+	environment?: ClientEnvironment;
 };
 
 export type FeedbackReport = {

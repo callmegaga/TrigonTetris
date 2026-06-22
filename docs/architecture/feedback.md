@@ -56,15 +56,24 @@
 2. 每条反馈应尽量包含一张提交当刻的游戏截图。
 3. `Game Snapshot` 必须足以恢复提交当刻的主要游戏现场。
 4. `Game Snapshot` 至少应包含：
-   - 游戏状态
-   - 当前分数
-   - 历史最高分
-   - 棋盘数据
-   - 当前活动块信息，若存在
-   - 后续预览块信息
+    - 游戏状态
+    - 当前分数
+    - 历史最高分
+    - 棋盘数据
+    - 当前活动块信息，若存在
+    - 后续预览块信息
 5. `Game Snapshot` 中的棋盘数据应使用可序列化的轻量结构，不得依赖运行时对象引用。
 6. 反馈记录应包含提交时间与基础运行环境信息，以帮助维护者判断问题背景。
 7. 当前版本只要求恢复“提交当刻的现场”，不要求记录完整重放信息。
+8. `Game Snapshot` 应结构化记录客户端环境信息，至少包含：
+    - 浏览器 `userAgent`、语言与平台信息
+    - `devicePixelRatio`
+    - `window.innerWidth/innerHeight` 与 `window.outerWidth/outerHeight`
+    - `screen.width/height` 与 `screen.availWidth/availHeight`
+    - `visualViewport.width/height/scale`，若浏览器支持
+    - `documentElement.clientWidth/clientHeight` 与页面滚动尺寸
+    - 主布局、棋盘、左侧面板、samples 面板、next 区域等关键 DOM 的尺寸和位置
+    - 棋盘 cell size、棋盘像素宽高和 samples 是否可见等布局诊断字段
 
 ## Validation Rules
 
@@ -83,26 +92,27 @@
 5. 结构化报告必须包含一个稳定的反馈标识，用于后台详情查看与现场恢复。
 6. 结构化报告必须保存该条反馈的处理状态。
 7. 当前版本的处理状态至少包括：
-   - `new`
-   - `processing`
-   - `resolved`
+    - `new`
+    - `processing`
+    - `resolved`
 
 ## Admin Rules
 
 1. 系统应提供 `Admin View`，用于查看已提交的反馈。
 2. `Admin View` 至少应支持反馈列表和反馈详情两个层级。
 3. 反馈列表至少应展示：
-   - 反馈标识
-   - 提交时间
-   - 处理状态
-   - 描述摘要
-   - 关键游戏信息摘要
+    - 反馈标识
+    - 提交时间
+    - 处理状态
+    - 描述摘要
+    - 关键游戏信息摘要
 4. 反馈详情至少应展示：
-   - 完整描述
-   - 截图，若存在
-   - 完整 `Game Snapshot`
-   - 处理状态
-   - 恢复现场入口
+    - 完整描述
+    - 截图，若存在
+    - 完整 `Game Snapshot`
+    - 关键环境摘要，包括浏览器、窗口尺寸、屏幕尺寸、DPR、棋盘尺寸和主要布局区域尺寸
+    - 处理状态
+    - 恢复现场入口
 5. 维护者应能在详情页修改反馈处理状态。
 6. 当前版本不要求在后台实现复杂筛选、搜索或批量操作。
 
@@ -111,11 +121,11 @@
 1. 系统必须支持根据某条反馈记录中的 `Game Snapshot` 恢复游戏现场。
 2. 恢复现场后的画面应与提交当刻的主要游戏内容一致。
 3. 恢复现场至少应覆盖：
-   - 主棋盘
-   - 当前活动块
-   - 后续预览块
-   - 分数信息
-   - 游戏状态
+    - 主棋盘
+    - 当前活动块
+    - 后续预览块
+    - 分数信息
+    - 游戏状态
 4. 当前版本允许将恢复现场用于只读调试视图，也允许恢复到可交互实例中。
 5. 当前版本不要求恢复后继续运行的结果与原始会话完全一致。
 
@@ -158,7 +168,13 @@
 - When: 服务端接收该反馈
 - Then: 该反馈仍可被保存，并可在后台查看与恢复现场
 
-### Scenario 6: Storage failure on submit
+### Scenario 6: Feedback includes environment diagnostics
+
+- Given: 玩家提交反馈
+- When: 后台查看该反馈详情
+- Then: 维护者应能直接看到浏览器 UA、窗口尺寸、屏幕尺寸、DPR、棋盘尺寸和主要布局区域尺寸，不需要展开完整 JSON 才能判断分辨率或布局问题
+
+### Scenario 7: Storage failure on submit
 
 - Given: 玩家填写了合法描述且快照采集成功
 - When: 服务端持久化失败

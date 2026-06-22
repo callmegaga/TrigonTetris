@@ -6,7 +6,7 @@ import { NextRenderer } from "@/game/renderer/canvas/next_renderer";
 import { boardEraseBlock, calculateSquareScore, findBestPerfectSquare, findBlocksInSpreadLight, findMaxValidBevelledSquare, findMaxValidSquare, getSquareColorsAndBlocks, isBoardFirstNLineEmpty } from "@/utils/utils";
 import { getRandomShape } from "@/game/blocks/random-shape";
 import { ACTIVE_BOARD_ROWS, GAME_INTERVAL_TIME, GAME_MOVE_BOARD_MULTIPLIER, STAND_BY_COUNT } from "@/game/config";
-import { clonePosition, cloneShape, gameStatusToKey, type GameSnapshot, type SnapshotBlock as SnapshotBlockData, type SnapshotCell } from "@/feedback/types";
+import { clonePosition, cloneShape, gameStatusToKey, type ClientEnvironment, type GameSnapshot, type SnapshotBlock as SnapshotBlockData, type SnapshotCell } from "@/feedback/types";
 
 export enum ScoreType {
 	Perfect,
@@ -143,7 +143,7 @@ export class Game {
 		}
 	}
 
-	getSnapshot(score: number, maxScore: number): GameSnapshot {
+	getSnapshot(score: number, maxScore: number, environment?: ClientEnvironment): GameSnapshot {
 		return {
 			version: 1,
 			score,
@@ -156,7 +156,8 @@ export class Game {
 			viewport: {
 				width: window.innerWidth,
 				height: window.innerHeight
-			}
+			},
+			environment
 		};
 	}
 

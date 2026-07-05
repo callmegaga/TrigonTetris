@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { SampleIntroRenderer } from "@/game/renderer/canvas/sample_intro_renderer";
 
 const props = withDefaults(
@@ -30,18 +30,31 @@ const intro_style = computed(() => ({
 
 onMounted(async () => {
 	await nextTick();
-	if (!intro_canvas.value) return;
-
-	intro_renderer = new SampleIntroRenderer(intro_canvas.value, props.cellSize, () => {
-		emit("complete");
-	});
-	intro_renderer.play();
+	playIntro();
 });
+
+watch(
+	() => props.cellSize,
+	(cell_size, previous_cell_size) => {
+		if (cell_size === previous_cell_size) return;
+		playIntro();
+	}
+);
 
 onUnmounted(() => {
 	intro_renderer?.stop();
 	intro_renderer = null;
 });
+
+function playIntro() {
+	if (!intro_canvas.value) return;
+
+	intro_renderer?.stop();
+	intro_renderer = new SampleIntroRenderer(intro_canvas.value, props.cellSize, () => {
+		emit("complete");
+	});
+	intro_renderer.play();
+}
 </script>
 
 <style scoped>

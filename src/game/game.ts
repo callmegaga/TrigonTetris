@@ -32,8 +32,8 @@ export class Game {
 	private active_block: Block | null = null;
 	private block_queue: Block[] = [];
 	private readonly boards: Board = [];
-	private renderer: Renderer;
-	private next_renderer: NextRenderer;
+	private renderer!: Renderer;
+	private next_renderer!: NextRenderer;
 	private state: GameStatus = GameStatus.NotStart;
 	private dead_blocks: Block[] = [];
 	private options: GameOptions;
@@ -72,23 +72,24 @@ export class Game {
 	};
 
 	constructor(options: GameOptions) {
-		this.renderer = new CanvasRenderer(options.game_container, {
-			board_cell_size: options.board_cell_size,
-			columns: options.columns,
-			rows: options.rows,
-			active_board_rows: ACTIVE_BOARD_ROWS
-		});
-
-		this.next_renderer = new NextRenderer(options.next_container, options.board_cell_size * 0.8);
+		this.options = options;
+		this.createRenderers(options.board_cell_size);
 		this.boards = Array(options.rows + ACTIVE_BOARD_ROWS)
 			.fill(0)
 			.map(() => new Array(options.columns).fill(0).map(() => []));
-		this.options = options;
 		for (let i = 0; i < STAND_BY_COUNT + 1; i++) {
 			this.block_queue.push(new (getRandomShape())());
 		}
 		this.renderer.render(this.boards, this.active_block);
 		this.next_renderer.render([this.block_queue[0], this.block_queue[1]]);
+	}
+
+	resize(board_cell_size: number) {
+		if (board_cell_size === this.options.board_cell_size) return;
+
+		this.createRenderers(board_cell_size);
+		this.draw();
+		this.drawNextBlock();
 	}
 
 	start() {
@@ -353,6 +354,19 @@ export class Game {
 
 	private drawNextBlock() {
 		this.next_renderer.render([this.block_queue[0], this.block_queue[1]]);
+	}
+
+	private createRenderers(board_cell_size: number) {
+		this.options.board_cell_size = board_cell_size;
+		this.options.game_container.replaceChildren();
+		this.options.next_container.replaceChildren();
+		this.renderer = new CanvasRenderer(this.options.game_container, {
+			board_cell_size,
+			columns: this.options.columns,
+			rows: this.options.rows,
+			active_board_rows: ACTIVE_BOARD_ROWS
+		});
+		this.next_renderer = new NextRenderer(this.options.next_container, board_cell_size * 0.8);
 	}
 
 	private updateBoardsFromBlock(block: Block) {

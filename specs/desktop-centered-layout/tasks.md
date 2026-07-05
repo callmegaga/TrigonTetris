@@ -69,11 +69,43 @@
 - 交接产物：验证结果
 - 完成标准：验收记录完整，验证通过或记录阻塞原因。
 
+### 任务 5
+
+- 任务 ID：DESKTOP-CENTERED-LAYOUT-5
+- 名称：极矮桌面视口兼容
+- Owner：Codex
+- 说明：针对 `1272 × 432` inner 视口修正棋盘尺寸计算和左侧紧凑布局，确保棋盘完整显示。
+- 写入范围：`src/App.vue`、`src/components/GameScore.vue`、`src/components/GameKeyboard.vue`
+- 读取依赖：`specs/desktop-centered-layout/spec.md`
+- 输入：用户反馈的环境信息
+- 输出：极矮桌面视口兼容样式和 cell size 计算
+- 依赖：任务 1-4
+- 验证命令：`node_modules\.bin\vue-tsc.CMD --build --force`、`node_modules\.bin\eslint.CMD src\App.vue src\components\GameScore.vue src\components\GameKeyboard.vue`、`node_modules\.bin\vite.CMD build`
+- 交接产物：代码修改与验收记录
+- 完成标准：`1272 × 432` inner 视口下棋盘完整显示且主文档不滚动。
+
+### 任务 6
+
+- 任务 ID：DESKTOP-CENTERED-LAYOUT-6
+- 名称：窗口 resize 后重算布局
+- Owner：Codex
+- 说明：监听浏览器窗口尺寸变化，按帧节流更新布局尺寸，并同步重绘棋盘、next 和 samples。
+- 写入范围：`src/App.vue`、`src/game/game.ts`、`src/components/GameSampleCanvas.vue`
+- 读取依赖：`src/game/renderer/canvas/renderer.ts`、`src/game/renderer/canvas/next_renderer.ts`
+- 输入：用户 resize 兼容需求
+- 输出：窗口调整大小后的动态布局和 canvas 重绘
+- 依赖：任务 5
+- 验证命令：`node_modules\.bin\vue-tsc.CMD --build --force`、`node_modules\.bin\eslint.CMD src\App.vue src\game\game.ts src\components\GameSampleCanvas.vue`、`node_modules\.bin\vite.CMD build`
+- 交接产物：代码修改与验收记录
+- 完成标准：窗口 resize 后棋盘、next、samples 使用新 cell size 渲染，游戏状态不被重置。
+
 ## 建议分层
 
 - 规格更新
 - 主布局实现
 - 侧栏组件适配
+- 极矮桌面视口兼容
+- 窗口 resize 后重算布局
 - 构建与视觉验证
 - 验收记录
 
@@ -81,5 +113,5 @@
 
 - 不修改游戏规则和渲染器逻辑。
 - 不修改 sample 数据。
-- 不引入持续 resize 重建游戏实例。
+- resize 时只重建渲染器和 canvas，不重建游戏实例或游戏状态。
 - 共享文件由 Codex 统一收口。

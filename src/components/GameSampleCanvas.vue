@@ -44,6 +44,18 @@ const sample_images = ref<SampleImages[]>([]);
 const is_playing_intro = ref(false);
 
 onMounted(() => {
+	renderSamples();
+});
+
+watch(
+	() => props.cellSize,
+	(cell_size, previous_cell_size) => {
+		if (cell_size === previous_cell_size) return;
+		renderSamples();
+	}
+);
+
+function renderSamples() {
 	renderer = new SampleRenderer(props.cellSize);
 	sample_images.value = all_samples.map((sample) => {
 		return {
@@ -51,7 +63,7 @@ onMounted(() => {
 			score: sample.score
 		};
 	});
-});
+}
 
 watch(
 	() => props.playIntroToken,

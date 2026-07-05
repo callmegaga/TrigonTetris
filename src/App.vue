@@ -62,6 +62,7 @@ const welcome_transition = ref({
 });
 
 let game: Game | null = null;
+let resize_frame: number | null = null;
 const SAMPLE_INTRO_STORAGE_KEY = "is_show_sample_intro";
 
 function introStart() {
@@ -149,21 +150,26 @@ function onSampleIntroComplete() {
 
 const board_rows = GAME_BOARD_ROW + ACTIVE_BOARD_ROWS;
 const next_columns = MAX_SHAPE_SIZE[0] * STAND_BY_COUNT + 3;
-const cell_size = getCellSize(window.innerWidth, window.innerHeight, GAME_BOARD_COL, board_rows);
-const board_width = cell_size * GAME_BOARD_COL;
-const board_height = cell_size * board_rows;
-const next_panel_width = cell_size * next_columns + 20;
+const viewport_size = ref(getViewportSize());
+const layout_metrics = computed(() => getLayoutMetrics(viewport_size.value.height));
+const cell_size = computed(() => getCellSize(viewport_size.value.width, viewport_size.value.height, GAME_BOARD_COL, board_rows, layout_metrics.value));
+const board_width = computed(() => cell_size.value * GAME_BOARD_COL);
+const board_height = computed(() => cell_size.value * board_rows);
+const next_panel_width = computed(() => cell_size.value * next_columns + 20);
 const layout_style = computed(() => ({
-	"--board-width": `${board_width}px`,
-	"--board-height": `${board_height}px`,
-	"--next-panel-width": `${next_panel_width}px`
+	"--page-padding": `${layout_metrics.value.pagePadding}px`,
+	"--layout-gap": `${layout_metrics.value.layoutGap}px`,
+	"--side-panel-min-width": `${layout_metrics.value.sidePanelMinWidth}px`,
+	"--board-width": `${board_width.value}px`,
+	"--board-height": `${board_height.value}px`,
+	"--next-panel-width": `${next_panel_width.value}px`
 }));
 
 function onScore(gain: number, square: NormalSquare | BevelledSquare, type: ScoreType) {
 	if (gain === 0) {
 		return;
 	}
-	const square_center_position = getSquareCenterPixelPosition(square, cell_size);
+	const square_center_position = getSquareCenterPixelPosition(square, cell_size.value);
 	const element_position = getElementScreenPosition(document.querySelector("#game canvas") as HTMLElement);
 
 	new_score_left.value = square_center_position[0] + element_position[0];
@@ -203,7 +209,7 @@ onMounted(() => {
 		game_container: document.querySelector("#game") as HTMLElement,
 		columns: GAME_BOARD_COL,
 		rows: GAME_BOARD_ROW,
-		board_cell_size: cell_size,
+		board_cell_size: cell_size.value,
 		onScore: onScore,
 		onFail: onFail,
 		next_container: document.querySelector("#next") as HTMLElement,
@@ -220,6 +226,7 @@ onMounted(() => {
 			audioManager.play(SoundEffect.FLIP);
 		}
 	});
+	window.addEventListener("resize", scheduleResizeLayout);
 });
 
 async function openFeedbackModal() {
@@ -346,11 +353,11 @@ function collectClientEnvironment(): ClientEnvironment {
 			scrollHeight: document_element.scrollHeight
 		},
 		layout: {
-			cellSize: cell_size,
+			cellSize: cell_size.value,
 			boardColumns: GAME_BOARD_COL,
 			boardRows: board_rows,
-			boardPixelWidth: board_width,
-			boardPixelHeight: board_height,
+			boardPixelWidth: board_width.value,
+			boardPixelHeight: board_height.value,
 			body: getRequiredElementRect(document.body),
 			main: getElementRect(document.querySelector("main")),
 			boardPanel: getElementRect(document.querySelector(".board-panel")),
@@ -390,17 +397,69 @@ function roundMetric(value: number) {
 	return Math.round(value * 100) / 100;
 }
 
-function getCellSize(dom_width: number, dom_height: number, columns: number, rows: number) {
-	const page_padding = 32;
-	const column_gap = 24;
-	const min_side_panel_width = 180;
-	const min_cell_size = 16;
-	const available_height = dom_height - page_padding * 2;
-	const available_board_width = dom_width - page_padding * 2 - column_gap * 2 - min_side_panel_width * 2;
+function getViewportSize() {
+	return {
+		width: window.innerWidth,
+		height: window.innerHeight
+	};
+}
+
+function scheduleResizeLayout() {
+	if (resize_frame !== null) {
+		window.cancelAnimationFrame(resize_frame);
+	}
+
+	resize_frame = window.requestAnimationFrame(() => {
+		resize_frame = null;
+		void resizeLayout();
+	});
+}
+
+async function resizeLayout() {
+	const previous_cell_size = cell_size.value;
+	const next_viewport_size = getViewportSize();
+	if (next_viewport_size.width === viewport_size.value.width && next_viewport_size.height === viewport_size.value.height) return;
+
+	viewport_size.value = next_viewport_size;
+	await nextTick();
+
+	if (cell_size.value !== previous_cell_size) {
+		game?.resize(cell_size.value);
+	}
+}
+
+function getLayoutMetrics(dom_height: number) {
+	if (dom_height <= 520) {
+		return {
+			pagePadding: 8,
+			layoutGap: 12,
+			sidePanelMinWidth: 148
+		};
+	}
+
+	if (dom_height <= 760) {
+		return {
+			pagePadding: 16,
+			layoutGap: 16,
+			sidePanelMinWidth: 180
+		};
+	}
+
+	return {
+		pagePadding: 16,
+		layoutGap: 24,
+		sidePanelMinWidth: 180
+	};
+}
+
+function getCellSize(dom_width: number, dom_height: number, columns: number, rows: number, metrics: ReturnType<typeof getLayoutMetrics>) {
+	const min_visible_cell_size = 1;
+	const available_height = dom_height - metrics.pagePadding * 2;
+	const available_board_width = dom_width - metrics.pagePadding * 2 - metrics.layoutGap * 2 - metrics.sidePanelMinWidth * 2;
 	const cell_width = Math.floor(available_board_width / columns);
 	const cell_height = Math.floor(available_height / rows);
 
-	return Math.max(min_cell_size, Math.min(cell_width, cell_height));
+	return Math.max(min_visible_cell_size, Math.min(cell_width, cell_height));
 }
 
 function getWelcomeTransition() {
@@ -416,8 +475,8 @@ function getWelcomeTransition() {
 
 	const welcome_rect = welcome_element.getBoundingClientRect();
 	const sample_rect = sample_element.getBoundingClientRect();
-	const target_width = Math.min(sample_rect.width, cell_size * 8);
-	const target_height = cell_size * 6;
+	const target_width = Math.min(sample_rect.width, cell_size.value * 8);
+	const target_height = cell_size.value * 6;
 	const scale = Math.max(0.08, Math.min(target_width / welcome_rect.width, target_height / welcome_rect.height));
 	const welcome_center_x = welcome_rect.left + welcome_rect.width / 2;
 	const welcome_center_y = welcome_rect.top + welcome_rect.height / 2;
@@ -432,6 +491,11 @@ function getWelcomeTransition() {
 }
 
 onUnmounted(() => {
+	window.removeEventListener("resize", scheduleResizeLayout);
+	if (resize_frame !== null) {
+		window.cancelAnimationFrame(resize_frame);
+		resize_frame = null;
+	}
 	game?.end();
 });
 </script>
@@ -440,8 +504,9 @@ onUnmounted(() => {
 main {
 	--page-padding: 16px;
 	--layout-gap: 24px;
+	--side-panel-min-width: 180px;
 	display: grid;
-	grid-template-columns: minmax(180px, 1fr) var(--board-width) minmax(180px, 1fr);
+	grid-template-columns: minmax(var(--side-panel-min-width), 1fr) var(--board-width) minmax(var(--side-panel-min-width), 1fr);
 	gap: var(--layout-gap);
 	height: 100%;
 	width: 100%;
@@ -532,12 +597,23 @@ main {
 }
 
 @media (max-height: 760px) {
-	main {
-		--layout-gap: 16px;
-	}
-
 	main .left-panel-content {
 		gap: 10px;
+	}
+}
+
+@media (max-height: 520px) {
+	main .left-panel-content {
+		gap: 8px;
+	}
+
+	main .sample-panel {
+		padding-block: 0;
+	}
+
+	main #next {
+		padding: 6px;
+		border-radius: 6px;
 	}
 }
 

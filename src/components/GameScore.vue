@@ -95,4 +95,30 @@ const props = withDefaults(
 	text-align: right;
 	font-family: "Courier New", monospace;
 }
+
+@media (max-height: 520px) {
+	.score-panel {
+		gap: 8px;
+	}
+
+	.score-card {
+		border-radius: 8px;
+		padding: 8px 10px;
+	}
+
+	.score-label {
+		font-size: 13px;
+		margin-bottom: 4px;
+	}
+
+	.score-label::before {
+		width: 6px;
+		height: 6px;
+		margin-right: 6px;
+	}
+
+	.score-value {
+		font-size: 20px;
+	}
+}
 </style>

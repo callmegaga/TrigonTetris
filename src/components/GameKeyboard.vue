@@ -119,4 +119,33 @@
 .space-key {
 	font-size: 14px;
 }
+
+@media (max-height: 520px) {
+	.keyboard-layout {
+		gap: 8px;
+	}
+
+	.arrow-grid {
+		gap: 3px;
+	}
+
+	.key {
+		width: 26px;
+		height: 26px;
+		font-size: 12px;
+	}
+
+	.key-description {
+		font-size: 9px;
+		margin-top: 2px;
+	}
+
+	.wide-key .key {
+		padding: 5px 12px;
+	}
+
+	.space-key {
+		font-size: 12px;
+	}
+}
 </style>
